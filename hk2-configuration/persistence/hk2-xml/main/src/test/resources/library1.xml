@@ -1,0 +1,53 @@
+<!--
+
+    Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+
+    This program and the accompanying materials are made available under the
+    terms of the Eclipse Public License v. 2.0, which is available at
+    http://www.eclipse.org/legal/epl-2.0.
+
+    This Source Code may also be made available under the following Secondary
+    Licenses when the conditions for such availability set forth in the
+    Eclipse Public License v. 2.0 are satisfied: GNU General Public License,
+    version 2 with the GNU Classpath Exception, which is available at
+    https://www.gnu.org/software/classpath/license.html.
+
+    SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+
+-->
+
+<library>
+  <name>Sesame Street Library</name>
+  
+  <book isbn="978-1-55597-685-9">
+    <name>Geek Sublime</name>
+  </book>
+  
+  <book isbn="1-592-40087-6">
+    <name>Eats, Shoots and Leaves</name>
+  </book>
+  
+  <movie>
+    <name>Alien</name>
+  </movie>
+  
+  <movie>
+    <name>Hannah and her Sisters</name>
+  </movie>
+  
+  <movie>
+    <name>Into the Woods</name>
+  </movie>
+  
+  <magazine name="Scientific American" />
+  <magazine name="Game Informer" />
+  
+  <address>
+    <street-address>123 Sesame Street</street-address>
+    <street-address-additional>CO Grover</street-address-additional>
+    <town>New York</town>
+    <state>NY</state>
+    <zip-code>10128</zip-code>
+  </address>
+  
+</library>

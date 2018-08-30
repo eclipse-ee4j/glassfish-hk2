@@ -1,0 +1,68 @@
+<!--
+
+    Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+
+    This program and the accompanying materials are made available under the
+    terms of the Eclipse Public License v. 2.0, which is available at
+    http://www.eclipse.org/legal/epl-2.0.
+
+    This Source Code may also be made available under the following Secondary
+    Licenses when the conditions for such availability set forth in the
+    Eclipse Public License v. 2.0 are satisfied: GNU General Public License,
+    version 2 with the GNU Classpath Exception, which is available at
+    https://www.gnu.org/software/classpath/license.html.
+
+    SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+
+-->
+
+<project name="HK2 Ant Build File" default="dist" basedir=".">
+    <description>
+        Build file using HK2 inhabitant generator
+    </description>
+  <!-- set global properties for this build -->
+  <property name="antsrc" location="antsrc"/>
+  <property name="build" location="${project.build.directory}/classes"/>
+  <property name="dist"  location="dist"/>
+  <property name="mvntarget"  location="target"/>
+
+  <path id="project.class.path">
+    <path path="${maven-classpath}" />
+  </path>
+
+  <taskdef name="hk2-inhabitant-generator"
+           classname="org.jvnet.hk2.generator.ant.HK2InhabitantGeneratorTask" 
+           classpathref="project.class.path"/>
+
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp/>
+    <!-- Create the build directory structure used by compile -->
+    <mkdir dir="${build}"/>
+  </target>
+
+  <target name="compile" depends="init"
+        description="compile the source " >
+    <!-- Compile the java code from ${antsrc} into ${build} -->
+    <javac srcdir="${antsrc}" destdir="${build}" classpathref="project.class.path"/>
+    <hk2-inhabitant-generator targetDirectory="${build}" verbose="true" includeDate="false"/>
+  </target>
+
+  <target name="dist" depends="compile"
+        description="generate the distribution" >
+    <!-- Create the distribution directory -->
+    <mkdir dir="${dist}/lib"/>
+
+    <!-- Put everything in ${build} into the MyProject-${DSTAMP}.jar file -->
+    <jar jarfile="${dist}/lib/HK2Example-${DSTAMP}.jar" basedir="${build}"/>
+  </target>
+
+  <target name="clean"
+        description="clean up" >
+    <!-- Delete the ${build} and ${dist} directory trees -->
+    <delete dir="${build}"/>
+    <delete dir="${dist}"/>
+    <delete dir="${mvntarget}"/>
+  </target>
+</project>
+

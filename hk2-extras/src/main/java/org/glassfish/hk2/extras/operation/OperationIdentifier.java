@@ -1,0 +1,47 @@
+/*
+ * Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0, which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the
+ * Eclipse Public License v. 2.0 are satisfied: GNU General Public License,
+ * version 2 with the GNU Classpath Exception, which is available at
+ * https://www.gnu.org/software/classpath/license.html.
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ */
+
+package org.glassfish.hk2.extras.operation;
+
+import java.lang.annotation.Annotation;
+
+/**
+ * Unique identifier for an Operation.  The equals
+ * and hashCode methods of the implementation
+ * of this interface must be suitable for using
+ * as a key in a HashMap
+ * 
+ * @author jwells
+ *
+ */
+public interface OperationIdentifier<T extends Annotation> {
+    /**
+     * A uniquely generated name for an Operation identifier
+     * 
+     * @return A unique string that identifies an Operation
+     */
+    public String getOperationIdentifier();
+    
+    /**
+     * Returns the scope associated with this annotation
+     * type
+     * 
+     * @return The non-null scope that is associated
+     * with this operation
+     */
+    public T getOperationScope();
+
+}

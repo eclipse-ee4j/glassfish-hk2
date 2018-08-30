@@ -1,0 +1,83 @@
+<!--
+
+    Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+
+    This program and the accompanying materials are made available under the
+    terms of the Eclipse Public License v. 2.0, which is available at
+    http://www.eclipse.org/legal/epl-2.0.
+
+    This Source Code may also be made available under the following Secondary
+    Licenses when the conditions for such availability set forth in the
+    Eclipse Public License v. 2.0 are satisfied: GNU General Public License,
+    version 2 with the GNU Classpath Exception, which is available at
+    https://www.gnu.org/software/classpath/license.html.
+
+    SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+
+-->
+
+<lifecycle-config>
+  <runtimes>
+    <runtime port="7001" name="wlsRuntime" hostname="localhost" type="wls">
+      <partition id="222" name="cokeCRMWLSProdPartition"/>
+      <partition id="333" name="pepsiCRMWLSProdPartition"/>
+      <partition id="555" name="dietcokeCRMWLSProdPartition"/>
+      <partition id="777" name="cokeHRWLSProdPartition"/>
+    </runtime>
+    <!-- This runtime has an un-known attribute -->
+    <runtime port="1521" name="DatabaseTestRuntime" hostname="slc03rmr.us.oracle.com" type="database" unknown="youdontknowme">
+      <partition id="444" name="SpritePDB"/>
+    </runtime>
+  </runtimes>
+  <tenants>
+    <tenant id="123" name="coke" top-level-dir="coke/top/level/dir">
+      <service service-type="CRMService" name="CRMProd" environment-ref="cokeenv"/>
+      <service service-type="HRService" name="HRProd" environment-ref="cokeenv2"/>
+    </tenant>
+    <tenant name="pepsi" id="456" top-level-dir="pepsi/top/level/dir">
+      <service service-type="HCMService" name="HCMProd" environment-ref="pepsi-hcmenv-prod"/>
+      
+      <!-- This entire stanza is unknown -->
+      <unknown unk="not known" ank="really not known">
+      	<some-field-a unk="hi" />
+      	
+        <some-other-unknown-field>
+        	<more-unknown></more-unknown>
+        </some-other-unknown-field>      	
+	
+      </unknown>    
+      <!-- And this one as well -->
+      <another-unknown/>  
+    </tenant>
+    <tenant name="sprite" id="789" top-level-dir="sprite/top/level/dir">
+      <service service-type="HCMService" name="HCMProd" environment-ref="spriteenv"/>
+    </tenant>
+  </tenants>
+  <environments>
+    <environment name="cokeenv">
+        <associations>
+          <association>
+            <partition1>222</partition1>
+            <partition2>333</partition2>
+          </association>
+          <association>
+            <partition1>555</partition1>
+            <partition2>777</partition2>
+          </association>
+        </associations>
+        <partition-ref id="222" runtime-ref="wlsRuntime"/>
+    </environment>
+    <environment name="pepsi-hcmenv-prod">
+       <partition-ref id="333" runtime-ref="wlsRuntime"/>
+    </environment>
+    <environment name="dietcokeenv">
+        <partition-ref id="555" runtime-ref="wlsRuntime"/>
+    </environment>
+    <environment name="cokeenv2">
+        <partition-ref id="777" runtime-ref="wlsRuntime"/>
+    </environment>
+    <environment name="spriteenv">
+        <partition-ref id="444" runtime-ref="DatabaseTestRuntime"/>
+    </environment>
+  </environments>
+</lifecycle-config>

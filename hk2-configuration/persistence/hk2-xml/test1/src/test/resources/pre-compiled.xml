@@ -1,0 +1,50 @@
+<!--
+
+    Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+
+    This program and the accompanying materials are made available under the
+    terms of the Eclipse Public License v. 2.0, which is available at
+    http://www.eclipse.org/legal/epl-2.0.
+
+    This Source Code may also be made available under the following Secondary
+    Licenses when the conditions for such availability set forth in the
+    Eclipse Public License v. 2.0 are satisfied: GNU General Public License,
+    version 2 with the GNU Classpath Exception, which is available at
+    https://www.gnu.org/software/classpath/license.html.
+
+    SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+
+-->
+
+<root>
+  <pre-compiled-multi-child data="d1">
+    <name>Alice</name>
+  </pre-compiled-multi-child>
+  <pre-compiled-multi-child data="d2">
+    <name>Bob</name>
+  </pre-compiled-multi-child>
+  <multi-child>
+    <name>Carol</name>
+    <foo>1</foo>
+  </multi-child>
+  <multi-child>
+    <name>Dave</name>
+    <foo>2</foo>
+  </multi-child>
+  <pre-compiled-direct-child>
+    <port>7001</port>
+  </pre-compiled-direct-child>
+  <direct-child>
+    <identifier>thirteen</identifier>
+  </direct-child>
+  <pre-compiled-array-child attribute="foo">
+    <name>Englebert</name>
+  </pre-compiled-array-child>
+  
+  <array-child>
+    <time>1011</time>
+  </array-child>
+  <array-child>
+    <time>2022</time>
+  </array-child>
+</root>

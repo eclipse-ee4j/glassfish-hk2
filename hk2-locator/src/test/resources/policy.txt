@@ -1,0 +1,97 @@
+//Copyright (c) 2012, 2018 Oracle and/or its affiliates. All rights reserved.
+//
+//This program and the accompanying materials are made available under the
+//terms of the Eclipse Public License v. 2.0, which is available at
+//http://www.eclipse.org/legal/epl-2.0.
+//
+//This Source Code may also be made available under the following Secondary
+//Licenses when the conditions for such availability set forth in the
+//Eclipse Public License v. 2.0 are satisfied: GNU General Public License,
+//version 2 with the GNU Classpath Exception, which is available at
+//https://www.gnu.org/software/classpath/license.html.
+//
+//SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+//
+
+// Give java code itself everything
+grant codeBase "file:${java.home}/-" {
+  permission java.security.AllPermission;
+};
+
+// Give everything from the local repo everything
+grant codeBase "file:${local.repo}/-" {
+  permission java.security.AllPermission;
+};
+
+// If running with security on in your eclipse project
+// set the eclipse.dir variable to the eclipse installation
+// directory, so that this will grant eclipse everything
+grant codeBase "file:${eclipse.dir}/-" {
+  permission java.security.AllPermission;
+};
+
+// If running with security on in your eclipse project
+// set the locator.api.dir variable so that the locator-api
+// project will get AllPermission
+grant codeBase "file:${locator.api.dir}/-" {
+  permission java.security.AllPermission;
+};
+
+// This is for when running in the top-level directory
+// of hk2 in maven, we need to grant the hk2-utils jar file
+// allPermission.  If running from the hk2-locator directory
+// itself the all permission for hk2-utils will be coming
+// from the local.repo grant
+grant codeBase "file:${build.dir}/../../hk2-utils/target/-" {
+  permission java.security.AllPermission;
+};
+
+// This is for when running in the top-level directory
+// of hk2 in maven, we need to grant the hk2-api jar file
+// allPermission.  If running from the hk2-locator directory
+// itself the all permission for hk2-api will be coming
+// from the local.repo grant
+grant codeBase "file:${build.dir}/../../hk2-api/target/-" {
+  permission java.security.AllPermission;
+};
+
+// This is for when running in the top-level directory
+// of hk2 in maven, we need to grant the hk2-api jar file
+// allPermission.  If running from the hk2-locator directory
+// itself the all permission for hk2-api will be coming
+// from the local.repo grant
+grant codeBase "file:${build.dir}/../../external/cglib/target/-" {
+  permission java.security.AllPermission;
+};
+
+// This is the grant that should contain the minimal grants necessary
+// for hk2-locator to run in Eclipse (assuming Eclipse is putting its
+// classes into the bin directory)
+grant codeBase "file:${user.dir}/bin/-" {
+  permission java.lang.reflect.ReflectPermission "suppressAccessChecks";
+  permission java.lang.RuntimePermission "accessDeclaredMembers";
+  permission java.lang.RuntimePermission "setContextClassLoader";
+  permission java.util.PropertyPermission "javassist.*", "read";
+  permission java.util.PropertyPermission "org.jvnet.*", "read";
+
+  // For the test
+  permission java.io.FilePermission "<<ALL FILES>>", "read";
+};
+
+// This is the grant that should contain the minimal grants necessary
+// for hk2-locator to run under maven.
+grant codeBase "file:${build.dir}/classes/-" {
+  permission java.lang.reflect.ReflectPermission "suppressAccessChecks";
+  permission java.lang.RuntimePermission "accessDeclaredMembers";
+  permission java.lang.RuntimePermission "setContextClassLoader";
+  permission java.lang.RuntimePermission "createClassLoader";
+  permission java.util.PropertyPermission "javassist.*", "read";
+  permission java.util.PropertyPermission "org.jvnet.*", "read";
+  permission java.lang.RuntimePermission "getProtectionDomain";
+};
+
+// This is the grant that should contain the minimal grants necessary
+// for hk2-locator to run under maven.
+grant codeBase "file:${build.dir}/test-classes/-" {
+//  permission java.lang.RuntimePermission "createClassLoader";
+};

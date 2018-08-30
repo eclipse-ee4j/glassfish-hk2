@@ -1,0 +1,102 @@
+//Copyright (c) 2012, 2018 Oracle and/or its affiliates. All rights reserved.
+//
+//This program and the accompanying materials are made available under the
+//terms of the Eclipse Public License v. 2.0, which is available at
+//http://www.eclipse.org/legal/epl-2.0.
+//
+//This Source Code may also be made available under the following Secondary
+//Licenses when the conditions for such availability set forth in the
+//Eclipse Public License v. 2.0 are satisfied: GNU General Public License,
+//version 2 with the GNU Classpath Exception, which is available at
+//https://www.gnu.org/software/classpath/license.html.
+//
+//SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+//
+
+// Give java code itself everything
+grant codeBase "file:${java.home}/-" {
+  permission java.security.AllPermission;
+};
+
+// Give everything from the local repo everything
+grant codeBase "file:${local.repo}/-" {
+  permission java.security.AllPermission;
+};
+
+// This is for when running in the top-level directory
+// of hk2 in maven, we need to grant the hk2-utils jar file
+// allPermission.  If running from the hk2-locator directory
+// itself the all permission for hk2-utils will be coming
+// from the local.repo grant
+grant codeBase "file:${build.dir}/../../../../hk2-utils/target/-" {
+  permission java.security.AllPermission;
+};
+
+// This is for when running in the top-level directory
+// of hk2 in maven, we need to grant the hk2-api jar file
+// allPermission.  If running from the hk2-locator directory
+// itself the all permission for hk2-api will be coming
+// from the local.repo grant
+grant codeBase "file:${build.dir}/../../../../hk2-api/target/-" {
+  permission java.security.AllPermission;
+};
+
+// This is for when running in the top-level directory
+// of hk2 in maven, we need to grant the cglib jar file
+// allPermission.  If running from the hk2-locator directory
+// itself the all permission for hk2-api will be coming
+// from the local.repo grant
+grant codeBase "file:${build.dir}/../../../../external/cglib/target/-" {
+  permission java.security.AllPermission;
+};
+
+// This is the grant that should contain the minimal grants necessary
+// for security-lockdown runner to run under maven.
+grant codeBase "file:${build.dir}/../../../../hk2-locator/target/-" {
+  permission java.security.AllPermission;
+};
+
+// This is the grant that should contain the minimal grants necessary
+// for security-lockdown runner to run under maven.
+grant codeBase "file:${build.dir}/../../../../hk2-testing/hk2-junitrunner/target/-" {
+  permission java.security.AllPermission;
+};
+
+// This is the grant that should contain the minimal grants necessary
+// for security-lockdown runner to run under maven.
+grant codeBase "file:${build.dir}/../../system/target/-" {
+  permission java.security.AllPermission;
+};
+
+// This is the grant that should contain the minimal grants necessary
+// for security-lockdown runner to run under maven.
+grant codeBase "file:${build.dir}/../../alice/target/-" {
+  permission java.lang.RuntimePermission "accessClassInPackage.javax.inject";
+  permission java.lang.RuntimePermission "accessClassInPackage.com.alice.application";
+  permission java.lang.RuntimePermission "accessClassInPackage.org.jvnet.hk2.annotations";
+  permission java.lang.RuntimePermission "accessClassInPackage.org.acme.security";
+};
+
+// This is the grant that should contain the minimal grants necessary
+// for security-lockdown runner to run under maven.
+grant codeBase "file:${build.dir}/../../mallory/target/-" {
+  permission java.lang.RuntimePermission "accessClassInPackage.javax.inject";
+  permission java.lang.RuntimePermission "accessClassInPackage.com.mallory.application";
+  permission java.lang.RuntimePermission "accessClassInPackage.com.alice.application";
+  permission java.lang.RuntimePermission "accessClassInPackage.org.jvnet.hk2.annotations";
+  permission java.lang.RuntimePermission "accessClassInPackage.org.glassfish.hk2.api";
+};
+
+// This is the grant that should contain the minimal grants necessary
+// for security-lockdown runner test classes.  These should have AllPermission, since
+// we are not doing any specific security testing here.  It is the
+// classes directory that should have minimal grants, not the tests
+grant codeBase "file:${build.dir}/test-classes/-" {
+  permission java.security.AllPermission;
+};
+
+// This is the grant that should contain the minimal grants necessary
+// for security-lockdown runner to run under maven.
+grant codeBase "file:${build.dir}/classes/-" {
+  permission java.security.AllPermission;
+};
