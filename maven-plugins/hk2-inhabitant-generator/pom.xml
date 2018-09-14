@@ -41,7 +41,64 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <argLine>-Dbuild.dir=${project.build.directory} ${surefireArgLineExtra}</argLine>
+                    <excludes>
+                        <exclude>**/gendir/*</exclude>
+                    </excludes>
                 </configuration>
+             </plugin>
+             <plugin>
+                 <groupId>org.apache.maven.plugins</groupId>
+                 <artifactId>maven-compiler-plugin</artifactId>
+                 <executions>
+                     <execution>
+                         <id>gendir</id>
+                         <configuration>
+                             <testExcludes>
+                                 <exclude>**/negative/*</exclude>
+                                 <exclude>**/InhabitantsGeneratorTest.java</exclude>
+                             </testExcludes>
+                             <outputDirectory>${project.build.testOutputDirectory}/gendir</outputDirectory>
+                         </configuration>
+                         <goals>
+                             <goal>testCompile</goal>
+                         </goals>
+                     </execution>
+                     <execution>
+                         <id>negative</id>
+                         <configuration>
+                             <testExcludes>
+                                 <exclude>generator</exclude>
+                             </testExcludes>
+                             <testIncludes>
+                                 <include>**/negative/*</include>
+                             </testIncludes>
+                             <outputDirectory>${project.build.testOutputDirectory}/negative</outputDirectory>
+                         </configuration>
+                         <goals>
+                             <goal>testCompile</goal>
+                         </goals>
+                     </execution>
+                 </executions>
+             </plugin>
+             <plugin>
+                 <groupId>org.apache.maven.plugins</groupId>
+                 <artifactId>maven-jar-plugin</artifactId>
+                 <executions>
+                     <execution>
+                         <id>>gendir-package</id>
+                         <goals>
+                             <goal>test-jar</goal>
+                         </goals>
+                         <phase>process-test-classes</phase>
+                         <configuration>
+                             <excludes>
+                                 <exclude>**/negative/*</exclude>
+                             </excludes>
+                             <finalName>gendir</finalName>
+                             <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
+                         </configuration>
+                     </execution>
+                 </executions>
              </plugin>
         </plugins>
     </build>
@@ -54,7 +111,7 @@
         </dependency>
         <dependency>
             <groupId>org.glassfish.hk2.external</groupId>
-            <artifactId>asm-all-repackaged</artifactId>
+            <artifactId>asm-repackaged</artifactId>
             <version>${hk2.version}</version>
         </dependency>
         <dependency>
@@ -71,6 +128,11 @@
             <groupId>org.apache.ant</groupId>
             <artifactId>ant</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-core</artifactId>
+            <version>${mvn.version}</version>
         </dependency>
     </dependencies>
 </project>
