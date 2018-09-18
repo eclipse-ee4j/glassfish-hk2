@@ -40,5 +40,5 @@ public interface ImportPolicy {
      * {@link ModuleState#PREPARING PREPARING} phase.
      * @param module the module instance
      */
-    public void prepare(Module module);
+    public void prepare(HK2Module module);
 }

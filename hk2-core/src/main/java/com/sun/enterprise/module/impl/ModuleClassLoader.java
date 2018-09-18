@@ -16,7 +16,6 @@
 
 package com.sun.enterprise.module.impl;
 
-import com.sun.enterprise.module.Module;
 import com.sun.enterprise.module.ModuleState;
 import com.sun.enterprise.module.ModulesRegistry;
 import com.sun.enterprise.module.common_impl.LogHelper;
@@ -27,6 +26,7 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Vector;
+import com.sun.enterprise.module.HK2Module;
 
 /**
  * {@link ClassLoader} that loads classes for a module.
@@ -38,7 +38,7 @@ final class ModuleClassLoader extends ClassLoaderProxy {
     private final ModuleImpl module;
 
     /**
-     * Module will be initialized when this classloader is consulted for the first time.
+     * HK2Module will be initialized when this classloader is consulted for the first time.
      */
     private volatile boolean initialized = false;
     private StackTraceElement[] initializerThread;
@@ -80,7 +80,7 @@ final class ModuleClassLoader extends ClassLoaderProxy {
             String serviceName = name.substring(META_INF_SERVICES.length());
 
             ModulesRegistry reg = module.getRegistry();
-            for( Module m : reg.getModules() ) {
+            for( HK2Module m : reg.getModules() ) {
                 List<URL> list = m.getMetadata().getDescriptors(serviceName);
                 if(!list.isEmpty())     return list.get(0);
             }
@@ -115,7 +115,7 @@ final class ModuleClassLoader extends ClassLoaderProxy {
             Vector<URL> urls = new Vector<URL>();
 
             ModulesRegistry reg = module.getRegistry();
-            for( Module m : reg.getModules() )
+            for( HK2Module m : reg.getModules() )
                 urls.addAll(m.getMetadata().getDescriptors(serviceName));
 
             return urls.elements();
