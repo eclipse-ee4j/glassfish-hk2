@@ -473,8 +473,8 @@ public abstract class ServiceLocatorUtilities {
      * Finds a descriptor in the given service locator.  If the descriptor has the serviceId and
      * locatorId set then it will first attempt to use those values to get the exact descriptor
      * described by the input descriptor.  Failing that (or if the input descriptor does not have
-     * those values set) then it will use the equals algorithm of {@DescriptorImpl} to determine
-     * the equality of the descriptor.
+     * those values set) then it will use the equals algorithm of the {@link DescriptorImpl} to
+     * determine the equality of the descriptor.
      *
      * @param locator The non-null locator in which to find the descriptor
      * @param descriptor The non-null descriptor to search for
@@ -858,7 +858,7 @@ public abstract class ServiceLocatorUtilities {
     
     /**
      * Enables greedy service resolution in this service locator by
-     * adding the {@link GredyResolver} into the service locator.  This
+     * adding the {@link GreedyResolver} into the service locator.  This
      * method is idempotent.
      * <p>
      * WARNING: Use of greedy resolution may cause classes that were not

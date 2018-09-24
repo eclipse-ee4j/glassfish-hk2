@@ -89,7 +89,7 @@ public interface DescriptorBuilder {
 	 * A qualifier to be associated with this descriptor object.  It is
 	 * dangerous to use this method with a ghost annotation (one that is
 	 * not on the object) if that annotation has fields, as these
-	 * fields will NOT survive being put into the {@link Descriptor}.
+	 * fields will NOT survive being put into the {@link org.glassfish.hk2.api.Descriptor}.
 	 * Use this method with care and ONLY with annotations that do
 	 * not have fields.  A safe version of this method for use
 	 * with ghost annotations is 

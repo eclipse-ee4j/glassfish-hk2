@@ -51,9 +51,12 @@ public class BeanUtilities {
      * Gets the value from the given attribute from the given bean
      * Safe to give both a bean-like map and a java bean
      * 
-     * @param attribute
-     * @param bean
-     * @return
+     * @param requiredType the type the attribute must be
+     * @param attribute the attribute to get. The bean must have a method
+     * with the name format getAttribute
+     * @param beanInfo the bean info
+     * @return the value of the attribute
+     * @throws IllegalStateException if unable to get the attribute
      */
     @SuppressWarnings("unchecked")
     public static Object getBeanPropertyValue(Type requiredType, String attribute, BeanInfo beanInfo) {
@@ -133,8 +136,11 @@ public class BeanUtilities {
     /**
      * Gets the parameter name from a field
      * 
-     * @param f
-     * @return
+     * @param f the field annotated with {@link Configured}
+     * @param onlyDynamic if true and the {@link Configured} annotation
+     * is not {@link Dynamicity#FULLY_DYNAMIC} the null will be returned
+     * @return the value of the {@link Configured} annotation if non-empty
+     * or the name of the field otherwise
      */
     public static String getParameterNameFromField(Field f, boolean onlyDynamic) {
         Configured c = f.getAnnotation(Configured.class);
