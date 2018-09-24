@@ -28,7 +28,7 @@ public enum DuplicatePostProcessorMode {
 	
 	/**
 	 * Uses the {@link org.glassfish.hk2.api.Descriptor#getImplementation()} method
-	 * and {@link org.glassfish.hks.api.Descriptor#getDescriptorType()} to compare descriptors */
+	 * and {@link org.glassfish.hk2.api.Descriptor#getDescriptorType()} to compare descriptors */
 	IMPLEMENTATION_ONLY
 
 }

@@ -99,7 +99,10 @@ public abstract class AbstractActiveDescriptor<T> extends DescriptorImpl impleme
      * @param qualifiers The qualifiers of this descriptor (may not
      * be null, but may be empty)
      * @param ranking The ranking for this descriptor
-     * @param locatorId The id of the locator for this descriptor
+     * @param proxy whether the descriptor should be proxied
+     * @param proxyForSameScope  whether or not to proxy this descriptor 
+     *  for other services in the same scope
+     * @param analyzerName the name of the service used to analyze this class
      * @param metadata Metadata to add to this descriptor
      */
     protected AbstractActiveDescriptor(

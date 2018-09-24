@@ -458,7 +458,7 @@ public interface ServiceLocator {
      * annotation.  If an injection point has its own {@link Unqualified}
      * annotation returned from {@link Injectee#getUnqualified()} then that
      * one takes precedence over this one.  Further any injection point that
-     * is a {@link javax.inject.IterableProvider} will not have the default
+     * is a {@link IterableProvider} will not have the default
      * unqualified applied to it
      * 
      * @return The {@link Unqualified} annotation that will be (virtually) put
@@ -476,7 +476,7 @@ public interface ServiceLocator {
      * annotation.  If an injection point has its own {@link Unqualified}
      * annotation returned from {@link Injectee#getUnqualified()} then that
      * one takes precedence over this one.  Further any injection point that
-     * is a {@link javax.inject.IterableProvider} will not have the default
+     * is a {@link IterableProvider} will not have the default
      * unqualified applied to it
      * <p>
      * This method may be called at any time, but will only affect lookups and
@@ -486,7 +486,7 @@ public interface ServiceLocator {
      * on injection points that have no qualifiers and no other {@link Unqualified}
      * annotation.  If null then this ServiceLocator has no default {@link Unqualified}
      * annotation to be applied
-     * @see {@link org.glassfish.hk2.utilities.UnqualifiedImpl}
+     * @see org.glassfish.hk2.utilities.UnqualifiedImpl
      */
     public void setDefaultUnqualified(Unqualified unqualified);
   

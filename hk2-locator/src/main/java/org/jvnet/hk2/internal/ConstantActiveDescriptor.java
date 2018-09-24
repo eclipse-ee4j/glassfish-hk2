@@ -51,10 +51,10 @@ public class ConstantActiveDescriptor<T> extends AbstractActiveDescriptor<T> {
     }
     
     /**
-     * Creates a constant active descriptor with the given locator ID
+     * Creates a constant active descriptor with the given locator
      * 
      * @param theOne the object to create it from
-     * @param locatorId The id of the locator this is being created for
+     * @param locator the locator this is being created for
      */
     public ConstantActiveDescriptor(T theOne, ServiceLocatorImpl locator) {
         super(new HashSet<Type>(),

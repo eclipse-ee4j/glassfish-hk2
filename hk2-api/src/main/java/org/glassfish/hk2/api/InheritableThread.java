@@ -37,7 +37,7 @@ import javax.inject.Scope;
  * ServiceLocator. In order to enable the InheritableThread scope * the user can
  * either add an implementation of {@link Context} which handles it or it can
  * use the
- * {@link org.glassfish.hk2.utilities.ServiceLocatorUtilities#enableInheritableThreadThreadScope}
+ * {@link org.glassfish.hk2.utilities.ServiceLocatorUtilities#enableInheritableThreadScope}
  * method.
  *
  * @author jwells
