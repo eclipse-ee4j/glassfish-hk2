@@ -81,7 +81,6 @@ public class InputStreamArchiveAdapter extends AbstractAdapter {
                                 read = jis.read(bytes, allRead, bytes.length-allRead);
                                 allRead+=read;
                                 if (allRead==bytes.length) {
-                                    // oh crap !
                                     bytes = Arrays.copyOf(bytes, bytes.length*2);
                                 }
     
