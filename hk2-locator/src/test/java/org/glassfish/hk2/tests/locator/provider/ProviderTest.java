@@ -49,7 +49,7 @@ public class ProviderTest {
     
     /** Epic FAIL */
     public final static String GIANTS = "Giants";
-    /** Jerk */
+    
     public final static String ELI = "Eli Manning";
     
             
