@@ -41,7 +41,7 @@ public interface PropertyFileHandle {
      * which has no more instances (other files may be contributing to the same type).
      * After reaching the end of the input stream this method will close it
      * 
-     * @param Properties The properties object to inspect.  May not be null
+     * @param properties The properties object to inspect.  May not be null
      */
     public void readProperties(Properties properties);
     

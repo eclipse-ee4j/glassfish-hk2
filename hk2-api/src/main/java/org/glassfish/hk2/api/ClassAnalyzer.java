@@ -81,8 +81,8 @@ public interface ClassAnalyzer {
      * or that have a parameter that is covered by an {@link InjectionResolver}
      * and the {@link InjectionResolver#isMethodParameterIndicator()} is set 
      * to true.  Also, any method that has a parameter marked with
-     * {@link SubcribeTo} will NOT be returned, as these methods are instead
-     * meant to be called when an event is fired
+     * {@link org.glassfish.hk2.api.messaging.SubscribeTo} will NOT be returned,
+     * as these methods are instead meant to be called when an event is fired
      * 
      * @param clazz the non-null class to analyze
      * @return A non-null but possibly empty set of initialization methods

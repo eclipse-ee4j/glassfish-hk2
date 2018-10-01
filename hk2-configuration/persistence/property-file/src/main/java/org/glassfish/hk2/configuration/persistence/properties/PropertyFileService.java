@@ -74,8 +74,6 @@ public interface PropertyFileService {
      * property files that provide a specific set of instances
      * for a single type
      * 
-     * @param file May not be null.  The file to be associated with this
-     * PropertyFileHandle
      * @param specificTypeName The non-null, non-empty string specific type
      * name.  All instances created or modified with this PropertyFileHandle
      * will be in this type

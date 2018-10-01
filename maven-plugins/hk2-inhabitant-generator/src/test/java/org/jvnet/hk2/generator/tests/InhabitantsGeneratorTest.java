@@ -47,14 +47,13 @@ import java.util.zip.ZipEntry;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.glassfish.hk2.api.DescriptorType;
 import org.glassfish.hk2.api.DescriptorVisibility;
 import org.glassfish.hk2.api.Factory;
 import org.glassfish.hk2.api.PerLookup;
 import org.glassfish.hk2.utilities.DescriptorImpl;
-import org.glassfish.hk2.utilities.general.GeneralUtilities;
 import org.junit.Before;
 import org.junit.Test;
 import org.jvnet.hk2.config.GenerateServiceFromMethod;
@@ -77,7 +76,7 @@ public class InhabitantsGeneratorTest {
     private final static String LOCATOR_ARGUMENT = "--locator";
     private final static String CLASS_DIRECTORY = "gendir";
     private final static String NEGATIVE_CLASS_DIRECTORY = "negative";
-    private final static String JAR_FILE = "gendir.jar";
+    private final static String JAR_FILE = "gendir-tests.jar";
     private final static File OUTJAR_FILE = new File("outgendir.jar");
     private final static String COPIED_INPUT_JAR_NAME = "gendirCopy.jar";
     
@@ -135,58 +134,6 @@ public class InhabitantsGeneratorTest {
     private final static Map<DescriptorImpl, Integer> EXPECTED_DESCRIPTORS = new HashMap<DescriptorImpl, Integer>();
     
     static {
-        {
-            // This is the Factory that should be generated
-            DescriptorImpl envFactory = new DescriptorImpl();
-            envFactory.setImplementation("org.glassfish.examples.ctm.EnvironmentFactory");
-            envFactory.addAdvertisedContract("org.glassfish.examples.ctm.EnvironmentFactory");
-            envFactory.addAdvertisedContract("org.glassfish.hk2.api.Factory");
-            envFactory.setScope(Singleton.class.getName());
-        
-            EXPECTED_DESCRIPTORS.put(envFactory, 0);
-        }
-        
-        {
-            // This is the class that the Factory produces
-            DescriptorImpl envItself = new DescriptorImpl();
-            envItself.setImplementation("org.glassfish.examples.ctm.EnvironmentFactory");
-            envItself.addAdvertisedContract("org.glassfish.examples.ctm.Environment");
-            envItself.setScope("org.glassfish.examples.ctm.TenantScoped");
-            envItself.setDescriptorType(DescriptorType.PROVIDE_METHOD);
-        
-            EXPECTED_DESCRIPTORS.put(envItself, 0);
-        }
-        
-        {
-            // This is the class that implements the Context
-            DescriptorImpl di = new DescriptorImpl();
-            di.setImplementation("org.glassfish.examples.ctm.TenantScopedContext");
-            di.addAdvertisedContract("org.glassfish.examples.ctm.TenantScopedContext");
-            di.addAdvertisedContract("org.glassfish.hk2.api.Context");
-            di.setScope(Singleton.class.getName());
-        
-            EXPECTED_DESCRIPTORS.put(di, 0);
-        }
-        
-        {
-            // This is the service provider engine
-            DescriptorImpl di = new DescriptorImpl();
-            di.setImplementation("org.glassfish.examples.ctm.ServiceProviderEngine");
-            di.addAdvertisedContract("org.glassfish.examples.ctm.ServiceProviderEngine");
-            di.setScope(Singleton.class.getName());
-        
-            EXPECTED_DESCRIPTORS.put(di, 0);
-        }
-        
-        {
-            // This is the tenant manager
-            DescriptorImpl di = new DescriptorImpl();
-            di.setImplementation("org.glassfish.examples.ctm.TenantManager");
-            di.addAdvertisedContract("org.glassfish.examples.ctm.TenantManager");
-            di.setScope(Singleton.class.getName());
-        
-            EXPECTED_DESCRIPTORS.put(di, 0);
-        }
         
         {
             // This is a descriptor with a defaulted Name and a qualifier and metadata
@@ -327,9 +274,9 @@ public class InhabitantsGeneratorTest {
             envItself.addMetadata(KEY5, VALUE5_1);
             envItself.addMetadata(KEY5, VALUE5_2);
             envItself.addMetadata(KEY5, VALUE5_3);
-            envItself.addMetadata(KEY6, new Long(VALUE6_1).toString());
-            envItself.addMetadata(KEY6, new Long(VALUE6_2).toString());
-            envItself.addMetadata(KEY6, new Long(VALUE6_3).toString());
+            envItself.addMetadata(KEY6, Long.toString(VALUE6_1));
+            envItself.addMetadata(KEY6, Long.toString(VALUE6_2));
+            envItself.addMetadata(KEY6, Long.toString(VALUE6_3));
         
             EXPECTED_DESCRIPTORS.put(envItself, 0);
         }
@@ -634,6 +581,12 @@ public class InhabitantsGeneratorTest {
             // separately from the containsKey above
             int expectedRank = EXPECTED_DESCRIPTORS.get(di);
             Assert.assertEquals(expectedRank, di.getRanking());
+        }
+        
+        for (DescriptorImpl expected : EXPECTED_DESCRIPTORS.keySet()) {
+            Assert.assertTrue("Did not find " + expected + "in the produced descriptors <<<" + 
+                    dis + ">>>", dis.contains(expected));
+            
         }
         
         Assert.assertEquals("Expecting " + EXPECTED_DESCRIPTORS.size() + " descriptors, but only got " + dis.size(),

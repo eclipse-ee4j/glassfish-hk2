@@ -179,6 +179,7 @@
     </properties>
 
     <modules>
+        <module>maven-plugins</module>
         <module>hk2-metadata-generator</module>
         <module>hk2-runlevel</module>
         <module>hk2-locator</module>

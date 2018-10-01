@@ -25,7 +25,7 @@ import org.glassfish.hk2.utilities.DescriptorImpl;
  * Implementations of this interface are used to populate HK2 
  * service locators from inhabitants files
  * 
- * @see {@link DynamicConfigurationService#getPopulator()}
+ * @see DynamicConfigurationService#getPopulator
  * 
  * @author jwells
  *
