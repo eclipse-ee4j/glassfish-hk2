@@ -20,7 +20,7 @@ import org.glassfish.hk2.internal.PerThreadContext;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 
 /**
- * This module can be used to enable the {@link PerThread} scope
+ * This module can be used to enable the {@link org.glassfish.hk2.api.PerThread} scope
  * feature.  This module is NOT idempotent.
  * 
  * @author jwells
