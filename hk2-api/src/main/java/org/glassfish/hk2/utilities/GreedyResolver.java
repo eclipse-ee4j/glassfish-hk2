@@ -35,7 +35,7 @@ import org.glassfish.hk2.api.Visibility;
  * class analyzer to discover injection points and constructors.
  * <p>
  * If the injected class is an interface the interface may use
- * the {@link GreedyDefualtImplementation} in order to specify
+ * the {@link GreedyDefaultImplementation} in order to specify
  * the class that should be used when another implementation
  * of this interface cannot be found.
  * <p>

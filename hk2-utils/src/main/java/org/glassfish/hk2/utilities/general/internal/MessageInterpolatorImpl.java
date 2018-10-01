@@ -34,21 +34,21 @@ import javax.validation.MessageInterpolator;
 import javax.validation.Payload;
 import javax.validation.metadata.ConstraintDescriptor;
 
-/*
+/**
  * Custom MessageInterpolatorImpl for HK2
- *
+ * <p>
  * This message interpolator is different from the default one in the following
  * ways:
- *
- * 1. It uses a class specified in the "payload" argument to the annotation to
+ * <ol>
+ * <li> It uses a class specified in the "payload" argument to the annotation to
  * find the class loader to find the resource bundle for messages. This allows
  * classes that are in OSGi modules to specify a resource bundle for bean
- * validation messages.
+ * validation messages.</li>
  *
- * 2. The "LocalStrings" resource bundle within the same package as the payload
+ * <li> The "LocalStrings" resource bundle within the same package as the payload
  * class is used to search for messages.  If a message is not found, the message
- * is obtained from the default bean validation resource bundle.
- *
+ * is obtained from the default bean validation resource bundle.</li>
+ * </ol>
  * This class borrows heavily from the RI implementation of the ResourcBundleMessageInterpolator
  * authored by Emmanuel Bernard, Hardy Ferentschik, and Gunnar Morling.
  */
@@ -96,7 +96,8 @@ public class MessageInterpolatorImpl implements MessageInterpolator {
      * Look-ups in user bundles is recursive whereas look-ups in default bundle are not!
      *
      * @param message the message to interpolate
-     * @param annotationParameters the parameters of the annotation for which to interpolate this message
+     * @param context the context of the annotation which holds the parameters
+     * for which to interpolate this message
      * @param locale the {@code Locale} to use for the resource bundle.
      *
      * @return the interpolated message.
@@ -233,14 +234,13 @@ public class MessageInterpolatorImpl implements MessageInterpolator {
         return escapedString;
     }
 
-    /*
+    /**
      * A resource bundle that takes strings from the annotation context. This class
      * looks for the "LocalStrings" resource bundle in the same package as the
      * class that is specified in the payload of the annotation. If a String
      * cannot be found there, then it looks in the user resource bundle as defined
      * in JSR-303.
      */
-
     private static class ContextResourceBundle extends ResourceBundle {
         ResourceBundle contextBundle;
         ResourceBundle userBundle;

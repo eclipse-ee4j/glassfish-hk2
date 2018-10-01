@@ -42,7 +42,7 @@ public interface ChildIterable<T> extends Iterable<T> {
      * Returns an iterator of the children's Service
      * Handle, rather than their services
      * 
-     * @return
+     * @return the iterator
      */
     Iterable<ServiceHandle<T>> handleIterator();
     

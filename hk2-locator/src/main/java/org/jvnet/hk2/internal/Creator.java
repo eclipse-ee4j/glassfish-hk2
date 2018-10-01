@@ -34,7 +34,7 @@ public interface Creator<T> {
      * Returns all the injectees needed prior
      * to creating this object
      * 
-     * @return
+     * @return a List of all the injectees
      */
     public List<Injectee> getInjectees();
     

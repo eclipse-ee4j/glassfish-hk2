@@ -44,11 +44,11 @@ import org.jvnet.hk2.annotations.Contract;
  * Java EE request scope, since it does not require a Java EE
  * container
  * <p>
- * Users of this API generally create a {@link Scope} annotation
+ * Users of this API generally create a {@link javax.inject.Scope} annotation
  * and extend this class, implementing the {@link Context#getScope()}
  * and making sure the parameterized type is the Scope annotation.
- * The {@link Scope} annotation for an Operation is usually
- * {@link Proxiable} but does not have to be. As with all implementations
+ * The {@link javax.inject.Scope} annotation for an Operation is usually
+ * {@link org.glassfish.hk2.api.Proxiable} but does not have to be. As with all implementations
  * of {@link Context} the subclass of this class must be in the {@link SingletonInjectsPerRequest}
  * scope.  The user code then uses the {@link OperationManager} and {@link OperationHandle}
  * to start and stop Operations and to associate and dis-associate

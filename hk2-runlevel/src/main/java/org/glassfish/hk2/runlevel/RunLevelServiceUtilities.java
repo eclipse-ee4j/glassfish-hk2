@@ -37,7 +37,7 @@ public class RunLevelServiceUtilities {
      * this method does nothing.
      * <p>
      * All services needed by the
-     * RunLevelService feature are marked with {@link Service} and
+     * RunLevelService feature are marked with {@link org.jvnet.hk2.annotations.Service} and
      * hence would be automatically picked up in environments that
      * use automatic service discovery
      * 

@@ -20,7 +20,7 @@ import org.glassfish.hk2.internal.ImmediateHelper;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 
 /**
- * This module can be used to enable the {@link Immediate} scope
+ * This module can be used to enable the {@link org.glassfish.hk2.api.Immediate} scope
  * feature.  This module is NOT idempotent.
  * 
  * @author jwells
