@@ -25,11 +25,11 @@
         <version>2.5.0-b63-SNAPSHOT</version>
     </parent>
     <artifactId>maven-plugins</artifactId>
-    <version>2.5.0-b62-SNAPSHOT</version>
+    <version>2.5.0-b63-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
-        <hk2.version>2.5.0-b60</hk2.version>
+        <hk2.version>2.5.0-b63-SNAPSHOT</hk2.version>
     </properties>
 
     <modules>
