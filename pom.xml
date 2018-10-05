@@ -103,7 +103,7 @@
 
     <scm>
         <connection>scm:git:https://github.com/eclipse-ee4j/glassfish-hk2.git</connection>
-        <developerConnection>scm:git:git@github.com:eclipse-ee4j/hk2.git</developerConnection>
+        <developerConnection>scm:git:git@github.com:eclipse-ee4j/glassfish-hk2.git</developerConnection>
         <url>https://github.com/eclipse-ee4j/glassfish-hk2</url>
         <tag>HEAD</tag>
     </scm>
