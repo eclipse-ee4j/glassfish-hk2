@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2018 Payara Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -159,7 +160,7 @@ public class OperationHandleImpl<T extends Annotation> implements OperationHandl
      * @see org.glassfish.hk2.extras.operation.OperationHandle#closeOperation()
      */
     @Override
-    public void closeOperation() {
+    public void close() {
         // outside the lock
         parent.disposeAllOperationServices(this);
         
@@ -174,6 +175,11 @@ public class OperationHandleImpl<T extends Annotation> implements OperationHandl
         }
         
         
+    }
+    
+    @Override
+    public void closeOperation() {
+        close();
     }
 
     /* (non-Javadoc)
