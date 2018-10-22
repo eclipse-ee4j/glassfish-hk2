@@ -102,7 +102,7 @@ public interface OperationHandle<T extends Annotation> extends Closeable {
      * @see #close()
      * @deprecated replaced by close()
      */
-    public void closeOperation();
+    default public void closeOperation() { close(); };
     
     /**
      * Suspends this Operation on all threads where it is associated
