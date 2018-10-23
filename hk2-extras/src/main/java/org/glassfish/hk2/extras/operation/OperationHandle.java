@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2018 Payara Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -16,6 +17,7 @@
 
 package org.glassfish.hk2.extras.operation;
 
+import java.io.Closeable;
 import java.lang.annotation.Annotation;
 import java.util.Set;
 
@@ -32,7 +34,7 @@ import org.jvnet.hk2.annotations.Contract;
  *
  */
 @Contract
-public interface OperationHandle<T extends Annotation> {
+public interface OperationHandle<T extends Annotation> extends Closeable {
     /**
      * Returns a unique identifier for this operation
      * 
@@ -93,12 +95,23 @@ public interface OperationHandle<T extends Annotation> {
     public void resume() throws IllegalStateException;
     
     /**
-     * suspends this Operation on all threads where it is associated
+     * Suspends this Operation on all threads where it is associated
+     * and closes the operation.  All resume calls on this handle after
+     * this is called will throw IllegalStateException.  If this handle
+     * is already closed this method does nothing
+     * @see #close()
+     * @deprecated replaced by close()
+     */
+    default public void closeOperation() { close(); };
+    
+    /**
+     * Suspends this Operation on all threads where it is associated
      * and closes the operation.  All resume calls on this handle after
      * this is called will throw IllegalStateException.  If this handle
      * is already closed this method does nothing
      */
-    public void closeOperation();
+    @Override
+    public void close();
     
     /**
      * Gets arbitrary Operation data to be associated

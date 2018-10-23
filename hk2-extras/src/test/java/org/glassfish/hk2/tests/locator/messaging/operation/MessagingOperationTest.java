@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2018 Payara Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -16,7 +17,6 @@
 
 package org.glassfish.hk2.tests.locator.messaging.operation;
 
-import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -67,7 +67,7 @@ public class MessagingOperationTest {
         
         publisher.publish(0);
         
-        opHandle.closeOperation();
+        opHandle.close();
         
         // Second instance
         opHandle = manager.createAndStartOperation(OPERATION);
@@ -77,7 +77,7 @@ public class MessagingOperationTest {
         
         publisher.publish(1);
         
-        opHandle.closeOperation();
+        opHandle.close();
         
         publisher.publish(2);
         
@@ -124,7 +124,7 @@ public class MessagingOperationTest {
         
         publisher.publish(0);
         
-        opHandle.closeOperation();
+        opHandle.close();
         
         // Ensures the factory production was disposed
         firstDisposalList = EventReceivingFactory.getDisposedMap().get(firstFactoryId);
@@ -143,7 +143,7 @@ public class MessagingOperationTest {
         
         publisher.publish(1);
         
-        opHandle.closeOperation();
+        opHandle.close();
         
         publisher.publish(2);
         
