@@ -72,7 +72,7 @@ public class ClassAnalysisTest {
         ServiceWithManyDoubles service = handle.getService();
         Assert.assertNotNull(service);
         
-        handle.destroy();
+        handle.close();
         
         service.checkCalls();
     }

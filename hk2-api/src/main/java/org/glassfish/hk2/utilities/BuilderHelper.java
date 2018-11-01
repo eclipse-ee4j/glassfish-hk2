@@ -16,6 +16,7 @@
 
 package org.glassfish.hk2.utilities;
 
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
@@ -705,10 +706,10 @@ public class BuilderHelper {
             }
 
             @Override
-            public void destroy() {
+            public void close() {
                 // Do nothing
             }
-
+            
             @Override
             public synchronized void setServiceData(Object serviceData) {
                 this.serviceData = serviceData;
