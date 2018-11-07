@@ -84,8 +84,8 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>javax.annotation</groupId>
-            <artifactId>javax.annotation-api</artifactId>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.javassist</groupId>
@@ -102,7 +102,7 @@
             </activation>
             <dependencies>
                 <dependency>
-                    <groupId>javax.xml.stream</groupId>
+                    <groupId>jakarta.xml.stream</groupId>
                     <artifactId>stax-api</artifactId>
                     <scope>provided</scope>
                 </dependency>

@@ -75,7 +75,7 @@
             </activation>
             <dependencies>
                 <dependency>
-                    <groupId>javax.xml.stream</groupId>
+                    <groupId>jakarta.xml.stream</groupId>
                     <artifactId>stax-api</artifactId>
                     <scope>provided</scope>
                 </dependency>

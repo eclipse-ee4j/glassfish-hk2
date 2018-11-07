@@ -124,8 +124,8 @@
 
         <!-- Test scope -->
         <dependency>
-          <groupId>javax.el</groupId>
-          <artifactId>javax.el-api</artifactId>
+          <groupId>jakarta.el</groupId>
+          <artifactId>jakarta.el-api</artifactId>
           <scope>test</scope>
        </dependency>
         <dependency>

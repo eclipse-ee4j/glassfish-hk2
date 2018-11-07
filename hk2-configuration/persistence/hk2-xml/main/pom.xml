@@ -127,8 +127,8 @@
             <artifactId>javassist</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.annotation</groupId>
-            <artifactId>javax.annotation-api</artifactId>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
         </dependency>
         <dependency>
         	<groupId>javax.validation</groupId>
@@ -149,8 +149,8 @@
 
         <!-- Test scope -->
         <dependency>
-          <groupId>javax.el</groupId>
-          <artifactId>javax.el-api</artifactId>
+          <groupId>jakarta.el</groupId>
+          <artifactId>jakarta.el-api</artifactId>
           <scope>test</scope>
        </dependency>
         <dependency>

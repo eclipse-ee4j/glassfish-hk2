@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.eclipse.ee4j</groupId>
         <artifactId>project</artifactId>
-        <version>1.0.2</version>
+        <version>1.0.5</version>
         <relativePath />
     </parent>
     <groupId>org.glassfish.hk2</groupId>
@@ -136,16 +136,16 @@
         <jdk.version>1.6.0</jdk.version>
         <mvn.version>3.0.3</mvn.version>
 
-        <javax.annotation.version>1.2</javax.annotation.version>
-        <javax.json.version>1.0</javax.json.version>
+        <jakarta.annotation.version>1.3.3</jakarta.annotation.version>
+        <jakarta.json.version>1.1.5</jakarta.json.version>
         <glassfish.json.version>1.0.4</glassfish.json.version>
         <java.net.username>${user.name}</java.net.username>
         <hibernate-validator.version>5.2.4.Final</hibernate-validator.version>
         <hibernate-validator.version.upperbound>7</hibernate-validator.version.upperbound>
-        <javax.validation.version>1.1.0.Final</javax.validation.version>
-        <javax.validation.version.upperbound>3</javax.validation.version.upperbound>
-        <javax.validation.osgi.version>1.1.0</javax.validation.osgi.version>
-        <javax.el.version>2.2.5</javax.el.version>
+        <jakarta.validation.version>1.1.0.Final</jakarta.validation.version>
+        <jakarta.validation.version.upperbound>3</jakarta.validation.version.upperbound>
+        <jakarta.validation.osgi.version>1.1.0</jakarta.validation.osgi.version>
+        <jakarta.el.version>3.0.2</jakarta.el.version>
         <jtype.version>0.1.0</jtype.version>
         <javassist.version>3.22.0-CR2</javassist.version>
         <junit.version>4.12</junit.version>
@@ -162,10 +162,9 @@
         <jersey.version>2.22.1</jersey.version>
         <grizzly.version>2.3.25</grizzly.version>
         <hamcrest.version>1.3</hamcrest.version>
-        <javax.servlet.version>3.1.0</javax.servlet.version>
-        <javax.ws.rs.version>2.0</javax.ws.rs.version>
-        <javax.jsr311.version>1.1.1</javax.jsr311.version>
-        <javax.validation.version>1.1.0.Final</javax.validation.version>
+        <jakarta.servlet.version>4.0.2</jakarta.servlet.version>
+        <jakarta.ws.rs.version>2.1.3</jakarta.ws.rs.version>
+        <jakarta.validation.version>1.1.0.Final</jakarta.validation.version>
         <classmate.version>1.3.3</classmate.version>
         <springcontext.version>4.3.16.RELEASE</springcontext.version>
         <guice.version>4.1.0</guice.version>
@@ -298,40 +297,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-
-                <configuration>
-                    <additionalparam>-Xdoclint:none</additionalparam>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <phase>javadoc</phase>
-                        <goals>
-                            <goal>javadoc</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <executions>
-    		            <execution>
-      		              <id>attach-sources</id>
-      		              <goals>
-        	                  <goal>jar</goal>
-      		              </goals>
-    		            </execution>
-  		          </executions>
-	          </plugin>
         </plugins>
         <pluginManagement>
             <plugins>
@@ -516,18 +481,18 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>javax.annotation</groupId>
-                <artifactId>javax.annotation-api</artifactId>
-                <version>${javax.annotation.version}</version>
+                <groupId>jakarta.annotation</groupId>
+                <artifactId>jakarta.annotation-api</artifactId>
+                <version>${jakarta.annotation.version}</version>
             </dependency>
             <dependency>
-                <groupId>javax.json</groupId>
-                <artifactId>javax.json-api</artifactId>
-                <version>${javax.json.version}</version>
+                <groupId>jakarta.json</groupId>
+                <artifactId>jakarta.json-api</artifactId>
+                <version>${jakarta.json.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish</groupId>
-                <artifactId>javax.json</artifactId>
+                <artifactId>jakarta.json</artifactId>
                 <version>${glassfish.json.version}</version>
             </dependency>
             <dependency>
@@ -536,7 +501,7 @@
                 <version>${woodstox.version}</version>
             </dependency>
             <dependency>
-                <groupId>javax.xml.stream</groupId>
+                <groupId>jakarta.xml.stream</groupId>
                 <artifactId>stax-api</artifactId>
                 <version>${stax-api.version}</version>
             </dependency>
@@ -622,7 +587,7 @@
                 <version>6.0.0</version>
             </dependency>
             <dependency>
-                <groupId>javax.enterprise</groupId>
+                <groupId>jakarta.enterprise</groupId>
                 <artifactId>cdi-api</artifactId>
                 <version>1.0</version>
             </dependency>
@@ -781,12 +746,12 @@
             <dependency>
                 <groupId>javax.validation</groupId>
                 <artifactId>validation-api</artifactId>
-                <version>${javax.validation.version}</version>
+                <version>${jakarta.validation.version}</version>
             </dependency>
             <dependency>
-                <groupId>javax.el</groupId>
-                <artifactId>javax.el-api</artifactId>
-                <version>${javax.el.version}</version>
+                <groupId>jakarta.el</groupId>
+                <artifactId>jakarta.el-api</artifactId>
+                <version>${jakarta.el.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.javassist</groupId>
@@ -824,19 +789,14 @@
                 <version>${hamcrest.version}</version>
             </dependency>
             <dependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>javax.servlet-api</artifactId>
-                <version>${javax.servlet.version}</version>
+                <groupId>jakarta.servlet</groupId>
+                <artifactId>jakarta.servlet-api</artifactId>
+                <version>${jakarta.servlet.version}</version>
             </dependency>
             <dependency>
-                <groupId>javax.ws.rs</groupId>
-                <artifactId>javax.ws.rs-api</artifactId>
-                <version>${javax.ws.rs.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.ws.rs</groupId>
-                <artifactId>jsr311-api</artifactId>
-                <version>${javax.jsr311.version}</version>
+                <groupId>jakarta.ws.rs</groupId>
+                <artifactId>jakarta.ws.rs-api</artifactId>
+                <version>${jakarta.ws.rs.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.protobuf</groupId>
@@ -954,33 +914,6 @@
             <properties>
                 <javadoc.options>-Xdoclint:none</javadoc.options>
             </properties>
-        </profile>
-        <profile>
-            <id>release</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.6</version>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-				<configuration>
-                                    <gpgArguments>
-                                        <arg>--pinentry-mode</arg>
-                                        <arg>loopback</arg>
-                                    </gpgArguments>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
         </profile>
     </profiles>
 </project>
