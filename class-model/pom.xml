@@ -65,9 +65,8 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-           <groupId>javax.enterprise</groupId>
+           <groupId>jakarta.enterprise</groupId>
            <artifactId>cdi-api</artifactId>
-           <version>1.0</version>
            <scope>test</scope>
         </dependency>
         <dependency>
