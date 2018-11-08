@@ -16,7 +16,12 @@
 
 package org.glassfish.hk2.api;
 
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This service handle can be used to get a specific instance
@@ -26,7 +31,7 @@ import java.util.List;
  * @param <T> The type of the service that can be returned
  *
  */
-public interface ServiceHandle<T> {
+public interface ServiceHandle<T> extends Closeable {
     /**
      * Gets the underlying service object
      * @return May return null (if the backing ActiveDescriptor returned null)
@@ -55,8 +60,19 @@ public interface ServiceHandle<T> {
     /**
      * Will destroy this object and all PerLookup instances created
      * because of this service
+     * @deprecated since 2.6. Use {@link #close} instead
      */
-    public void destroy();
+    @Deprecated
+    default public void destroy() { 
+        close();
+}
+    
+     /**
+     * Will destroy this object and all PerLookup instances created
+     * because of this service
+     */
+    @Override
+    default public void close() { destroy(); }
     
     /**
      * Service data can be set on a service handle.  If the service

@@ -64,7 +64,7 @@ public class LifecycleTest {
         Assert.assertTrue("Unknown notification message: " + notification, notification.contains(MESSAGE_ONE));
         
         // Now destroy the known injectee, verify it no longer receives notifications
-        knownInjecteeHandle.destroy();
+        knownInjecteeHandle.close();
         
         alice.notify(MESSAGE_TWO);
         
