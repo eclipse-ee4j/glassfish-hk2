@@ -136,7 +136,7 @@ public interface ModulesRegistry extends ModuleChangeListener {
     Repository getRepository(String name);
 
     /**
-     * Returns the <code>Module</code> instance giving a name and version
+     * Returns the <code>HK2Module</code> instance giving a name and version
      * constraints.
      *
      * @param name the module name
@@ -144,10 +144,10 @@ public interface ModulesRegistry extends ModuleChangeListener {
      * @return the module instance or null if none can be found
      * @throws ResolveError if the module dependencies cannot be resolved
      */
-    Module makeModuleFor(String name, String version) throws ResolveError;
+    HK2Module makeModuleFor(String name, String version) throws ResolveError;
 
     /**
-     * Returns the <code>Module</code> instance giving a name and version
+     * Returns the <code>HK2Module</code> instance giving a name and version
      * constraints.
      *
      * @param name the module name
@@ -156,18 +156,18 @@ public interface ModulesRegistry extends ModuleChangeListener {
      * @return the module instance or null if none can be found
      * @throws ResolveError if the module dependencies cannot be resolved
      */
-    Module makeModuleFor(String name, String version, boolean resolve) throws ResolveError;
+    HK2Module makeModuleFor(String name, String version, boolean resolve) throws ResolveError;
 
     /**
-     * Find and return a loaded Module that has the package name in its list
-     * of exported interfaces.
+     * Find and return a loaded HK2Module that has the package name in its list
+ of exported interfaces.
      *
      * @param packageName the requested implementation package name.
-     * @return the <code>Module</code> instance implementing the package
+     * @return the <code>HK2Module</code> instance implementing the package
      * name or null if not found.
      * @throws ResolveError if the module dependencies cannot be resolved
      */
-    Module makeModuleFor(String packageName) throws ResolveError;
+    HK2Module makeModuleFor(String packageName) throws ResolveError;
 
     /**
      * Returns the list of shared Modules registered in this instance.
@@ -178,7 +178,7 @@ public interface ModulesRegistry extends ModuleChangeListener {
      *
      * @return an umodifiable list of loaded modules
      */
-    Collection<Module> getModules();
+    Collection<HK2Module> getModules();
 
     /**
      * Returns the list of shared Modules registered in this instance whose name
@@ -191,7 +191,7 @@ public interface ModulesRegistry extends ModuleChangeListener {
      * @return an umodifiable list of loaded modules having names that match
      * the given name
      */
-    Collection<Module> getModules(String moduleName);
+    Collection<HK2Module> getModules(String moduleName);
 
     /**
      * Detaches all the modules from this registry. The modules are not
@@ -202,18 +202,18 @@ public interface ModulesRegistry extends ModuleChangeListener {
     /**
      * Registers a new DefaultModuleDefinition in this registry. Using this module
      * definition, the registry will be capable of created shared and private
-     * <code>Module</code> instances.
+     * <code>HK2Module</code> instances.
      */
-    Module add(ModuleDefinition info) throws ResolveError;
+    HK2Module add(ModuleDefinition info) throws ResolveError;
 
     /**
      * Registers a new DefaultModuleDefinition in this registry. Using this module
      * definition, the registry will be capable of created shared and private
-     * <code>Module</code> instances.
+     * <code>HK2Module</code> instances.
      * @param info ModuleDefinition representing the new module content
      * @param resolve should the new module be resolved or not
      */
-    Module add(ModuleDefinition info, boolean resolve) throws ResolveError;
+    HK2Module add(ModuleDefinition info, boolean resolve) throws ResolveError;
 
     /**
      * Print a Registry dump to the logger
@@ -247,13 +247,13 @@ public interface ModulesRegistry extends ModuleChangeListener {
     <T> Iterable<Class<? extends T>> getProvidersClass(Class<T> serviceClass);
 
     /**
-     * Returns a collection of Module containing at least one implementation
-     * of the passed service interface class.
+     * Returns a collection of HK2Module containing at least one implementation
+ of the passed service interface class.
      *
      * @param serviceClass the service interface class
      * @return a collection of module
      */
-    Iterable<Module> getModulesProvider(Class serviceClass);
+    Iterable<HK2Module> getModulesProvider(Class serviceClass);
 
     /**
      * Registers a running service, this is useful when other components need
@@ -314,17 +314,17 @@ public interface ModulesRegistry extends ModuleChangeListener {
                                       URL[] urls) throws ResolveError;
 
     /**
-     * Finds the {@link Module} that owns the given class.
+     * Finds the {@link HK2Module} that owns the given class.
      *
      * @return
      *      null if the class is loaded outside the module system.
      */
-    Module find(Class clazz);
+    HK2Module find(Class clazz);
 
     /**
-     * Gets the {@link Module} that provides the provider of the given name.
+     * Gets the {@link HK2Module} that provides the provider of the given name.
      */
-    Module getProvidingModule(String providerClassName);
+    HK2Module getProvidingModule(String providerClassName);
 
 	public ServiceLocator newServiceLocator(ServiceLocator parent)
 			throws MultiException;

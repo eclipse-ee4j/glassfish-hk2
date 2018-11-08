@@ -39,13 +39,13 @@ public interface LifecyclePolicy {
      * or set up access to resources
      * @param module the module instance
      */
-    public void start(Module module);
+    public void start(HK2Module module);
     
     /** 
      * Callback before the module starts being unloaded. The runtime will 
      * free all the module resources and returned to a {@link ModuleState#NEW NEW} state.
      * @param module the module instance
      */
-    public void stop(Module module);
+    public void stop(HK2Module module);
     
 }

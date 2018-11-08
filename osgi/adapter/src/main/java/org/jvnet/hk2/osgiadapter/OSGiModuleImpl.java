@@ -49,7 +49,7 @@ import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.service.packageadmin.RequiredBundle;
 
 import com.sun.enterprise.module.LifecyclePolicy;
-import com.sun.enterprise.module.Module;
+import com.sun.enterprise.module.HK2Module;
 import com.sun.enterprise.module.ModuleChangeListener;
 import com.sun.enterprise.module.ModuleDefinition;
 import com.sun.enterprise.module.ModuleDependency;
@@ -62,7 +62,7 @@ import com.sun.enterprise.module.bootstrap.BootException;
 /**
  * @author Sanjeeb.Sahoo@Sun.COM
  */
-public class OSGiModuleImpl implements Module {
+public class OSGiModuleImpl implements HK2Module {
     private volatile Bundle bundle; // made volatile as it is accessed from multiple threads
 
     private ModuleDefinition md;
@@ -443,11 +443,11 @@ public class OSGiModuleImpl implements Module {
         };
     }
 
-    public void addImport(Module module) {
+    public void addImport(HK2Module module) {
         throw new UnsupportedOperationException("This method can't be implemented in OSGi environment");
     }
 
-    public Module addImport(ModuleDependency dependency) {
+    public HK2Module addImport(ModuleDependency dependency) {
         throw new UnsupportedOperationException("This method can't be implemented in OSGi environment");
     }
 
@@ -459,13 +459,13 @@ public class OSGiModuleImpl implements Module {
         // NOOP: It's not required in OSGi.
     }
 
-    public List<Module> getImports() {
-        List<Module> result = new ArrayList<Module>();
+    public List<HK2Module> getImports() {
+        List<HK2Module> result = new ArrayList<HK2Module>();
         RequiredBundle[] requiredBundles =
                 registry.getPackageAdmin().getRequiredBundles(bundle.getSymbolicName());
         if (requiredBundles!=null) {
             for(RequiredBundle rb : requiredBundles) {
-                Module m = registry.getModule(rb.getBundle());
+                HK2Module m = registry.getModule(rb.getBundle());
                 if (m!=null) {
                     // module is known to the module system
                     result.add(m);

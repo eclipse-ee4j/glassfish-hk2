@@ -76,7 +76,7 @@ public abstract class AbstractOSGiModulesRegistryImpl extends AbstractModulesReg
     }
 
     public List<ActiveDescriptor> parseInhabitants(
-            Module module, String name, ServiceLocator serviceLocator, List<PopulatorPostProcessor> postProcessors)
+            HK2Module module, String name, ServiceLocator serviceLocator, List<PopulatorPostProcessor> postProcessors)
             throws IOException, BootException {
 
         OSGiModuleImpl osgiModuleImpl = (OSGiModuleImpl) module;
@@ -129,7 +129,7 @@ public abstract class AbstractOSGiModulesRegistryImpl extends AbstractModulesReg
     }
 
     public synchronized void detachAll() {
-        for (Module m : modules.values()) {
+        for (HK2Module m : modules.values()) {
             m.detach();
         }
     }
@@ -168,9 +168,9 @@ public abstract class AbstractOSGiModulesRegistryImpl extends AbstractModulesReg
                                              Collection<ModuleDefinition> mds,
                                              URL[] urls) throws ResolveError {
         final List<ClassLoader> delegateCLs = new ArrayList<ClassLoader>();
-        final List<Module> delegateModules = new ArrayList<Module>();
+        final List<HK2Module> delegateModules = new ArrayList<HK2Module>();
         for (ModuleDefinition md : mds) {
-            Module m = makeModuleFor(md.getName(), md.getVersion());
+            HK2Module m = makeModuleFor(md.getName(), md.getVersion());
             delegateModules.add(m);
             delegateCLs.add(m.getClassLoader());
         }
@@ -192,7 +192,7 @@ public abstract class AbstractOSGiModulesRegistryImpl extends AbstractModulesReg
                     URL[] parentURLs = URLClassLoader.class.cast(parent).getURLs();
                     result.addAll(Arrays.asList(parentURLs));
                 }
-                for (Module m : delegateModules) {
+                for (HK2Module m : delegateModules) {
                     ModuleDefinition md = m.getModuleDefinition();
                     URI[] uris = md.getLocations();
                     URL[] urls = new URL[uris.length];
@@ -262,7 +262,7 @@ public abstract class AbstractOSGiModulesRegistryImpl extends AbstractModulesReg
         return getModulesClassLoader(parent, defs, null);
     }
 
-    public Module find(Class clazz) {
+    public HK2Module find(Class clazz) {
         Bundle b = pa.getBundle(clazz);
         if (b!=null) {
             return getModule(b);
@@ -330,11 +330,11 @@ public abstract class AbstractOSGiModulesRegistryImpl extends AbstractModulesReg
         }
     }
 
-    /*package*/ Module getModule(Bundle bundle) {
+    /*package*/ HK2Module getModule(Bundle bundle) {
         return modules.get(new OSGiModuleId(bundle));
     }
     
-    public void remove(Module module) {
+    public void remove(HK2Module module) {
         super.remove(module);
         
         if (!(module instanceof OSGiModuleImpl)) {

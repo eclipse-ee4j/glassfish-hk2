@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * @author Sanjeeb.Sahoo@Sun.COM
  */
-public interface Module {
+public interface HK2Module {
     /**
      * Returns the module definition for this module instance
      * @return the module definition
@@ -78,7 +78,7 @@ public interface Module {
      * the class loader references are released (note : the class loaders will
      * only be released if all instances of any class loaded by them are gc'ed).
      * If a <code>LifecyclePolicy</code> for this module is defined, the
-     * {@link LifecyclePolicy#stop(Module) Lifecycle.stop(Module)}
+     * {@link LifecyclePolicy#stop(Module) Lifecycle.stop(HK2Module)}
      * method will be called and finally the module state will be
      * returned to {@link ModuleState#NEW ModuleState.NEW}.
      *
@@ -136,7 +136,7 @@ public interface Module {
      * but after fully resolved.
      *
      * <p>
-     * To enforce the stable class visibility, once {@link Module} is
+     * To enforce the stable class visibility, once {@link HK2Module} is
      * created, dependencies cannot be changed &mdash; that is, we
      * don't want "a.b.C" to suddenly mean something different once
      * the code starts running.
@@ -144,16 +144,16 @@ public interface Module {
      * @return
      *      Can be empty but never null. Read-only.
      */
-    List<Module> getImports();
+    List<HK2Module> getImports();
 
-    void addImport(Module module);
+    void addImport(HK2Module module);
 
     /**
      * Create and add a new module to this module's list of
      * imports.
      * @param dependency new module's definition
      */
-    Module addImport(ModuleDependency dependency);
+    HK2Module addImport(ModuleDependency dependency);
 
     /**
      * Returns true if this module is sharable. A sharable module means that

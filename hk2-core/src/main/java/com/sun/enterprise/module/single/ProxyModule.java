@@ -23,11 +23,11 @@ import java.util.ArrayList;
 import java.io.PrintStream;
 
 /**
- * Creates a Module implementation based on a single class loader
+ * Creates a HK2Module implementation based on a single class loader
  *
  * @author Jerome Dochez
  */
-public class ProxyModule implements Module {
+public class ProxyModule implements HK2Module {
 
     final ClassLoader classLoader;
     final ModuleDefinition moduleDef;
@@ -89,15 +89,15 @@ public class ProxyModule implements Module {
         return classLoader;
     }
 
-    public List<Module> getImports() {
-        return new ArrayList<Module>();
+    public List<HK2Module> getImports() {
+        return new ArrayList<HK2Module>();
     }
 
-    public void addImport(Module module) {
+    public void addImport(HK2Module module) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Module addImport(ModuleDependency dependency) {
+    public HK2Module addImport(ModuleDependency dependency) {
         throw new UnsupportedOperationException("Inports cannot be added dynamically to static modules");
     }
 

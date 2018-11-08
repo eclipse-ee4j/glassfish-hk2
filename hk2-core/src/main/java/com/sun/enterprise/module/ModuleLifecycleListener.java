@@ -30,30 +30,30 @@ public interface ModuleLifecycleListener {
      * Callback after a module is installed
      * @param module the module instance
      */
-    public void moduleInstalled(Module module);
+    public void moduleInstalled(HK2Module module);
 
     /**
      * Callback after a module is resolved
      * @param module the module instance
      */
-    public void moduleResolved(Module module);
+    public void moduleResolved(HK2Module module);
     
     /**
      * Callback after a module is started. 
      * @param module the module instance
      */
-    public void moduleStarted(Module module);
+    public void moduleStarted(HK2Module module);
     
     /** 
      * Callback after a module is stopped
      * @param module the module instance
      */
-    public void moduleStopped(Module module);
+    public void moduleStopped(HK2Module module);
 
     /**
      * Callback after a module is updated.
      * This is useful in OSGi environment which allows a module to be updated.
      * @param module the module instance
      */
-    public void moduleUpdated(Module module);
+    public void moduleUpdated(HK2Module module);
 }

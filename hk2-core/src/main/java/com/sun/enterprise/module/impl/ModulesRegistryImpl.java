@@ -55,8 +55,8 @@ public class ModulesRegistryImpl extends AbstractModulesRegistryImpl {
         return new ModulesRegistryImpl(this);
     }
 
-    protected Module newModule(ModuleDefinition moduleDef) {
-        Module m = new ModuleImpl(this, moduleDef);
+    protected HK2Module newModule(ModuleDefinition moduleDef) {
+        HK2Module m = new ModuleImpl(this, moduleDef);
         for (ModuleLifecycleListener l : getLifecycleListeners()) {
             l.moduleInstalled(m);
         }
@@ -64,7 +64,7 @@ public class ModulesRegistryImpl extends AbstractModulesRegistryImpl {
     }
 
     protected List<ActiveDescriptor> parseInhabitants(
-            Module module, String name, ServiceLocator serviceLocator, List<PopulatorPostProcessor> postProcessors)
+            HK2Module module, String name, ServiceLocator serviceLocator, List<PopulatorPostProcessor> postProcessors)
             throws IOException {
         return ((ModuleImpl)module).parseInhabitants(name, postProcessors);
     }
@@ -86,7 +86,7 @@ public class ModulesRegistryImpl extends AbstractModulesRegistryImpl {
         }
 
         ModuleId id = AbstractFactory.getInstance().createModuleId(moduleName, version);
-        Module module = modules.get(id);
+        HK2Module module = modules.get(id);
         if (module!=null) {
             ModuleImpl privateModule =
                     (ModuleImpl)newModule(module.getModuleDefinition());
@@ -141,7 +141,7 @@ public class ModulesRegistryImpl extends AbstractModulesRegistryImpl {
         }
         ClassLoaderProxy cl = new ClassLoaderProxy(new URL[0], parent);
         for (ModuleDefinition def : defs) {
-            Module module = this.makeModuleFor(def.getName(), def.getVersion());
+            HK2Module module = this.makeModuleFor(def.getName(), def.getVersion());
             cl.addDelegate(module.getClassLoader());
         }
         
@@ -172,7 +172,7 @@ public class ModulesRegistryImpl extends AbstractModulesRegistryImpl {
     }
     
 
-    public Module find(Class clazz) {
+    public HK2Module find(Class clazz) {
         ClassLoader cl = clazz.getClassLoader();
         if(cl==null)    return null;
         if (cl instanceof ModuleClassLoader)

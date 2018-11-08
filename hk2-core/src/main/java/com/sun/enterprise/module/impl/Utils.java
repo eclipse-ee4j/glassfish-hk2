@@ -17,12 +17,12 @@
 package com.sun.enterprise.module.impl;
 
 import com.sun.enterprise.module.ModuleDependency;
-import com.sun.enterprise.module.Module;
 import com.sun.enterprise.module.ModulesRegistry;
 
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import com.sun.enterprise.module.HK2Module;
 
 /**
  *
@@ -38,11 +38,11 @@ public class Utils {
 
         StringBuffer tree = new StringBuffer();
         tree.append(m.getName());
-        Vector<Module> traversed = new Vector<Module>();
+        Vector<HK2Module> traversed = new Vector<HK2Module>();
         boolean success = traverseAndFind(m, m, traversed);
         if (success) {
             traversed.remove(0);
-            for (Module mod : traversed) {
+            for (HK2Module mod : traversed) {
                 tree.append("-->" + mod.getName());
             }
             tree.append("-->" + m.getName());
@@ -50,12 +50,12 @@ public class Utils {
         }
     }
 
-    static private boolean traverseAndFind(Module toTraverse, ModuleImpl toFind, Vector<Module> traversed) {
+    static private boolean traverseAndFind(HK2Module toTraverse, ModuleImpl toFind, Vector<HK2Module> traversed) {
 
         traversed.add(toTraverse);
         for (ModuleDependency md : toTraverse.getModuleDefinition().getDependencies())  {
             ModulesRegistry registry = toTraverse.getRegistry();
-            for (Module mod : registry.getModules()) {
+            for (HK2Module mod : registry.getModules()) {
                 if (mod.getName().equals(md.getName())) {
                     if (mod!=null) {
                         if (mod.getName().equals(toFind.getName())) {
