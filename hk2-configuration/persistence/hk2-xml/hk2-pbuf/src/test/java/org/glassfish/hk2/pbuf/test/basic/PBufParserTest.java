@@ -18,8 +18,6 @@ package org.glassfish.hk2.pbuf.test.basic;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
@@ -200,47 +198,6 @@ public class PBufParserTest {
         bais.write(asBytes);
         bais.close();
         */
-    }
-    
-    private final static int NUM_LOOPS = 10;
-    
-    /**
-     * Tests marshalling and unmarshalling multiple in the same stream
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void testMarshalUnmarshalSeveralInSameStream() throws Exception {
-        ServiceLocator locator = Utilities.enableLocator();
-        
-        XmlService xmlService = locator.getService(XmlService.class, PBufUtilities.PBUF_SERVICE_NAME);
-        Assert.assertNotNull(xmlService);
-        
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try {
-            for (int lcv = 0; lcv < NUM_LOOPS; lcv++) {
-              XmlRootHandle<ServiceRecordBlockBean> handle = getStandardTestBlock(xmlService);
-              handle.getRoot().setSequenceNumber((long) lcv);
-              
-              handle.marshal(baos);
-            }
-        }
-        finally {
-            baos.close();
-        }
-        
-        byte output[] = baos.toByteArray();
-        
-        ByteArrayInputStream bais = new ByteArrayInputStream(output);
-        try {
-            for (int lcv = 0; lcv < NUM_LOOPS; lcv++) {
-                XmlRootHandle<ServiceRecordBlockBean> readHandle = xmlService.unmarshal(bais, ServiceRecordBlockBean.class);
-                validateStandardBean(readHandle, lcv);
-            }
-        }
-        finally {
-            bais.close();
-        }
     }
     
     /**
