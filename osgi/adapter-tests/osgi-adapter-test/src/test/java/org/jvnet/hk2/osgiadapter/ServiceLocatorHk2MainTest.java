@@ -128,8 +128,8 @@ public class ServiceLocatorHk2MainTest {
 		                        "no-hk2-bundle").version(projectVersion).startLevel(4)),
 		        provision(mavenBundle().groupId(GROUP_ID).artifactId(
 		                        "sdp-management-bundle").version(projectVersion).startLevel(4)),
-                provision(mavenBundle().groupId("javax.annotation").artifactId("javax.annotation-api").version("1.2")),
-                provision(mavenBundle().groupId("javax.el").artifactId("javax.el-api").version("2.2.5")),
+                provision(mavenBundle().groupId("jakarta.annotation").artifactId("jakarta.annotation-api").version("1.3.4")),
+                provision(mavenBundle().groupId("jakarta.el").artifactId("jakarta.el-api").version("3.0.2")),
                 provision(mavenBundle().groupId("javax.validation").artifactId("validation-api").version("1.1.0.Final")),
                 provision(mavenBundle().groupId("org.hibernate").artifactId("hibernate-validator").version("5.2.4.Final")),
                 provision(mavenBundle().groupId("com.fasterxml").artifactId("classmate").version("1.1.0")),
