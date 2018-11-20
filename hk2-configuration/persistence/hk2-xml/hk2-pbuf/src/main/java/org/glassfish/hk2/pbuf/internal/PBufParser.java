@@ -30,7 +30,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.WeakHashMap;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -65,8 +64,6 @@ import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.EnumValueDescriptor;
 import com.google.protobuf.DynamicMessage;
-import com.google.protobuf.Enum;
-import com.google.protobuf.EnumValue;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 /**
@@ -80,9 +77,6 @@ import com.google.protobuf.InvalidProtocolBufferException;
 public class PBufParser implements XmlServiceParser {
     private final HashMap<Class<?>, Descriptors.Descriptor> allProtos = new HashMap<Class<?>, Descriptors.Descriptor>();
     private final HashMap<Class<?>, Descriptors.EnumDescriptor> allEnums = new HashMap<Class<?>, Descriptors.EnumDescriptor>();
-    
-    private final WeakHashMap<OutputStream, CodedOutputStream> cosCache = new WeakHashMap<OutputStream, CodedOutputStream>();
-    private final WeakHashMap<InputStream, CodedInputStream> cisCache = new WeakHashMap<InputStream, CodedInputStream>();
     
     @Inject @Named(PBufUtilities.PBUF_SERVICE_NAME)
     private IterableProvider<XmlService> xmlService;
@@ -130,14 +124,7 @@ public class PBufParser implements XmlServiceParser {
         byte[] rawBytes;
         int size = -1;
         if (useLength) {
-            CodedInputStream cis;
-            synchronized (cisCache) {
-                cis = cisCache.get(input);
-                if (cis == null) {
-                    cis = CodedInputStream.newInstance(input);
-                    cisCache.put(input, cis);
-                }
-            }
+            CodedInputStream cis = CodedInputStream.newInstance(input);;
             
             try {
                 size = cis.readInt32();
@@ -261,15 +248,7 @@ public class PBufParser implements XmlServiceParser {
         DynamicMessage dynamicMessage = internalMarshal(rootBean);
         int size = dynamicMessage.getSerializedSize();
         
-        CodedOutputStream cos;
-        synchronized (cosCache) {
-            cos = cosCache.get(outputStream);
-        
-            if (cos == null) {
-                cos = CodedOutputStream.newInstance(outputStream);
-                cosCache.put(outputStream, cos);
-            }
-        }
+        CodedOutputStream cos= CodedOutputStream.newInstance(outputStream);
         
         boolean prependSize = getPrependSize(options);
         

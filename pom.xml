@@ -138,6 +138,7 @@
 
         <javax.annotation.version>1.2</javax.annotation.version>
         <javax.json.version>1.0</javax.json.version>
+        <javax.xml.bind.jaxb.version>2.1</javax.xml.bind.jaxb.version>
         <glassfish.json.version>1.0.4</glassfish.json.version>
         <java.net.username>${user.name}</java.net.username>
         <hibernate-validator.version>6.0.10.Final</hibernate-validator.version>
@@ -537,6 +538,11 @@
                 <groupId>javax.json</groupId>
                 <artifactId>javax.json-api</artifactId>
                 <version>${javax.json.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>${javax.xml.bind.jaxb.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish</groupId>
