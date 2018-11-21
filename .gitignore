@@ -8,3 +8,4 @@ target/
 .idea
 nb-configuration.xml
 /bin/
+external/asm-all/dependency-reduced-pom.xml
