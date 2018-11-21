@@ -44,7 +44,6 @@ import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
-import org.ops4j.pax.exam.options.SystemPropertyOption;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.osgi.framework.BundleContext;
@@ -58,6 +57,9 @@ import com.sun.enterprise.module.ModulesRegistry;
 import com.sun.enterprise.module.bootstrap.Main;
 import com.sun.enterprise.module.bootstrap.StartupContext;
 
+import static org.jvnet.hk2.osgiadapter.ServiceLocatorHk2MainTest.HK2_EXT_GROUP_ID;
+import static org.jvnet.hk2.osgiadapter.ServiceLocatorHk2MainTest.HK2_GROUP_ID;
+
 /**
  * @author jwells
  *
@@ -65,15 +67,17 @@ import com.sun.enterprise.module.bootstrap.StartupContext;
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 public class OSGiTest {
+
     @Inject
     private BundleContext bundleContext;
-    
+
     @Configuration
     public Option[] configuration() {
         String projectVersion = System.getProperty("project.version");
         return options(
                 workingDirectory(System.getProperty("basedir") + "/target/wd"),
                 systemProperty("java.io.tmpdir").value(System.getProperty("basedir") + "/target"),
+                systemProperty("pax.exam.osgi.unresolved.fail").value("true"),
                 frameworkProperty("org.osgi.framework.storage").value(System.getProperty("basedir") + "/target/felix"),
                 systemPackage("sun.misc"),
                 systemPackage("javax.net.ssl"),
@@ -92,40 +96,28 @@ public class OSGiTest {
                 systemPackage("org.w3c.dom"),
                 systemPackage("org.xml.sax"),
                 junitBundles(),
-                provision(mavenBundle().groupId(ServiceLocatorHk2MainTest.GROUP_ID).artifactId("hk2-utils").version(projectVersion).startLevel(4)),
-                provision(mavenBundle().groupId(ServiceLocatorHk2MainTest.GROUP_ID).artifactId("hk2-api").version(projectVersion).startLevel(4)),
-                provision(mavenBundle().groupId(ServiceLocatorHk2MainTest.GROUP_ID).artifactId("hk2-runlevel").version(projectVersion).startLevel(4)),
-                provision(mavenBundle().groupId(ServiceLocatorHk2MainTest.GROUP_ID).artifactId("hk2-core").version(projectVersion).startLevel(4)),
-                provision(mavenBundle().groupId(ServiceLocatorHk2MainTest.GROUP_ID).artifactId(
-                        "hk2-locator").version(projectVersion).startLevel(4)),
-                provision(mavenBundle().groupId(ServiceLocatorHk2MainTest.EXT_GROUP_ID).artifactId(
-                        "javax.inject").version(projectVersion).startLevel(4)),
-                provision(mavenBundle().groupId("org.javassist").artifactId(
-                        "javassist").version("3.22.0-CR2").startLevel(4)),
-                provision(mavenBundle().groupId(ServiceLocatorHk2MainTest.EXT_GROUP_ID).artifactId(
-                        "asm-repackaged").version(projectVersion).startLevel(4)),
-                provision(mavenBundle().groupId(ServiceLocatorHk2MainTest.EXT_GROUP_ID).artifactId(
-                        "aopalliance-repackaged").version(projectVersion).startLevel(4)),
-                provision(mavenBundle().groupId(ServiceLocatorHk2MainTest.GROUP_ID)
-                        .artifactId("osgi-resource-locator").version("1.0.1").startLevel(4)),
-                provision(mavenBundle().groupId(ServiceLocatorHk2MainTest.GROUP_ID).artifactId(
-                        "class-model").version(projectVersion).startLevel(4)),
-                provision(mavenBundle().groupId(ServiceLocatorHk2MainTest.GROUP_ID).artifactId(
-                        "osgi-adapter").version(projectVersion).startLevel(1)),
-                provision(mavenBundle().groupId(ServiceLocatorHk2MainTest.GROUP_ID).artifactId(
-                        "test-module-startup").version(projectVersion).startLevel(4)),
-                provision(mavenBundle().groupId(ServiceLocatorHk2MainTest.GROUP_ID).artifactId(
-                                "contract-bundle").version(projectVersion).startLevel(4)),
-                provision(mavenBundle().groupId(ServiceLocatorHk2MainTest.GROUP_ID).artifactId(
-                                "no-hk2-bundle").version(projectVersion).startLevel(4)),
-                provision(mavenBundle().groupId(ServiceLocatorHk2MainTest.GROUP_ID).artifactId(
-                                "sdp-management-bundle").version(projectVersion).startLevel(4)),
-                provision(mavenBundle().groupId("jakarta.annotation").artifactId("jakarta.annotation-api").version("1.3.4")),
-                provision(mavenBundle().groupId("jakarta.el").artifactId("jakarta.el-api").version("3.0.2")),
-                provision(mavenBundle().groupId("javax.validation").artifactId("validation-api").version("1.1.0.Final")),
-                provision(mavenBundle().groupId("org.hibernate").artifactId("hibernate-validator").version("5.2.4.Final")),
-                provision(mavenBundle().groupId("com.fasterxml").artifactId("classmate").version("1.1.0")),
-                provision(mavenBundle().groupId("org.jboss.logging").artifactId("jboss-logging").version("3.3.0.Final")),
+                provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("hk2-utils").version(projectVersion).startLevel(4)),
+                provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("hk2-api").version(projectVersion).startLevel(4)),
+                provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("hk2-runlevel").version(projectVersion).startLevel(4)),
+                provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("hk2-core").version(projectVersion).startLevel(4)),
+                provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("hk2-locator").version(projectVersion).startLevel(4)),
+                provision(mavenBundle().groupId(HK2_EXT_GROUP_ID).artifactId("jakarta.inject").version(projectVersion).startLevel(4)),
+                provision(mavenBundle().groupId("org.javassist").artifactId("javassist").versionAsInProject().startLevel(4)),
+                provision(mavenBundle().groupId(HK2_EXT_GROUP_ID).artifactId("asm-repackaged").version(projectVersion).startLevel(4)),
+                provision(mavenBundle().groupId(HK2_EXT_GROUP_ID).artifactId("aopalliance-repackaged").version(projectVersion).startLevel(4)),
+                provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("osgi-resource-locator").version("1.0.1").startLevel(4)),
+                provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("class-model").version(projectVersion).startLevel(4)),
+                provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("osgi-adapter").version(projectVersion).startLevel(1)),
+                provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("test-module-startup").version(projectVersion).startLevel(4)),
+                provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("contract-bundle").version(projectVersion).startLevel(4)),
+                provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("no-hk2-bundle").version(projectVersion).startLevel(4)),
+                provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("sdp-management-bundle").version(projectVersion).startLevel(4)),
+                provision(mavenBundle().groupId("jakarta.annotation").artifactId("jakarta.annotation-api").versionAsInProject()),
+                provision(mavenBundle().groupId("jakarta.el").artifactId("jakarta.el-api").versionAsInProject()),
+                provision(mavenBundle().groupId("javax.validation").artifactId("validation-api").versionAsInProject()),
+                provision(mavenBundle().groupId("org.hibernate").artifactId("hibernate-validator").versionAsInProject()),
+                provision(mavenBundle().groupId("com.fasterxml").artifactId("classmate").versionAsInProject()),
+                provision(mavenBundle().groupId("org.jboss.logging").artifactId("jboss-logging").versionAsInProject()),
                 // systemProperty("org.ops4j.pax.logging.DefaultServiceLog.level")
                 //      .value("DEBUG"),
                 cleanCaches()
@@ -134,17 +126,17 @@ public class OSGiTest {
         // "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005" )
         );
     }
-    
+
     /**
      * Tests that late installation properly removes
      * services
-     * 
+     *
      * @throws Throwable
      */
     @Test
     public void testLateBundleInstallation() throws Throwable {
         ServiceLocator serviceLocator = getMainServiceLocator();
-        
+
         ServiceTracker hk2Tracker = new ServiceTracker(
                 this.bundleContext,
                 InstallSDPService.class.getName(),
@@ -152,73 +144,61 @@ public class OSGiTest {
         hk2Tracker.open();
         InstallSDPService installationService = (InstallSDPService)
                 hk2Tracker.waitForService(0);
-        
         hk2Tracker.close();
-        
         FooContract fooC = serviceLocator.getService(FooContract.class);
         Assert.assertNull(fooC);
-        
+
         /**
          * First install and uninstall
          */
-    
         installationService.install();
-        
         List<ActiveDescriptor<?>> descriptors =
                 serviceLocator.getDescriptors(
                         BuilderHelper.createContractFilter(
                                 FooContract.class.getName()));
         Assert.assertEquals(1, descriptors.size());
-        
         Assert.assertTrue(installationService.uninstall());
-        
+
         descriptors =
                 serviceLocator.getDescriptors(
                         BuilderHelper.createContractFilter(
                                 FooContract.class.getName()));
-        
         Assert.assertEquals(0, descriptors.size());
-        
         fooC = serviceLocator.getService(FooContract.class);
         Assert.assertNull(fooC);
-        
+
         /**
          * then install again
          */
-    
         installationService.install();
-        
         descriptors =
                 serviceLocator.getDescriptors(
                         BuilderHelper.createContractFilter(
                                 FooContract.class.getName()));
-        
         Assert.assertEquals(1, descriptors.size());
-        
         fooC = serviceLocator.getService(FooContract.class);
         Assert.assertNotNull(fooC);
     }
-    
-    
+
     /**
      * See https://java.net/jira/browse/HK2-163
-     * 
+     *
      * The problem was that the interface had no access to hk2 at
      * all, which caused classloading problems
-     * 
+     *
      * @throws Throwable
      */
     @Test
     public void testProxyInterfaceWithNoAccessToHK2() throws Throwable {
         ServiceLocator serviceLocator = getMainServiceLocator();
-        
+
         Descriptor addMe = BuilderHelper.link(Bar.class.getName()).
                 to(BarContract.class.getName()).
                 in(Singleton.class.getName()).
                 proxy().
                 andLoadWith(new HK2LoaderImpl(Bar.class.getClassLoader())).
                 build();
-        
+
         ActiveDescriptor<?> added = ServiceLocatorUtilities.addOneDescriptor(serviceLocator, addMe);
         try {
             BarContract contract = serviceLocator.getService(BarContract.class);
@@ -230,30 +210,29 @@ public class OSGiTest {
             ServiceLocatorUtilities.removeOneDescriptor(serviceLocator, added);
         }
     }
-    
+
     /**
      * See https://java.net/jira/browse/HK2-163
-     * 
+     *
      * The problem was that the interface had no access to hk2 at
      * all, which caused classloading problems
-     * 
+     *
      * @throws Throwable
      */
     @Test
     public void testProxyClassWithNoAccessToHK2() throws Throwable {
         ServiceLocator serviceLocator = getMainServiceLocator();
-        
+
         // This time the interface is NOT in the set of contracts
         Descriptor addMe = BuilderHelper.link(Bar.class.getName()).
                 in(Singleton.class.getName()).
                 proxy().
                 andLoadWith(new HK2LoaderImpl(Bar.class.getClassLoader())).
                 build();
-        
+
         ActiveDescriptor<?> added = ServiceLocatorUtilities.addOneDescriptor(serviceLocator, addMe);
         try {
             Bar bar = serviceLocator.getService(Bar.class);
-            
             Assert.assertNotNull(bar);
             Assert.assertTrue(bar instanceof ProxyCtl);
         }
@@ -261,28 +240,21 @@ public class OSGiTest {
             ServiceLocatorUtilities.removeOneDescriptor(serviceLocator, added);
         }
     }
-    
+
     private ServiceLocator getMainServiceLocator() throws Throwable {
         StartupContext startupContext = new StartupContext();
         ServiceTracker hk2Tracker = new ServiceTracker(
                 this.bundleContext, Main.class.getName(), null);
         hk2Tracker.open();
         Main main = (Main) hk2Tracker.waitForService(0);
-        
         hk2Tracker.close();
-        
         ModulesRegistry mr = (ModulesRegistry) bundleContext
                 .getService(bundleContext
                         .getServiceReference(ModulesRegistry.class
                                 .getName()));
-
         ServiceLocator serviceLocator = main.createServiceLocator(
                 mr, startupContext,null,null);
-        
         ServiceLocatorUtilities.enableLookupExceptions(serviceLocator);
-        
         return serviceLocator;
-        
     }
-
 }
