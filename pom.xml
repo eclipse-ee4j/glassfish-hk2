@@ -156,7 +156,7 @@
         <aopalliance.version>1.0</aopalliance.version>
         <testng.version>6.9.10</testng.version>
         <assertj.version>3.9.1</assertj.version>
-        <pax-exam-version>3.5.0</pax-exam-version>
+        <pax-exam-version>4.12.0</pax-exam-version>
         <javax-inject.version>1</javax-inject.version>
         <slf4j.version>1.7.21</slf4j.version>
         <org.jboss.logging.version>3.3.1.Final</org.jboss.logging.version>
@@ -475,6 +475,11 @@
                     <artifactId>maven-scm-publish-plugin</artifactId>
                     <version>1.1</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.servicemix.tooling</groupId>
+                    <artifactId>depends-maven-plugin</artifactId>
+                    <version>1.4.0</version>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
@@ -664,13 +669,8 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.felix</groupId>
-                <artifactId>org.apache.felix.main</artifactId>
-                <version>3.2.2</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.framework</artifactId>
-                <version>3.2.2</version>
+                <version>5.6.0</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -685,18 +685,18 @@
             <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.configadmin</artifactId>
-                <version>1.8.0</version>
+                <version>1.8.16</version>
             </dependency>
             <dependency>
                 <groupId>org.ops4j.pax.logging</groupId>
                 <artifactId>pax-logging-api</artifactId>
                 <version>1.10.1</version>
-    		    <exclusions>
-       		        <exclusion>
-          	            <groupId>avalon-framework</groupId>
-         	            <artifactId>avalon-framework-api</artifactId>
-            	        </exclusion>
-                    </exclusions>
+                <exclusions>
+                    <exclusion>
+                        <groupId>avalon-framework</groupId>
+                        <artifactId>avalon-framework-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.ops4j.pax.logging</groupId>
