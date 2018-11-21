@@ -28,7 +28,7 @@
     </parent>
     <groupId>org.glassfish.hk2</groupId>
     <artifactId>hk2-parent</artifactId>
-    <version>2.5.0-b63-SNAPSHOT</version>
+    <version>2.5.0-b63</version>
     <packaging>pom</packaging>
 
     <name>GlassFish HK2</name>
@@ -169,7 +169,7 @@
         <classmate.version>1.3.3</classmate.version>
         <springcontext.version>4.3.16.RELEASE</springcontext.version>
         <guice.version>4.1.0</guice.version>
-        <hk2.mvn.plugins.version>2.5.0-b63-SNAPSHOT</hk2.mvn.plugins.version>
+        <hk2.mvn.plugins.version>2.5.0-b63</hk2.mvn.plugins.version>
         <protobuf.version>3.5.1</protobuf.version>
 
         <findbugs.exclude />
