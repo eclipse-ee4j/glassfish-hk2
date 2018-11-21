@@ -25,7 +25,6 @@
         <version>2.5.0-b63-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-
     <artifactId>hk2-locator-extras</artifactId>
     <name>HK2 Locator unit tests</name>
     <description>Extra unit tests for the HK2 Locator implementation</description>
@@ -65,7 +64,7 @@
         </dependency>
         <dependency>
             <groupId>org.glassfish.hk2.external</groupId>
-            <artifactId>javax.inject</artifactId>
+            <artifactId>jakarta.inject</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

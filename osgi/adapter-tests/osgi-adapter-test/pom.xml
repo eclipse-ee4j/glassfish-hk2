@@ -23,7 +23,6 @@
         <artifactId>osgi-adapter-tests-parent</artifactId>
         <version>2.5.0-b63-SNAPSHOT</version>
     </parent>
-
     <groupId>org.glassfish.hk2</groupId>
     <artifactId>osgi-adapter-test</artifactId>
     <name>HK2 OSGi Adapter Test</name>
@@ -104,12 +103,12 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-           <groupId>javax.inject</groupId>
-           <artifactId>javax.inject</artifactId>
+            <groupId>org.glassfish.hk2.external</groupId>
+            <artifactId>jakarta.inject</artifactId>
+            <version>${project.version}</version>
         </dependency>
-
         <!-- Pax-Exam dependencies -->
-       
+
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
             <artifactId>pax-exam-container-native</artifactId>
@@ -133,11 +132,11 @@
         <dependency>
             <groupId>org.ops4j.pax.logging</groupId>
             <artifactId>pax-logging-api</artifactId>
-	    <exclusions>
-       		 <exclusion>
-          	 <groupId>avalon-framework</groupId>
-         	 <artifactId>avalon-framework-api</artifactId>
-            	 </exclusion>
+            <exclusions>
+                <exclusion>
+                    <groupId>avalon-framework</groupId>
+                    <artifactId>avalon-framework-api</artifactId>
+                </exclusion>
             </exclusions> 
         </dependency>
         <dependency>
