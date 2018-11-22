@@ -16,7 +16,6 @@
 
 package com.sun.enterprise.module.common_impl;
 
-import com.sun.enterprise.module.Module;
 import com.sun.enterprise.module.ModuleDefinition;
 import com.sun.enterprise.module.ModuleMetadata;
 import com.sun.enterprise.module.ModulesRegistry;
@@ -58,6 +57,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.*;
+import com.sun.enterprise.module.HK2Module;
 
 /**
  * The Modules Registry maintains the registry of all available module.
@@ -74,7 +74,7 @@ public abstract class AbstractModulesRegistryImpl implements ModulesRegistry {
      * are visible to children. 
      */
     protected final ModulesRegistry parent;
-    protected final ConcurrentMap<ModuleId,Module> modules = new ConcurrentHashMap<ModuleId,Module>();
+    protected final ConcurrentMap<ModuleId,HK2Module> modules = new ConcurrentHashMap<ModuleId,HK2Module>();
 
     protected final Map<Integer,Repository> repositories = new TreeMap<Integer,Repository>();
 
@@ -89,11 +89,11 @@ public abstract class AbstractModulesRegistryImpl implements ModulesRegistry {
      * with classic service loader implementation, we need to be able to allow
      * any modules to see these classes.
      */
-    protected final Map<String,Module> providers = new HashMap<String,Module>();
+    protected final Map<String,HK2Module> providers = new HashMap<String,HK2Module>();
 
     private Map<ServiceLocator, String> habitats = new Hashtable<ServiceLocator, String>();
 
-    Map<Module, Map<ServiceLocator, List<ActiveDescriptor>>> moduleDescriptors = new ConcurrentHashMap<Module, Map<ServiceLocator, List<ActiveDescriptor>>>();
+    Map<HK2Module, Map<ServiceLocator, List<ActiveDescriptor>>> moduleDescriptors = new ConcurrentHashMap<HK2Module, Map<ServiceLocator, List<ActiveDescriptor>>>();
     
     protected AbstractModulesRegistryImpl(ModulesRegistry parent) {
         this.parent = parent;
@@ -150,7 +150,7 @@ public abstract class AbstractModulesRegistryImpl implements ModulesRegistry {
      */
      public void populateServiceLocator(String name, ServiceLocator serviceLocator, List<PopulatorPostProcessor> postProcessors) throws MultiException {
          try {
-             for (final Module module : getModules()) { 
+             for (final HK2Module module : getModules()) { 
             	   // TODO: should get the inhabitantsParser out of Main instead since
                  // this could have been overridden
              	List<ActiveDescriptor> allDescriptors =
@@ -204,7 +204,7 @@ public abstract class AbstractModulesRegistryImpl implements ModulesRegistry {
     	return createServiceLocator("default");
     }
 
-    protected abstract List<ActiveDescriptor> parseInhabitants(Module module,
+    protected abstract List<ActiveDescriptor> parseInhabitants(HK2Module module,
                                                                String name, ServiceLocator serviceLocator, List<PopulatorPostProcessor> postProcessors)
             throws IOException, BootException;
 
@@ -275,7 +275,7 @@ public abstract class AbstractModulesRegistryImpl implements ModulesRegistry {
     }
 
     /**
-     * Returns the <code>Module</code> instance giving a name and version 
+     * Returns the <code>HK2Module</code> instance giving a name and version 
      * constraints.
      *
      * @param name the module name
@@ -283,12 +283,12 @@ public abstract class AbstractModulesRegistryImpl implements ModulesRegistry {
      * @return the module instance or null if none can be found
      * @throws ResolveError if the module dependencies cannot be resolved
      */
-    public Module makeModuleFor(String name, String version) throws ResolveError {
+    public HK2Module makeModuleFor(String name, String version) throws ResolveError {
         return makeModuleFor(name, version, true);
     }
 
-    public Module makeModuleFor(String name, String version, boolean resolve) throws ResolveError {
-        Module module;
+    public HK2Module makeModuleFor(String name, String version, boolean resolve) throws ResolveError {
+        HK2Module module;
                 
         if(parent!=null) {
             module = parent.makeModuleFor(name,version, resolve);
@@ -297,7 +297,7 @@ public abstract class AbstractModulesRegistryImpl implements ModulesRegistry {
         
         module = modules.get(AbstractFactory.getInstance().createModuleId(name, version));
         if (module == null && version == null) {
-            Collection<Module> matchingModules = getModules(name);
+            Collection<HK2Module> matchingModules = getModules(name);
             if (!matchingModules.isEmpty()) {
                 module = matchingModules.iterator().next();
             }
@@ -320,21 +320,21 @@ public abstract class AbstractModulesRegistryImpl implements ModulesRegistry {
     }
 
     /**
-     * Find and return a loaded Module that has the package name in its list
-     * of exported interfaces.
+     * Find and return a loaded HK2Module that has the package name in its list
+ of exported interfaces.
      *
      * @param packageName the requested implementation package name.
-     * @return the <code>Module</code> instance implementing the package
+     * @return the <code>HK2Module</code> instance implementing the package
      * name or null if not found.
      * @throws ResolveError if the module dependencies cannot be resolved
      */
-    public Module makeModuleFor(String packageName) throws ResolveError {
+    public HK2Module makeModuleFor(String packageName) throws ResolveError {
         if(parent!=null) {
-            Module m = parent.makeModuleFor(packageName);
+            HK2Module m = parent.makeModuleFor(packageName);
             if(m!=null)     return m;
         }
 
-        for (Module module : modules.values()) {
+        for (HK2Module module : modules.values()) {
             String[] exportedPkgs = module.getModuleDefinition().getPublicInterfaces();
             for (String exportedPkg : exportedPkgs) {
                 if (exportedPkg.equals(packageName)) {
@@ -346,7 +346,7 @@ public abstract class AbstractModulesRegistryImpl implements ModulesRegistry {
         return null;
     }
 
-    protected Module loadFromRepository(String name, String version) {
+    protected HK2Module loadFromRepository(String name, String version) {
         Set<Integer> keys = repositories.keySet();
         TreeSet<Integer> sortedKeys = new TreeSet<Integer>();
         sortedKeys.addAll(keys);
@@ -362,18 +362,18 @@ public abstract class AbstractModulesRegistryImpl implements ModulesRegistry {
     }
 
     /**
-     * Factory method for creating new instances of Module.
+     * Factory method for creating new instances of HK2Module.
      * @param moduleDef module definition of the new module to be created
-     * @return a new Module instance
+     * @return a new HK2Module instance
      */
-    protected abstract Module newModule(ModuleDefinition moduleDef);
+    protected abstract HK2Module newModule(ModuleDefinition moduleDef);
 
     /**
      * Add a new module to this registry. Once added, the module will be 
      * available through one of the getServiceImplementor methods.
      * @param newModule the new module
      */
-    protected void add(Module newModule) {
+    protected void add(HK2Module newModule) {
     	//if (Utils.isLoggable(Level.INFO)) {
         //    Utils.getDefaultLogger().info("New module " + newModule);
         //}
@@ -426,7 +426,7 @@ public abstract class AbstractModulesRegistryImpl implements ModulesRegistry {
      * Removes a module from the registry. The module will not be accessible 
      * from this registry after this method returns.
      */
-	public void remove(Module module) {
+	public void remove(HK2Module module) {
 		// if (Utils.isLoggable(Level.INFO)) {
 		// Utils.getDefaultLogger().info("Removed module " + module);
 		// }
@@ -474,7 +474,7 @@ public abstract class AbstractModulesRegistryImpl implements ModulesRegistry {
      *
      * @return an umodifiable list of loaded modules
      */
-    public Collection<Module> getModules() {
+    public Collection<HK2Module> getModules() {
 
         // make a copy to avoid synchronizing since this API can be called while
         // modules are added or removed by other threads.
@@ -489,7 +489,7 @@ public abstract class AbstractModulesRegistryImpl implements ModulesRegistry {
             Repository repo = repos.get(key);
             for (ModuleDefinition moduleDef : repo.findAll()) {
                 if (modules.get(AbstractFactory.getInstance().createModuleId(moduleDef)) == null) {
-                    Module newModule = newModule(moduleDef);
+                    HK2Module newModule = newModule(moduleDef);
                     if (newModule != null) {
                         // When some module can't get installed,
                         // don't halt proceeding, instead continue
@@ -502,10 +502,10 @@ public abstract class AbstractModulesRegistryImpl implements ModulesRegistry {
         return modules.values();
     }
 
-    public Collection<Module> getModules(String moduleName)
+    public Collection<HK2Module> getModules(String moduleName)
     {
-        List<Module> result = new ArrayList<Module>();
-        for (Module m : getModules()) {
+        List<HK2Module> result = new ArrayList<HK2Module>();
+        for (HK2Module m : getModules()) {
             if (m.getName().equals(moduleName)) result.add(m);
         }
         return result;
@@ -516,14 +516,14 @@ public abstract class AbstractModulesRegistryImpl implements ModulesRegistry {
      * resources,etc...). Registries are requested to take appropriate action
      * to make the new module available.
      */
-    public void changed(Module service) {
+    public void changed(HK2Module service) {
         
   
         // house keeping...
         remove(service);
         ModuleDefinition info = service.getModuleDefinition();
         
-        Module newService = newModule(info);
+        HK2Module newService = newModule(info);
         
         // store it
         add(newService);
@@ -532,15 +532,15 @@ public abstract class AbstractModulesRegistryImpl implements ModulesRegistry {
     /**
      * Registers a new DefaultModuleDefinition in this registry. Using this module
      * definition, the registry will be capable of created shared and private
-     * <code>Module</code> instances.
+     * <code>HK2Module</code> instances.
      */
-    public synchronized Module add(ModuleDefinition info) throws ResolveError {
+    public synchronized HK2Module add(ModuleDefinition info) throws ResolveError {
         return add(info, true);
     }
 
-    public Module add(ModuleDefinition info, boolean resolve) throws ResolveError {
+    public HK2Module add(ModuleDefinition info, boolean resolve) throws ResolveError {
         // it may have already been created
-        Module service = makeModuleFor(info.getName(), info.getVersion(), resolve);
+        HK2Module service = makeModuleFor(info.getName(), info.getVersion(), resolve);
         if (service!=null) {
         //    Utils.getDefaultLogger().info("Service " + info.getName()
         //       + " already registered");
@@ -560,7 +560,7 @@ public abstract class AbstractModulesRegistryImpl implements ModulesRegistry {
      */
     public void print(Logger logger) {
         logger.info("Modules Registry information : " + modules.size() + " modules");
-        for (Module module : modules.values()) {
+        for (HK2Module module : modules.values()) {
             logger.info(module.getModuleDefinition().getName());
         }
     }
@@ -569,8 +569,8 @@ public abstract class AbstractModulesRegistryImpl implements ModulesRegistry {
         // oh boy, it really hurts not to have type inference.
         return new Iterable<Class<? extends T>>() {
             public Iterator<Class<? extends T>> iterator() {
-                return new FlattenIterator<Class<? extends T>>(new AdapterIterator<Iterator<Class<? extends T>>,Module>(getModules().iterator()) {
-                    protected Iterator<Class<? extends T>> adapt(Module module) {
+                return new FlattenIterator<Class<? extends T>>(new AdapterIterator<Iterator<Class<? extends T>>,HK2Module>(getModules().iterator()) {
+                    protected Iterator<Class<? extends T>> adapt(HK2Module module) {
                         return module.getProvidersClass(serviceClass).iterator();
                     }
                 });
@@ -579,17 +579,17 @@ public abstract class AbstractModulesRegistryImpl implements ModulesRegistry {
     }
 
     /**
-     * Returns a collection of Module containing at least one implementation
-     * of the passed service interface class.
+     * Returns a collection of HK2Module containing at least one implementation
+ of the passed service interface class.
      *
      * @param serviceClass the service interface class
      * @return a collection of module
      */
-    public Iterable<Module> getModulesProvider(final Class serviceClass) {
-        return new Iterable<Module>() {
-            public Iterator<Module> iterator() {
-                return new AdapterIterator<Module,Module>(getModules().iterator()) {
-                    protected Module adapt(Module m) {
+    public Iterable<HK2Module> getModulesProvider(final Class serviceClass) {
+        return new Iterable<HK2Module>() {
+            public Iterator<HK2Module> iterator() {
+                return new AdapterIterator<HK2Module,HK2Module>(getModules().iterator()) {
+                    protected HK2Module adapt(HK2Module m) {
                         if(m.hasProvider(serviceClass))
                             return m;
                         else
@@ -643,7 +643,7 @@ public abstract class AbstractModulesRegistryImpl implements ModulesRegistry {
     }
 
     @Override
-    public Module getProvidingModule(String providerClassName) {
+    public HK2Module getProvidingModule(String providerClassName) {
         return providers.get(providerClassName);
     }
 
@@ -654,7 +654,7 @@ public abstract class AbstractModulesRegistryImpl implements ModulesRegistry {
         for (Repository repo : repositories.values()) {
             sb.append("Attached repository: [" + repo + "]\n");
         }
-        for (Module module : getModules()) {
+        for (HK2Module module : getModules()) {
             sb.append("Registered Module: [" + module + "]\n");
         }
         writer.println(sb);

@@ -30,8 +30,7 @@ import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.tests.locator.utilities.LocatorHelper;
 import org.glassfish.hk2.utilities.BuilderHelper;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
-import org.junit.Assert;
-import org.junit.Ignore;
+import org.junit.Assert;;
 import org.junit.Test;
 
 /**
@@ -258,10 +257,9 @@ public class ErrorService1Test {
                 ServiceFailsInDestructor.class.getName()));
         Assert.assertNotNull(serviceDescriptor);
         
-        ServiceHandle<ServiceFailsInDestructor> handle = locator.getServiceHandle(ServiceFailsInDestructor.class);
-        Assert.assertNotNull(handle.getService());
-        
-        handle.destroy();
+        try (ServiceHandle<ServiceFailsInDestructor> handle = locator.getServiceHandle(ServiceFailsInDestructor.class)) {
+            Assert.assertNotNull(handle.getService());
+        }
         
         List<ErrorInformation> errors = locator.getService(RecordingErrorService.class).getAndClearErrors();
         
@@ -295,11 +293,10 @@ public class ErrorService1Test {
                 SimpleService.class.getName()));
         Assert.assertNotNull(serviceDescriptor);
         
-        ServiceHandle<SimpleService> handle = locator.getServiceHandle(SimpleService.class);
-        Assert.assertNotNull(handle);
-        Assert.assertNotNull(handle.getService());
-        
-        handle.destroy();
+        try (ServiceHandle<SimpleService> handle = locator.getServiceHandle(SimpleService.class)) {
+            Assert.assertNotNull(handle);
+            Assert.assertNotNull(handle.getService());
+        }
         
         List<ErrorInformation> errors = locator.getService(RecordingErrorService.class).getAndClearErrors();
         

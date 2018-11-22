@@ -30,7 +30,7 @@ import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.SynchronousBundleListener;
 
-import com.sun.enterprise.module.Module;
+import com.sun.enterprise.module.HK2Module;
 import com.sun.enterprise.module.ModuleDefinition;
 
 /**
@@ -100,7 +100,7 @@ public class OSGiModulesRegistryImpl
                 }
                 case BundleEvent.UNINSTALLED :
                 {
-                    final Module m = getModule(bundle);
+                    final HK2Module m = getModule(bundle);
                     
                     if (m!=null) {
                         // getModule can return null if some bundle got uninstalled
@@ -114,7 +114,7 @@ public class OSGiModulesRegistryImpl
                     break;
                 }
                 case BundleEvent.UPDATED :
-                    final Module m = getModule(bundle);
+                    final HK2Module m = getModule(bundle);
                     if (m!=null) {
                         // getModule can return null if some bundle got uninstalled
                         // before we have finished initialization. This can
@@ -163,7 +163,7 @@ public class OSGiModulesRegistryImpl
     }
 
     @Override
-    protected synchronized void add(Module newModule) {
+    protected synchronized void add(HK2Module newModule) {
         // It is overridden to make it synchronized as it is called from
         // BundleListener.
         super.add(newModule);
@@ -172,7 +172,7 @@ public class OSGiModulesRegistryImpl
     }
 
     @Override
-    public synchronized void remove(Module module) {
+    public synchronized void remove(HK2Module module) {
     	
         // It is overridden to make it synchronized as it is called from
         // BundleListener.
@@ -185,7 +185,7 @@ public class OSGiModulesRegistryImpl
     }
 
     // factory method
-    protected Module newModule(ModuleDefinition moduleDef) {
+    protected HK2Module newModule(ModuleDefinition moduleDef) {
         String location = moduleDef.getLocations()[0].toString();
         try {
             if (logger.isLoggable(Level.FINE)) {
@@ -209,7 +209,7 @@ public class OSGiModulesRegistryImpl
 
     public synchronized void shutdown() {
 
-        for (Module m : modules.values()) {
+        for (HK2Module m : modules.values()) {
             // Only stop modules that were started after ModulesRegistry
             // came into existence.
             if (OSGiModuleImpl.class.cast(m).isTransientlyActive()) {

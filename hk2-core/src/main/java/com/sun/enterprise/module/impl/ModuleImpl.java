@@ -19,7 +19,6 @@ package com.sun.enterprise.module.impl;
 
 import com.sun.enterprise.module.ImportPolicy;
 import com.sun.enterprise.module.LifecyclePolicy;
-import com.sun.enterprise.module.Module;
 import com.sun.enterprise.module.ModuleChangeListener;
 import com.sun.enterprise.module.ModuleDefinition;
 import com.sun.enterprise.module.ModuleDependency;
@@ -52,6 +51,7 @@ import java.util.logging.Logger;
 
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.PopulatorPostProcessor;
+import com.sun.enterprise.module.HK2Module;
 
 /**
  * A module represents a set of resources accessible to third party modules. 
@@ -67,7 +67,7 @@ import org.glassfish.hk2.api.PopulatorPostProcessor;
  *
  * @author Jerome Dochez
  */
-public final class ModuleImpl implements Module {
+public final class ModuleImpl implements HK2Module {
     
     private final ModuleDefinition moduleDef;
     private WeakReference<ClassLoaderFacade> publicCL;
@@ -92,7 +92,7 @@ public final class ModuleImpl implements Module {
     private boolean sticky=false;
     private LifecyclePolicy lifecyclePolicy = null;
     
-    /** Creates a new instance of Module */
+    /** Creates a new instance of HK2Module */
     /* package */ ModuleImpl(ModulesRegistryImpl registry, ModuleDefinition info) {
         assert registry!=null && info!=null;
         this.registry = registry;
@@ -349,7 +349,7 @@ public final class ModuleImpl implements Module {
             getPrivateClassLoader().addDelegate(m.getClassLoader());
         }
 
-        //Logger.global.info("Module " + getName() + " resolved");
+        //Logger.global.info("HK2Module " + getName() + " resolved");
         state = ModuleState.RESOLVED;
         for (ModuleLifecycleListener l : registry.getLifecycleListeners()) {
             l.moduleResolved(this);
@@ -371,7 +371,7 @@ public final class ModuleImpl implements Module {
         // ensure RESOLVED state
         resolve();      
         
-        for (Module subModules : dependencies) {
+        for (HK2Module subModules : dependencies) {
             subModules.start();
         }
 
@@ -396,7 +396,7 @@ public final class ModuleImpl implements Module {
         }
         state = ModuleState.READY;
 
-        //Logger.global.info("Module " + getName() + " started");
+        //Logger.global.info("HK2Module " + getName() + " started");
 
         // module started. notify listeners
         for (ModuleLifecycleListener listener : registry.getLifecycleListeners())
@@ -411,7 +411,7 @@ public final class ModuleImpl implements Module {
      * the class loader references are released (note : the class loaders will
      * only be released if all instances of any class loaded by them are gc'ed). 
      * If a <code>LifecyclePolicy</code> for this module is defined, the 
-     * {@link LifecyclePolicy#stop(Module) Lifecycle.stop(Module)}
+     * {@link LifecyclePolicy#stop(Module) Lifecycle.stop(HK2Module)}
      * method will be called and finally the module state will be 
      * returned to {@link ModuleState#NEW ModuleState.NEW}.
      *
@@ -454,9 +454,9 @@ public final class ModuleImpl implements Module {
      * Returns the list of imported modules
      * @return the list of imported modules
      */
-    public List<Module> getImports() {
+    public List<HK2Module> getImports() {
         resolve();
-        return Collections.<Module>unmodifiableList(dependencies);
+        return Collections.<HK2Module>unmodifiableList(dependencies);
     }
     
     /**
@@ -464,7 +464,7 @@ public final class ModuleImpl implements Module {
      * imports.
      * @param dependency new module's definition
      */
-    public Module addImport(ModuleDependency dependency) {
+    public HK2Module addImport(ModuleDependency dependency) {
         ModuleImpl newModule;
         if (dependency.isShared()) {
             newModule = (ModuleImpl)registry.makeModuleFor(dependency.getName(), dependency.getVersion());
@@ -483,7 +483,7 @@ public final class ModuleImpl implements Module {
         return state;
     }
 
-    public void addImport(Module module) {
+    public void addImport(HK2Module module) {
         //if (Utils.isLoggable(Level.INFO)) {
         //    Utils.getDefaultLogger().info("For module" + getName() + " adding new dependent " + module.getName());
         //}
@@ -598,7 +598,7 @@ public final class ModuleImpl implements Module {
         
         writer.println("Module " + getName() + " Dump");
         writer.println("State " + getState());
-        for (Module imported : getImports()) {
+        for (HK2Module imported : getImports()) {
             writer.println("Depends on " + imported.getName());
         }
         if (publicCL!=null) {

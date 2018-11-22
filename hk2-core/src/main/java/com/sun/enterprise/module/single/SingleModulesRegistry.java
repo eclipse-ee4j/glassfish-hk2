@@ -41,7 +41,7 @@ import org.glassfish.hk2.utilities.ClasspathDescriptorFileFinder;
 public class SingleModulesRegistry  extends ModulesRegistryImpl {
 
     final ClassLoader singleClassLoader;
-    final Module[] proxyMod = new Module[1];
+    final HK2Module[] proxyMod = new HK2Module[1];
 
     public SingleModulesRegistry(ClassLoader singleCL) {
         this(singleCL, null);
@@ -66,34 +66,34 @@ public class SingleModulesRegistry  extends ModulesRegistryImpl {
     }
 
     @Override
-    public Module find(Class clazz) {
-        Module m = super.find(clazz);
+    public HK2Module find(Class clazz) {
+        HK2Module m = super.find(clazz);
         if (m == null)
             return proxyMod[0];
         return m;
     }
 
     @Override
-    public Collection<Module> getModules(String moduleName) {
+    public Collection<HK2Module> getModules(String moduleName) {
         // I could not care less about the modules names
         return getModules();
     }
 
     @Override
-    public Collection<Module> getModules() {
-        ArrayList<Module> list = new ArrayList<Module>();
+    public Collection<HK2Module> getModules() {
+        ArrayList<HK2Module> list = new ArrayList<HK2Module>();
         list.add(proxyMod[0]);
         return list;
     }
 
     @Override
-    public Module makeModuleFor(String name, String version, boolean resolve) throws ResolveError {
+    public HK2Module makeModuleFor(String name, String version, boolean resolve) throws ResolveError {
         return proxyMod[0];
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
-    protected List<ActiveDescriptor> parseInhabitants(Module module, String name, ServiceLocator serviceLocator, List<PopulatorPostProcessor> postProcessors)
+    protected List<ActiveDescriptor> parseInhabitants(HK2Module module, String name, ServiceLocator serviceLocator, List<PopulatorPostProcessor> postProcessors)
             throws IOException {
 
         ArrayList<PopulatorPostProcessor> allPostProcessors = new ArrayList<PopulatorPostProcessor>();

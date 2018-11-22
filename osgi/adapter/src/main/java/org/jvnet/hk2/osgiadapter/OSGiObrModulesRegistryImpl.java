@@ -59,13 +59,13 @@ public class OSGiObrModulesRegistryImpl extends AbstractOSGiModulesRegistryImpl 
     }
 
     @Override
-    protected Module newModule(ModuleDefinition moduleDef) {
+    protected HK2Module newModule(ModuleDefinition moduleDef) {
         Bundle alreadyDeployedBundle = getExistingBundle(moduleDef);
         return new OSGiObrModuleImpl(this, alreadyDeployedBundle, moduleDef);
     }
 
     @Override
-    protected Module loadFromRepository(String name, String version) {
+    protected HK2Module loadFromRepository(String name, String version) {
         final Bundle bundle = getObrHandler().deploy(name, version);
         return bundle!=null ? getModule(bundle) : null;
     }
@@ -74,7 +74,7 @@ public class OSGiObrModulesRegistryImpl extends AbstractOSGiModulesRegistryImpl 
     public void bundleChanged(BundleEvent event) {
         switch (event.getType()) {
             case BundleEvent.INSTALLED:
-                Module module = getModule(event.getBundle());
+                HK2Module module = getModule(event.getBundle());
                 if (module instanceof OSGiObrModuleImpl) {
                     OSGiObrModuleImpl.class.cast(module).setBundle(event.getBundle());
                     return;

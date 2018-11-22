@@ -16,7 +16,6 @@
 
 package com.sun.enterprise.module.single;
 
-import com.sun.enterprise.module.Module;
 import com.sun.enterprise.module.ModuleDefinition;
 import com.sun.enterprise.module.ResolveError;
 import com.sun.enterprise.module.common_impl.DefaultModuleDefinition;
@@ -32,6 +31,7 @@ import java.util.StringTokenizer;
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.PopulatorPostProcessor;
 import org.glassfish.hk2.api.ServiceLocator;
+import com.sun.enterprise.module.HK2Module;
 
 /**
  * Implements a modules registry based on a class-path style of module
@@ -44,7 +44,7 @@ public class ClassPathBasedModulesRegistry extends ModulesRegistryImpl {
 
     final ClassLoader cLoader;
     final List<ModuleDefinition> moduleDefs = new ArrayList<ModuleDefinition>();
-    final List<Module> modules = new ArrayList<Module>();
+    final List<HK2Module> modules = new ArrayList<HK2Module>();
 
 
     public ClassPathBasedModulesRegistry(ClassLoader singleCL, String classPath) throws IOException {
@@ -73,8 +73,8 @@ public class ClassPathBasedModulesRegistry extends ModulesRegistryImpl {
     }
 
     @Override
-    public Module find(Class clazz) {
-        Module m = super.find(clazz);
+    public HK2Module find(Class clazz) {
+        HK2Module m = super.find(clazz);
         // all modules can load all classes
         if (m == null)
             return modules.get(0);
@@ -82,20 +82,20 @@ public class ClassPathBasedModulesRegistry extends ModulesRegistryImpl {
     }
 
     @Override
-    public Collection<Module> getModules(String moduleName) {
+    public Collection<HK2Module> getModules(String moduleName) {
         // I could not care less about the modules names
         return getModules();
     }
 
     @Override
-    public Collection<Module> getModules() {
-        ArrayList<Module> list = new ArrayList<Module>();
+    public Collection<HK2Module> getModules() {
+        ArrayList<HK2Module> list = new ArrayList<HK2Module>();
         list.addAll(modules);
         return list;
     }
 
     @Override
-    public Module makeModuleFor(String name, String version, boolean resolve) throws ResolveError {
+    public HK2Module makeModuleFor(String name, String version, boolean resolve) throws ResolveError {
         for (int i=0;i<moduleDefs.size();i++) {
             ModuleDefinition md = moduleDefs.get(i);
             if (md.getName().equals(name)) {
@@ -106,7 +106,7 @@ public class ClassPathBasedModulesRegistry extends ModulesRegistryImpl {
     }
 
     @Override
-    protected List<ActiveDescriptor> parseInhabitants(Module module, String name, ServiceLocator serviceLocator, List<PopulatorPostProcessor> postProcessors)
+    protected List<ActiveDescriptor> parseInhabitants(HK2Module module, String name, ServiceLocator serviceLocator, List<PopulatorPostProcessor> postProcessors)
             throws IOException {
         return null;
     }

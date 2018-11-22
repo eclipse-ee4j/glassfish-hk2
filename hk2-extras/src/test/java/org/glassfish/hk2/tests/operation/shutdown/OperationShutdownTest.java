@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2018 Payara Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -44,31 +45,30 @@ public class OperationShutdownTest {
         
         OperationManager operationManager = locator.getService(OperationManager.class);
         
-        OperationHandle<BasicOperationScope> operationHandle = operationManager.createOperation(OperationsTest.BASIC_OPERATION_ANNOTATION);
-        operationHandle.resume();
-        
-        ServiceHandle<OperationalServiceWithPerLookupService> handle =
-                locator.getServiceHandle(OperationalServiceWithPerLookupService.class);
-        
-        OperationalServiceWithPerLookupService parent = handle.getService();
-        if (parent instanceof ProxyCtl) {
-            parent = (OperationalServiceWithPerLookupService) ((ProxyCtl) parent).__make();
+        try (OperationHandle<BasicOperationScope> operationHandle = operationManager.createOperation(OperationsTest.BASIC_OPERATION_ANNOTATION)) {
+            operationHandle.resume();
+            
+            ServiceHandle<OperationalServiceWithPerLookupService> handle =
+                    locator.getServiceHandle(OperationalServiceWithPerLookupService.class);
+            
+            OperationalServiceWithPerLookupService parent = handle.getService();
+            if (parent instanceof ProxyCtl) {
+                parent = (OperationalServiceWithPerLookupService) ((ProxyCtl) parent).__make();
+            }
+            
+            Assert.assertFalse(handle.getService().isClosed());
+            
+            PerLookupClassShutdown plcs = handle.getService().getPerLookupService();
+            Assert.assertNotNull(plcs);
+            
+            Registrar registrar = locator.getService(Registrar.class);
+            Assert.assertFalse(registrar.isShutDown(plcs));
+            
+            handle.destroy();
+            
+            Assert.assertTrue(parent.isClosed());
+            Assert.assertTrue(registrar.isShutDown(plcs));
         }
-        
-        Assert.assertFalse(handle.getService().isClosed());
-        
-        PerLookupClassShutdown plcs = handle.getService().getPerLookupService();
-        Assert.assertNotNull(plcs);
-        
-        Registrar registrar = locator.getService(Registrar.class);
-        Assert.assertFalse(registrar.isShutDown(plcs));
-        
-        handle.destroy();
-        
-        Assert.assertTrue(parent.isClosed());
-        Assert.assertTrue(registrar.isShutDown(plcs));
-        
-        operationHandle.closeOperation();
         
     }
     
@@ -100,7 +100,7 @@ public class OperationShutdownTest {
         
         Assert.assertFalse(osf.hasBeenDestroyed(unwrapped));
         
-        operationHandle.closeOperation();
+        operationHandle.close();
         
         Assert.assertTrue(osf.hasBeenDestroyed(unwrapped));
     }
@@ -133,7 +133,7 @@ public class OperationShutdownTest {
         
         Assert.assertFalse(osf.hasBeenDestroyed(unwrapped));
         
-        operationHandle.closeOperation();
+        operationHandle.close();
         
         Assert.assertTrue(osf.hasBeenDestroyed(unwrapped));
         
@@ -167,7 +167,7 @@ public class OperationShutdownTest {
         
         Assert.assertFalse(osf.hasBeenDestroyed(factoryCreated));
         
-        operationHandle.closeOperation();
+        operationHandle.close();
         
         Assert.assertTrue(osf.hasBeenDestroyed(factoryCreated));
     }
@@ -198,7 +198,7 @@ public class OperationShutdownTest {
         
         Assert.assertFalse(osf.hasBeenDestroyed(factoryCreated));
         
-        operationHandle.closeOperation();
+        operationHandle.close();
         
         Assert.assertTrue(osf.hasBeenDestroyed(factoryCreated));
         

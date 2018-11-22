@@ -90,10 +90,22 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>org.jboss.logging</groupId>
+            <artifactId>jboss-logging</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml</groupId>
+            <artifactId>classmate</artifactId>
+            <optional>true</optional>
+        </dependency>
+        
+        <!-- Test scope -->
         <dependency>
           <groupId>jakarta.el</groupId>
           <artifactId>jakarta.el-api</artifactId>
@@ -105,14 +117,10 @@
           <scope>test</scope>
        </dependency>
        <dependency>
-          <groupId>org.jboss.logging</groupId>
-          <artifactId>jboss-logging</artifactId>
-          <optional>true</optional>
-       </dependency>
-       <dependency>
-          <groupId>com.fasterxml</groupId>
-          <artifactId>classmate</artifactId>
-          <optional>true</optional>
+           <groupId>org.glassfish</groupId>
+           <artifactId>javax.el</artifactId>
+           <version>${glassfish.javax.el.version}</version>
+           <scope>test</scope>
        </dependency>
     </dependencies>
 </project>

@@ -29,5 +29,5 @@ public interface ModuleChangeListener {
      * has changed and should be reloaded. Listener of this even should do 
      * necessary steps to insure upgrade of the module
      */
-    public void changed(Module sender);
+    public void changed(HK2Module sender);
 }

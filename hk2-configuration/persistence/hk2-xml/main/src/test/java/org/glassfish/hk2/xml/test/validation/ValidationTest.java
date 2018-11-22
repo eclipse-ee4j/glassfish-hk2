@@ -148,7 +148,7 @@ public class ValidationTest {
             Assert.fail("Should not have worked because validation is on");
         }
         catch (MultiException e) {
-            checkMultiException(e, "may not be null");
+            checkMultiException(e, "must not be null");
         }
         
         // Nothing should have changed
@@ -268,7 +268,7 @@ public class ValidationTest {
             Assert.fail("Add of invalid bean should have failed");
         }
         catch (MultiException me) {
-            checkMultiException(me, "may not be null");
+            checkMultiException(me, "must not be null");
         }
         
         List<ValidationChildBean> listChildren = root.getListChildren();
@@ -301,7 +301,7 @@ public class ValidationTest {
             Assert.fail("Add of invalid array child should have failed");
         }
         catch (MultiException me) {
-            checkMultiException(me, "may not be null");
+            checkMultiException(me, "must not be null");
         }
         
         // Make sure we didn't actually add it
@@ -338,7 +338,7 @@ public class ValidationTest {
             Assert.fail("Add of invalid array child should have failed");
         }
         catch (MultiException me) {
-            checkMultiException(me, "may not be null");
+            checkMultiException(me, "must not be null");
         }
         
         Assert.assertNull(root.getDirectChild());

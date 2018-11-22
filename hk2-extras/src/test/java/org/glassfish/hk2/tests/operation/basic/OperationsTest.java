@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2018 Payara Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -111,8 +112,8 @@ public class OperationsTest {
         Assert.assertEquals(BOB_NM, singleton.getCurrentUserName());
         
         // Clean up
-        aliceOperation.closeOperation();
-        bobOperation.closeOperation();
+        aliceOperation.close();
+        bobOperation.close();
     }
     
     /**
@@ -153,8 +154,8 @@ public class OperationsTest {
         Assert.assertEquals(BOB_NM, bobFetcher.waitForResult());
         
         // Clean up
-        aliceOperation.closeOperation();
-        bobOperation.closeOperation();
+        aliceOperation.close();
+        bobOperation.close();
     }
     
     /**
@@ -186,8 +187,8 @@ public class OperationsTest {
         Set<Long> activeIds = operation.getActiveThreads();
         Assert.assertEquals(2, activeIds.size());
         
-        Assert.assertTrue(activeIds.contains(new Long(t1.getId())));
-        Assert.assertTrue(activeIds.contains(new Long(t2.getId())));
+        Assert.assertTrue(activeIds.contains(t1.getId()));
+        Assert.assertTrue(activeIds.contains(t2.getId()));
         
         operation.suspend(t1.getId());
         
@@ -196,7 +197,7 @@ public class OperationsTest {
         activeIds = operation.getActiveThreads();
         Assert.assertEquals(1, activeIds.size());
         
-        Assert.assertTrue(activeIds.contains(new Long(t2.getId())));
+        Assert.assertTrue(activeIds.contains(t2.getId()));
         
         // suspend t1 again, make sure nothing bad happens
         operation.suspend(t1.getId());
@@ -206,7 +207,7 @@ public class OperationsTest {
         activeIds = operation.getActiveThreads();
         Assert.assertEquals(1, activeIds.size());
         
-        Assert.assertTrue(activeIds.contains(new Long(t2.getId())));
+        Assert.assertTrue(activeIds.contains(t2.getId()));
         
         // Now suspend t2, make sure we go to SUSPENDED
         operation.suspend(t2.getId());
@@ -216,7 +217,7 @@ public class OperationsTest {
         activeIds = operation.getActiveThreads();
         Assert.assertEquals(0, activeIds.size());
         
-        operation.closeOperation();
+        operation.close();
         
         Assert.assertEquals(OperationState.CLOSED, operation.getState());
         
@@ -259,7 +260,7 @@ public class OperationsTest {
         
         Assert.assertEquals(OperationState.ACTIVE, operation.getState());
         
-        operation.closeOperation();
+        operation.close();
         
         Assert.assertEquals(OperationState.CLOSED, operation.getState());
     }
@@ -288,12 +289,12 @@ public class OperationsTest {
             // expected
         }
         
-        operation1.closeOperation();
+        operation1.close();
         
         // Make sure we can do it later after the first operation has gone away
         operation2.resume();
         
-        operation2.closeOperation();
+        operation2.close();
     }
     
     /**
@@ -336,31 +337,22 @@ public class OperationsTest {
         
         OperationManager operationManager = locator.getService(OperationManager.class);
         
-        OperationHandle<BasicOperationScope> aliceOperation = operationManager.createAndStartOperation(BASIC_OPERATION_ANNOTATION);
-        aliceOperation.setOperationData(ALICE);
-        
-        SingletonThatUsesOperationService singleton = locator.getService(SingletonThatUsesOperationService.class);
-        
-        Assert.assertEquals(ALICE_NM, singleton.getCurrentUserName());
-        
-        // suspend ALICE and start BOB
-        aliceOperation.suspend();
-        
-        try {
-            singleton.getCurrentUserName();
-            Assert.fail("Should not have been able to call method as there is no operation on the thread");
+        try (OperationHandle<BasicOperationScope> aliceOperation = operationManager.createAndStartOperation(BASIC_OPERATION_ANNOTATION)) {
+            aliceOperation.setOperationData(ALICE);
+            SingletonThatUsesOperationService singleton = locator.getService(SingletonThatUsesOperationService.class);
+            Assert.assertEquals(ALICE_NM, singleton.getCurrentUserName());
+            // suspend ALICE and start BOB
+            aliceOperation.suspend();
+            try {
+                singleton.getCurrentUserName();
+                Assert.fail("Should not have been able to call method as there is no operation on the thread");
+            }
+            catch (IllegalStateException ise) {
+                // Expected
+            }
+            aliceOperation.resume();
+            Assert.assertEquals(ALICE_NM, singleton.getCurrentUserName());
         }
-        catch (IllegalStateException ise) {
-            // Expected
-        }
-        
-        aliceOperation.resume();
-        
-        Assert.assertEquals(ALICE_NM, singleton.getCurrentUserName());
-        
-        // Clean up
-        aliceOperation.closeOperation();
-        
     }
     
     /**
@@ -417,10 +409,10 @@ public class OperationsTest {
         Assert.assertEquals(SECOND_ID, singleton.getCurrentSecondaryId());
         
         // Clean up
-        aliceOperation.closeOperation();
-        bobOperation.closeOperation();
-        firstOperation.closeOperation();
-        secondOperation.closeOperation();
+        aliceOperation.close();
+        bobOperation.close();
+        firstOperation.close();
+        secondOperation.close();
         
     }
     
@@ -451,8 +443,8 @@ public class OperationsTest {
         Assert.assertEquals(BOB, tdt.getSecondaryHandle().getOperationData());
         
         // Clean up
-        aliceOperation.closeOperation();
-        firstOperation.closeOperation();
+        aliceOperation.close();
+        firstOperation.close();
     }
     
     /**
@@ -467,16 +459,11 @@ public class OperationsTest {
         
         OperationManager operationManager = locator.getService(OperationManager.class);
         
-        OperationHandle<SecondaryOperationScope> firstOperation = operationManager.createAndStartOperation(SECONDARY_OPERATION_ANNOTATION);
-        
-        firstOperation.resume();
-        
-        PerLookupThatUsesNullMeService usesNullMe = locator.getService(PerLookupThatUsesNullMeService.class);
-        
-        Assert.assertTrue(usesNullMe.isNullMeNull());
-        
-        // Clean up
-        firstOperation.closeOperation();
+        try (OperationHandle<SecondaryOperationScope> firstOperation = operationManager.createAndStartOperation(SECONDARY_OPERATION_ANNOTATION)) {
+            firstOperation.resume();
+            PerLookupThatUsesNullMeService usesNullMe = locator.getService(PerLookupThatUsesNullMeService.class);
+            Assert.assertTrue(usesNullMe.isNullMeNull());
+        }
     }
     
     /**
@@ -508,7 +495,7 @@ public class OperationsTest {
         
         // Lets activate one and destroy one, make sure we still have the proper counts
         secondOperation.resume();
-        thirdOperation.closeOperation();
+        thirdOperation.close();
         
         {
             Set<OperationHandle<BasicOperationScope>> allHandles = operationManager.getCurrentOperations(BASIC_OPERATION_ANNOTATION);
@@ -591,13 +578,13 @@ public class OperationsTest {
         Assert.assertEquals(firstOperation, operationManager.getCurrentOperation(BASIC_OPERATION_ANNOTATION));
         Assert.assertNull(operationManager.getCurrentOperation(SECONDARY_OPERATION_ANNOTATION));
         
-        firstOperation.closeOperation();
+        firstOperation.close();
         
         Assert.assertNull(operationManager.getCurrentOperation(BASIC_OPERATION_ANNOTATION));
         Assert.assertNull(operationManager.getCurrentOperation(SECONDARY_OPERATION_ANNOTATION));
         
-        secondOperation.closeOperation();
-        thirdOperation.closeOperation();
+        secondOperation.close();
+        thirdOperation.close();
     }
     
     /**
@@ -620,10 +607,10 @@ public class OperationsTest {
         OperationHandle<SecondaryOperationScope> second3Operation = operationManager.createOperation(SECONDARY_OPERATION_ANNOTATION);
         
         basic2Operation.resume();
-        basic3Operation.closeOperation();
+        basic3Operation.close();
         
         second2Operation.resume();
-        second3Operation.closeOperation();
+        second3Operation.close();
         
         Assert.assertEquals(OperationState.SUSPENDED, basic1Operation.getState());
         Assert.assertEquals(OperationState.ACTIVE, basic2Operation.getState());
@@ -739,13 +726,13 @@ public class OperationsTest {
         Assert.assertNotEquals(id1, id2);
         
         // Now lets close operation 2, make sure preDestroy is called
-        operation2.closeOperation();
+        operation2.close();
         
         Assert.assertTrue(BasicOperationLifecycleMethods.isClosed(id2));
         Assert.assertFalse(BasicOperationLifecycleMethods.isClosed(id1));
         
         // Now close first operation (which is not currently active)
-        operation1.closeOperation();
+        operation1.close();
         
         Assert.assertTrue(BasicOperationLifecycleMethods.isClosed(id1));
     }
@@ -918,16 +905,14 @@ public class OperationsTest {
         
         OperationManager operationManager = locator.getService(OperationManager.class);
         
-        OperationHandle<BasicOperationScope> operation1 = operationManager.createAndStartOperation(BASIC_OPERATION_ANNOTATION);
-        
-        BasicOperationUsesServiceInPreDispose.clean();
-        
-        BasicOperationUsesServiceInPreDispose bousipd = locator.getService(BasicOperationUsesServiceInPreDispose.class);
-        bousipd.instantiateMe();
-        
-        Assert.assertFalse(BasicOperationUsesServiceInPreDispose.getDisposeSuccess());
-        
-        operation1.closeOperation();
+        try (OperationHandle<BasicOperationScope> operation1 = operationManager.createAndStartOperation(BASIC_OPERATION_ANNOTATION)) {
+            BasicOperationUsesServiceInPreDispose.clean();
+            
+            BasicOperationUsesServiceInPreDispose bousipd = locator.getService(BasicOperationUsesServiceInPreDispose.class);
+            bousipd.instantiateMe();
+            
+            Assert.assertFalse(BasicOperationUsesServiceInPreDispose.getDisposeSuccess());
+        }
         
         Assert.assertFalse(BasicOperationUsesServiceInPreDispose.getDisposeSuccess());
     }
@@ -1056,7 +1041,7 @@ public class OperationsTest {
         Assert.assertTrue(service1.equals(service2));
         Assert.assertTrue(service2.equals(service1));
         
-        operation1.closeOperation();
+        operation1.close();
     }
     
     private static class Closer implements Runnable {
@@ -1073,7 +1058,7 @@ public class OperationsTest {
          */
         @Override
         public void run() {
-            closeMe.closeOperation();
+            closeMe.close();
             
             synchronized (notifier) {
                 notifier.notifyAll();

@@ -16,6 +16,7 @@
 
 package org.jvnet.hk2.internal;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -123,12 +124,12 @@ public class ServiceHandleImpl<T> implements ServiceHandle<T> {
             return false;
         }
     }
-
+    
     /* (non-Javadoc)
      * @see org.glassfish.hk2.api.ServiceHandle#destroy()
      */
     @Override
-    public void destroy() {
+    public void close() {
         boolean localServiceSet;
         boolean serviceActive;
         

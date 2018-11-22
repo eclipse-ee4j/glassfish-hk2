@@ -50,9 +50,9 @@ public class SimpleSingleton {
     final OperationManager operationManager = this.serviceLocator.getService(OperationManager.class);
     assertNotNull(operationManager);
 
-    final OperationHandle<BasicOperationScope> handle = operationManager.createAndStartOperation(BASIC_OPERATION_ANNOTATION);
-    assertNotNull(handle);
-    try {
+    try (OperationHandle<BasicOperationScope> handle = operationManager.createAndStartOperation(BASIC_OPERATION_ANNOTATION)) {
+      assertNotNull(handle);
+    
       final ActiveDescriptor<?> fd = this.serviceLocator.getBestDescriptor(new FrobnicatorFilter());
       assertNotNull(fd);
 
@@ -62,9 +62,8 @@ public class SimpleSingleton {
       final Frobnicator frobnicator = (Frobnicator)sh.getService();
       assertTrue(frobnicator instanceof ProxyCtl);
       frobnicator.toString();
-    } finally {
-      handle.closeOperation();
     }
+    
   }
 
   private static final class FrobnicatorFilter implements Filter {

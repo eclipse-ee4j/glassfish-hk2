@@ -16,6 +16,7 @@
 
 package org.jvnet.hk2.guice.bridge.internal;
 
+import com.google.inject.BindingAnnotation;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
@@ -58,8 +59,7 @@ public class HK2ToGuiceTypeListenerImpl implements TypeListener {
     private static boolean isQualifier(Annotation anno) {
         Class<? extends Annotation> annoClass = anno.annotationType();
         
-        if (annoClass.isAnnotationPresent(Qualifier.class)) return true;
-        return false;
+        return annoClass.isAnnotationPresent(Qualifier.class) || annoClass.isAnnotationPresent(BindingAnnotation.class);
         
     }
 

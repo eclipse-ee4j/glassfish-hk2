@@ -53,7 +53,7 @@ public class ReqContext implements Context<ReqScoped> {
      */
     public void startRequest() {
         if (currentRequest != null) {
-            currentRequest.closeOperation();
+            currentRequest.close();
             currentRequest = null;
         }
         
@@ -69,7 +69,7 @@ public class ReqContext implements Context<ReqScoped> {
     public void stopRequest() {
         this.context = null;
         if (currentRequest != null) {
-            currentRequest.closeOperation();
+            currentRequest.close();
             currentRequest = null;
         }
     }

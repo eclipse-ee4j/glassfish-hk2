@@ -16,7 +16,7 @@
 
 package org.jvnet.hk2.osgiadapter;
 
-import com.sun.enterprise.module.Module;
+import com.sun.enterprise.module.HK2Module;
 import com.sun.enterprise.module.ModuleDefinition;
 import com.sun.enterprise.module.ModuleState;
 import com.sun.enterprise.module.ResolveError;
@@ -137,7 +137,7 @@ public class OSGiObrModuleImpl extends OSGiModuleImpl {
     }
 
     @Override
-    public List<Module> getImports() {
+    public List<HK2Module> getImports() {
         if (isUninitialized()) {
             return Collections.emptyList();
         }
