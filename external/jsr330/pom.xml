@@ -22,14 +22,12 @@
     <parent>
         <groupId>org.glassfish.hk2</groupId>
         <artifactId>external</artifactId>
-        <version>2.5.0-b63-SNAPSHOT</version>
+        <version>2.5.0-b64-SNAPSHOT</version>
     </parent>
     <groupId>org.glassfish.hk2.external</groupId>
-    <artifactId>javax.inject</artifactId>
-
+    <artifactId>jakarta.inject</artifactId>
     <name>javax.inject:${javax-inject.version} as OSGi bundle</name>
     <description>Injection API (JSR 330) version ${javax.inject.version} repackaged as OSGi bundle</description>
-
 
     <build>
         <plugins>
@@ -106,7 +104,7 @@
             </plugin>
         </plugins>
     </build>
-    
+
     <dependencies>
         <dependency>
             <groupId>javax.inject</groupId>

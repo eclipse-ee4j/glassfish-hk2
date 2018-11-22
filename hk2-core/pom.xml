@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.glassfish.hk2</groupId>
         <artifactId>hk2-parent</artifactId>
-        <version>2.5.0-b63-SNAPSHOT</version>
+        <version>2.5.0-b64-SNAPSHOT</version>
     </parent>
     <artifactId>hk2-core</artifactId>
     <name>HK2 core module</name>
@@ -75,7 +75,7 @@
             </activation>
             <dependencies>
                 <dependency>
-                    <groupId>javax.xml.stream</groupId>
+                    <groupId>jakarta.xml.stream</groupId>
                     <artifactId>stax-api</artifactId>
                     <scope>provided</scope>
                 </dependency>
