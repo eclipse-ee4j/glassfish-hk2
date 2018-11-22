@@ -143,9 +143,9 @@
         <java.net.username>${user.name}</java.net.username>
         <hibernate-validator.version>6.0.10.Final</hibernate-validator.version>
         <hibernate-validator.version.upperbound>7</hibernate-validator.version.upperbound>
-        <javax.validation.version>2.0.1.Final</javax.validation.version>
-        <javax.validation.version.upperbound>3</javax.validation.version.upperbound>
-        <javax.validation.osgi.version>2.0.1</javax.validation.osgi.version>
+        <jakarta.validation.version>2.0.1.Final</jakarta.validation.version>
+        <jakarta.validation.version.upperbound>3</jakarta.validation.version.upperbound>
+        <jakarta.validation.osgi.version>2.0.1</jakarta.validation.osgi.version>
         <glassfish.javax.el.version>3.0.1-b10</glassfish.javax.el.version>
         <jakarta.el.version>3.0.2</jakarta.el.version>
         <jtype.version>0.1.0</jtype.version>
@@ -166,7 +166,6 @@
         <hamcrest.version>1.3</hamcrest.version>
         <jakarta.servlet.version>4.0.2</jakarta.servlet.version>
         <jakarta.ws.rs.version>2.1.3</jakarta.ws.rs.version>
-        <jakarta.validation.version>1.1.0.Final</jakarta.validation.version>
         <classmate.version>1.3.3</classmate.version>
         <springcontext.version>4.3.16.RELEASE</springcontext.version>
         <guice.version>4.1.0</guice.version>

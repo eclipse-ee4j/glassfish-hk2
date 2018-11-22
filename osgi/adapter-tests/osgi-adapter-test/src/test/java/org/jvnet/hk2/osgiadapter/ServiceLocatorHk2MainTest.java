@@ -118,7 +118,7 @@ public class ServiceLocatorHk2MainTest {
                 provision(mavenBundle().groupId("jakarta.annotation").artifactId("jakarta.annotation-api").versionAsInProject()),
                 provision(mavenBundle().groupId("jakarta.el").artifactId("jakarta.el-api").versionAsInProject()),
                 provision(mavenBundle().groupId("javax.validation").artifactId("validation-api").versionAsInProject()),
-                provision(mavenBundle().groupId("org.hibernate").artifactId("hibernate-validator").versionAsInProject()),
+                provision(mavenBundle().groupId("org.hibernate.validator").artifactId("hibernate-validator").versionAsInProject()),
                 provision(mavenBundle().groupId("com.fasterxml").artifactId("classmate").versionAsInProject()),
                 provision(mavenBundle().groupId("org.jboss.logging").artifactId("jboss-logging").versionAsInProject()),
                 // systemProperty("org.ops4j.pax.logging.DefaultServiceLog.level")
