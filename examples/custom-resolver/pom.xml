@@ -22,9 +22,8 @@
     <parent>
         <groupId>org.glassfish.hk2</groupId>
         <artifactId>examples</artifactId>
-        <version>2.5.0-b63-SNAPSHOT</version>
+        <version>2.5.0-b64-SNAPSHOT</version>
     </parent>
-
     <artifactId>custom-resolver-example</artifactId>
     <name>Custom Resolver Example</name>
     <description>A use case for custom injection resolution</description>
@@ -50,11 +49,11 @@
             </plugin>
         </plugins>
     </build>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.glassfish.hk2.external</groupId>
-            <artifactId>javax.inject</artifactId>
+            <artifactId>jakarta.inject</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

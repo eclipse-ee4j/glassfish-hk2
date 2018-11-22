@@ -7,5 +7,6 @@ target/
 .vscode/
 .idea
 nb-configuration.xml
-external/asm-all/dependency-reduced-pom.xml
 hk2-configuration/persistence/hk2-xml/main/negative-output.xml
+/bin/
+external/asm-all/dependency-reduced-pom.xml

@@ -80,11 +80,11 @@ public class InteropTest {
         byte asBytes[] = baos.toByteArray();
         String asString = new String(asBytes);
         
-        Assert.assertTrue(asString.contains("\"name\":\"Alice\""));
-        Assert.assertTrue(asString.contains("\"name\":\"Bob\""));
+        Assert.assertTrue("Incorrect String: " + asString, asString.contains("\"name\": \"Alice\""));
+        Assert.assertTrue(asString.contains("\"name\": \"Bob\""));
         
-        Assert.assertTrue(asString.contains("\"houseNumber\":100"));
-        Assert.assertTrue(asString.contains("\"houseNumber\":200"));
+        Assert.assertTrue(asString.contains("\"houseNumber\": 100"));
+        Assert.assertTrue(asString.contains("\"houseNumber\": 200"));
     }
     
     /**
@@ -270,11 +270,11 @@ public class InteropTest {
         byte asBytes[] = baos.toByteArray();
         String asString = new String(asBytes);
         
-        Assert.assertTrue(asString.contains("\"name\":\"Alice\""));
-        Assert.assertTrue(asString.contains("\"name\":\"Bob\""));
+        Assert.assertTrue(asString.contains("\"name\": \"Alice\""));
+        Assert.assertTrue(asString.contains("\"name\": \"Bob\""));
         
-        Assert.assertTrue(asString.contains("\"houseNumber\":100"));
-        Assert.assertTrue(asString.contains("\"houseNumber\":200"));
+        Assert.assertTrue(asString.contains("\"houseNumber\": 100"));
+        Assert.assertTrue(asString.contains("\"houseNumber\": 200"));
     }
     
     private static byte[] readURLCompletely(URL url) throws IOException {
