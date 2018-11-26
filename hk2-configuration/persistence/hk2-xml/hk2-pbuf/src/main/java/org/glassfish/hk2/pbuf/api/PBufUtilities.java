@@ -37,6 +37,17 @@ public class PBufUtilities {
      */
     public final static String PBUF_OPTION_INT32_HEADER = "PbufInt32Header";
     
+    /**
+     * If using a streaming protocol and the PBUF_OPTION_INT32_HEADER is true
+     * (the default value) then you must allow this option to be set and used
+     * in all calls using the same underlying stream.  The object put in here
+     * will implement AutoCloseable but it is not necessary to call close on
+     * it.  However, it must be used in all calls using the same Input or Output
+     * streams as underlying protobuffer state is maintained in the object put
+     * into this field by the parser implementation
+     */
+    public final static String PBUF_STREAMING_OPTION = "PbufStream";
+    
     private static boolean isDup(MultiException me) {
         if (me == null) return false;
         

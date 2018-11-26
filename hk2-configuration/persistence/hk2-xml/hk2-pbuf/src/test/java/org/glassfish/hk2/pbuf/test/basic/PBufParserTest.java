@@ -18,6 +18,7 @@ package org.glassfish.hk2.pbuf.test.basic;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
@@ -570,6 +571,72 @@ public class PBufParserTest {
         finally {
             bais.close();
         }
+    }
+    
+    @Test
+    public void testMarshalAndUnmarshalSeveralInStream() throws Exception {
+        ServiceLocator locator = Utilities.enableLocator();
+        XmlService xmlService = locator.getService(XmlService.class, PBufUtilities.PBUF_SERVICE_NAME);
+        Assert.assertNotNull(xmlService);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        XmlRootHandle<RootOnlyBean> eaglesHandle = xmlService.createEmptyHandle(RootOnlyBean.class, false, false);
+        XmlRootHandle<RootOnlyBean> giantsHandle = xmlService.createEmptyHandle(RootOnlyBean.class, false, false);
+
+        eaglesHandle.addRoot();
+        giantsHandle.addRoot();
+
+        RootOnlyBean eagles = eaglesHandle.getRoot();
+        eagles.setName("Wentz");
+        eagles.setEnumeration(NFCEast.EAGLES);
+
+        RootOnlyBean giants = giantsHandle.getRoot();
+        giants.setName("Manning");
+        giants.setEnumeration(NFCEast.GIANTS);
+
+        Map<String, Object> options = new HashMap<String, Object>();
+        options.put(PBufUtilities.PBUF_STREAMING_OPTION, null);
+        
+        xmlService.marshal(baos, eaglesHandle, options);
+        AutoCloseable closeMe = (AutoCloseable) options.get(PBufUtilities.PBUF_STREAMING_OPTION);
+        Assert.assertNotNull(closeMe);
+        
+        xmlService.marshal(baos, giantsHandle, options);
+        closeMe = (AutoCloseable) options.get(PBufUtilities.PBUF_STREAMING_OPTION);
+        Assert.assertNotNull(closeMe);
+
+        baos.flush();
+        baos.close();
+        closeMe.close();
+
+        byte asBytes[] = baos.toByteArray();
+
+        options = new HashMap<String, Object>();
+        options.put(PBufUtilities.PBUF_STREAMING_OPTION, null);
+        
+        ByteArrayInputStream bais = new ByteArrayInputStream(asBytes);
+        try {
+                XmlRootHandle<RootOnlyBean> inEaglesHandle = xmlService.unmarshal(bais, RootOnlyBean.class, false, false, options);
+                XmlRootHandle<RootOnlyBean> inGiantsHandle = xmlService.unmarshal(bais, RootOnlyBean.class, false, false, options);
+
+                RootOnlyBean inEagles = inEaglesHandle.getRoot();
+                RootOnlyBean inGiants = inGiantsHandle.getRoot();
+
+                Assert.assertEquals("Wentz", inEagles.getName());
+                Assert.assertEquals(NFCEast.EAGLES, inEagles.getEnumeration());
+
+                Assert.assertEquals("Manning", inGiants.getName());
+                Assert.assertEquals(NFCEast.GIANTS, inGiants.getEnumeration());
+        }
+        finally {
+        	closeMe = (AutoCloseable) options.get(PBufUtilities.PBUF_STREAMING_OPTION);
+            Assert.assertNotNull(closeMe);
+            
+            bais.close();
+            closeMe.close();
+        }
+
     }
     
     /**
