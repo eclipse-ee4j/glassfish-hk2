@@ -18,6 +18,7 @@ package org.glassfish.hk2.pbuf.test.basic;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
@@ -594,17 +595,30 @@ public class PBufParserTest {
         giants.setName("Manning");
         giants.setEnumeration(NFCEast.GIANTS);
 
-        xmlService.marshal(baos, eaglesHandle);
-        xmlService.marshal(baos, giantsHandle);
+        Map<String, Object> options = new HashMap<String, Object>();
+        options.put(PBufUtilities.PBUF_STREAMING_OPTION, null);
+        
+        xmlService.marshal(baos, eaglesHandle, options);
+        AutoCloseable closeMe = (AutoCloseable) options.get(PBufUtilities.PBUF_STREAMING_OPTION);
+        Assert.assertNotNull(closeMe);
+        
+        xmlService.marshal(baos, giantsHandle, options);
+        closeMe = (AutoCloseable) options.get(PBufUtilities.PBUF_STREAMING_OPTION);
+        Assert.assertNotNull(closeMe);
 
         baos.flush();
         baos.close();
+        closeMe.close();
 
         byte asBytes[] = baos.toByteArray();
 
-        try (ByteArrayInputStream bais = new ByteArrayInputStream(asBytes)) {
-                XmlRootHandle<RootOnlyBean> inEaglesHandle = xmlService.unmarshal(bais, RootOnlyBean.class);
-                XmlRootHandle<RootOnlyBean> inGiantsHandle = xmlService.unmarshal(bais, RootOnlyBean.class);
+        options = new HashMap<String, Object>();
+        options.put(PBufUtilities.PBUF_STREAMING_OPTION, null);
+        
+        ByteArrayInputStream bais = new ByteArrayInputStream(asBytes);
+        try {
+                XmlRootHandle<RootOnlyBean> inEaglesHandle = xmlService.unmarshal(bais, RootOnlyBean.class, false, false, options);
+                XmlRootHandle<RootOnlyBean> inGiantsHandle = xmlService.unmarshal(bais, RootOnlyBean.class, false, false, options);
 
                 RootOnlyBean inEagles = inEaglesHandle.getRoot();
                 RootOnlyBean inGiants = inGiantsHandle.getRoot();
@@ -614,6 +628,13 @@ public class PBufParserTest {
 
                 Assert.assertEquals("Manning", inGiants.getName());
                 Assert.assertEquals(NFCEast.GIANTS, inGiants.getEnumeration());
+        }
+        finally {
+        	closeMe = (AutoCloseable) options.get(PBufUtilities.PBUF_STREAMING_OPTION);
+            Assert.assertNotNull(closeMe);
+            
+            bais.close();
+            closeMe.close();
         }
 
     }
