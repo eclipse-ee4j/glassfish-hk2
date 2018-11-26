@@ -572,6 +572,52 @@ public class PBufParserTest {
         }
     }
     
+    @Test
+    public void testMarshalAndUnmarshalSeveralInStream() throws Exception {
+        ServiceLocator locator = Utilities.enableLocator();
+        XmlService xmlService = locator.getService(XmlService.class, PBufUtilities.PBUF_SERVICE_NAME);
+        Assert.assertNotNull(xmlService);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        XmlRootHandle<RootOnlyBean> eaglesHandle = xmlService.createEmptyHandle(RootOnlyBean.class, false, false);
+        XmlRootHandle<RootOnlyBean> giantsHandle = xmlService.createEmptyHandle(RootOnlyBean.class, false, false);
+
+        eaglesHandle.addRoot();
+        giantsHandle.addRoot();
+
+        RootOnlyBean eagles = eaglesHandle.getRoot();
+        eagles.setName("Wentz");
+        eagles.setEnumeration(NFCEast.EAGLES);
+
+        RootOnlyBean giants = giantsHandle.getRoot();
+        giants.setName("Manning");
+        giants.setEnumeration(NFCEast.GIANTS);
+
+        xmlService.marshal(baos, eaglesHandle);
+        xmlService.marshal(baos, giantsHandle);
+
+        baos.flush();
+        baos.close();
+
+        byte asBytes[] = baos.toByteArray();
+
+        try (ByteArrayInputStream bais = new ByteArrayInputStream(asBytes)) {
+                XmlRootHandle<RootOnlyBean> inEaglesHandle = xmlService.unmarshal(bais, RootOnlyBean.class);
+                XmlRootHandle<RootOnlyBean> inGiantsHandle = xmlService.unmarshal(bais, RootOnlyBean.class);
+
+                RootOnlyBean inEagles = inEaglesHandle.getRoot();
+                RootOnlyBean inGiants = inGiantsHandle.getRoot();
+
+                Assert.assertEquals("Wentz", inEagles.getName());
+                Assert.assertEquals(NFCEast.EAGLES, inEagles.getEnumeration());
+
+                Assert.assertEquals("Manning", inGiants.getName());
+                Assert.assertEquals(NFCEast.GIANTS, inGiants.getEnumeration());
+        }
+
+    }
+    
     /**
      * Specialized multi-exception validator
      * 
