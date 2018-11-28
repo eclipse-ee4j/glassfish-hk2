@@ -198,7 +198,7 @@
         <module>hk2-api</module>
         <module>hk2-configuration</module>
         <module>hk2-extras</module>
-        <module>javadocs</module>
+        <!--<module>javadocs</module>-->
     </modules>
 
     <build>
