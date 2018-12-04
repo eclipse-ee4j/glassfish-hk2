@@ -16,10 +16,13 @@
 
 package org.glassfish.hk2.utilities.reflection.types2;
 
+import org.glassfish.hk2.utilities.reflection.annotations.TestContract;
+
 /**
  * @author jwells
  *
  */
+@TestContract
 public interface ServiceInterface extends BaseInterface {
     public BaseInterface fromServiceInterface();
 }

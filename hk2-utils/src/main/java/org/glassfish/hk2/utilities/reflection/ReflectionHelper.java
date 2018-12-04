@@ -642,33 +642,37 @@ public final class ReflectionHelper {
      * @param markerAnnotation The annotation to use to discover annotated types
      * @return The type itself and the contracts it implements
      */
-    public static Set<String> getContractsFromClass(Class<?> clazz, Class<? extends Annotation> markerAnnotation) {
-        Set<String> retVal = new LinkedHashSet<String>();
-        if (clazz == null) return retVal;
+    public static Set<String> getContractsFromClass(
+            final Class<?> clazz,
+            final Class<? extends Annotation> markerAnnotation) {
+        final Set<String> contractSet = new LinkedHashSet<>();
+        if (clazz == null) {
+            return contractSet;
+        }
+        contractSet.add(clazz.getName());
 
-        retVal.add(clazz.getName());
-
-        Class<?> extendsClasses = clazz.getSuperclass();
-        while (extendsClasses != null) {
+        for (Class extendsClasses = clazz; extendsClasses != null;
+             extendsClasses = extendsClasses.getSuperclass()) {
             if (extendsClasses.isAnnotationPresent(markerAnnotation)) {
-                retVal.add(extendsClasses.getName());
+                contractSet.add(extendsClasses.getName());
             }
-
-            extendsClasses = extendsClasses.getSuperclass();
+            recursiveAddContractsFromInterfacesToMap(
+                    extendsClasses.getInterfaces(), contractSet, markerAnnotation);
         }
+        return contractSet;
+    }
 
-        while (clazz != null) {
-            Class<?> interfaces[] = clazz.getInterfaces();
-            for (Class<?> iFace : interfaces) {
-                if (iFace.isAnnotationPresent(markerAnnotation)) {
-                    retVal.add(iFace.getName());
-                }
+    private static void recursiveAddContractsFromInterfacesToMap(
+            final Class[] interfaces,
+            final Set<String> contractSet,
+            final Class<? extends Annotation> markerAnnotation) {
+        for (final Class anInterface : interfaces) {
+            if (anInterface.isAnnotationPresent(markerAnnotation)) {
+                contractSet.add(anInterface.getName());
             }
-
-            clazz = clazz.getSuperclass();
+            recursiveAddContractsFromInterfacesToMap
+                    (anInterface.getInterfaces(), contractSet, markerAnnotation);
         }
-
-        return retVal;
     }
 
     /**
