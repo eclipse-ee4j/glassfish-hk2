@@ -51,6 +51,7 @@
                             <goal>jar</goal>
                         </goals>
                         <configuration>
+                            <failOnError>false</failOnError>
                             <outputDirectory>${project.build.directory}/staging/apidocs</outputDirectory>
                             <additionalparam>${javadoc.options}</additionalparam>
                             <sourcepath>
@@ -120,6 +121,16 @@
         <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
             <scope>compile</scope>
         </dependency>
     </dependencies>
