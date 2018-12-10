@@ -51,9 +51,10 @@
                             <goal>jar</goal>
                         </goals>
                         <configuration>
-                            <failOnError>false</failOnError>
                             <outputDirectory>${project.build.directory}/staging/apidocs</outputDirectory>
-                            <additionalparam>${javadoc.options}</additionalparam>
+                            <additionalOptions>
+                                <additionalOption>${javadoc.options}</additionalOption>
+                            </additionalOptions>
                             <sourcepath>
                                 ${basedir}/../hk2-api/src/main/java;
                                 ${basedir}/../hk2-locator/src/main/java;
