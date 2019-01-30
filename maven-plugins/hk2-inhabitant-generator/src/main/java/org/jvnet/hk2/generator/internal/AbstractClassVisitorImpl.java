@@ -32,7 +32,7 @@ public abstract class AbstractClassVisitorImpl extends ClassVisitor {
      * The constructor that gives the version we are implementing to the superclass
      */
     public AbstractClassVisitorImpl() {
-        super(Opcodes.ASM6);
+        super(Opcodes.ASM7);
     }
 
     /* (non-Javadoc)
