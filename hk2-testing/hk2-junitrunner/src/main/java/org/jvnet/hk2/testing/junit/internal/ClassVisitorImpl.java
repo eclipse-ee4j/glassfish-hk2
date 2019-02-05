@@ -47,7 +47,7 @@ public class ClassVisitorImpl extends ClassVisitor {
      * @param excludes The set of implementations to NOT add to the locator
      */
     public ClassVisitorImpl(ServiceLocator locator, boolean verbose, Set<String> excludes) {
-        super(Opcodes.ASM6);
+        super(Opcodes.ASM7);
         
         this.locator = locator;
         this.verbose = verbose;

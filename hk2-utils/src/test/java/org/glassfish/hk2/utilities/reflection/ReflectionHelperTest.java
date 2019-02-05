@@ -28,8 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import junit.framework.Assert;
-
+import org.glassfish.hk2.utilities.reflection.annotations.TestContract;
 import org.glassfish.hk2.utilities.reflection.internal.ClassReflectionHelperImpl;
 import org.glassfish.hk2.utilities.reflection.types.AbstractServiceOne;
 import org.glassfish.hk2.utilities.reflection.types.AbstractServiceTwo;
@@ -41,7 +40,13 @@ import org.glassfish.hk2.utilities.reflection.types.InterfaceOne;
 import org.glassfish.hk2.utilities.reflection.types.InterfaceThree;
 import org.glassfish.hk2.utilities.reflection.types.InterfaceTwo;
 import org.glassfish.hk2.utilities.reflection.types.ParameterizedClassOne;
+import org.glassfish.hk2.utilities.reflection.types2.BaseInterface;
+import org.glassfish.hk2.utilities.reflection.types2.ServiceImpl;
+import org.glassfish.hk2.utilities.reflection.types2.ServiceInterface;
+import org.junit.Assert;
 import org.junit.Test;
+
+import static org.hamcrest.core.Is.is;
 
 /**
  * @author jwells
@@ -1101,4 +1106,13 @@ public class ReflectionHelperTest {
         Assert.assertEquals(List.class, cType1.getComponentType());
     }
 
+    @Test
+    public void testGetContractsFromClassFindsExtendedInterfaces(){
+        final Set<String> contractsFromClass
+                = ReflectionHelper.getContractsFromClass(ServiceImpl.class, TestContract.class);
+        Assert.assertThat(contractsFromClass.size(), is(3));
+        Assert.assertTrue(contractsFromClass.contains(ServiceImpl.class.getName()));
+        Assert.assertTrue(contractsFromClass.contains(ServiceInterface.class.getName()));
+        Assert.assertTrue(contractsFromClass.contains(BaseInterface.class.getName()));
+    }
 }
