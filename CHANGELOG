@@ -1,0 +1,5 @@
+Changes since 2.5.0:
+
+* OperationHandle and ServiceHandle extend Closable for try-with-resources
+* Renamed Module to HK2Module for JDK 9+ compatibility
+
