@@ -67,8 +67,8 @@ public class AnnotationModelImpl implements AnnotationModel {
     }
     
     private Object unwrap(Object value) {
-      if (org.glassfish.hk2.external.org.objectweb.asm.Type.class.isInstance(value)) {
-        return org.glassfish.hk2.external.org.objectweb.asm.Type.class.cast(value).getClassName();
+      if (org.objectweb.asm.Type.class.isInstance(value)) {
+        return org.objectweb.asm.Type.class.cast(value).getClassName();
       }
       return value;
     }

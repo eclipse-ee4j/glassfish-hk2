@@ -21,7 +21,7 @@ import org.glassfish.hk2.classmodel.reflect.impl.TypesCtr;
 import org.glassfish.hk2.classmodel.reflect.util.DirectoryArchive;
 import org.glassfish.hk2.classmodel.reflect.util.JarArchive;
 import org.glassfish.hk2.classmodel.reflect.util.ResourceLocator;
-import org.glassfish.hk2.external.org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassReader;
 
 import java.io.Closeable;
 import java.io.File;

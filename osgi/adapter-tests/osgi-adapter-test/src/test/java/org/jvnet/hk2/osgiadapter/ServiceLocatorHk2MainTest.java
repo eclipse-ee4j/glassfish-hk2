@@ -64,6 +64,7 @@ public class ServiceLocatorHk2MainTest {
 
     /* package */ static final String HK2_GROUP_ID = "org.glassfish.hk2";
     /* package */ static final String HK2_EXT_GROUP_ID = "org.glassfish.hk2.external";
+    /* package */ static final String ASM_GROUP_ID = "org.ow2.asm";
 
     @Inject
     private BundleContext bundleContext;
@@ -78,6 +79,7 @@ public class ServiceLocatorHk2MainTest {
     @Configuration
     public Option[] configuration() {
         String projectVersion = System.getProperty("project.version");
+        String asmVersion = System.getProperty("asm.version");
         return options(workingDirectory(System.getProperty("basedir") + "/target/wd"),
                 systemProperty("java.io.tmpdir").value(System.getProperty("basedir") + "/target"),
                 systemProperty("pax.exam.osgi.unresolved.fail").value("true"),
@@ -106,7 +108,11 @@ public class ServiceLocatorHk2MainTest {
                 provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("hk2-locator").version(projectVersion).startLevel(4)),
                 provision(mavenBundle().groupId(HK2_EXT_GROUP_ID).artifactId("jakarta.inject").version(projectVersion).startLevel(4)),
                 provision(mavenBundle().groupId("org.javassist").artifactId("javassist").versionAsInProject().startLevel(4)),
-                provision(mavenBundle().groupId(HK2_EXT_GROUP_ID).artifactId("asm-repackaged").version(projectVersion).startLevel(4)),
+                provision(mavenBundle().groupId(ASM_GROUP_ID).artifactId("asm").version(asmVersion).startLevel(4)),
+                provision(mavenBundle().groupId(ASM_GROUP_ID).artifactId("asm-analysis").version(asmVersion).startLevel(4)),
+                provision(mavenBundle().groupId(ASM_GROUP_ID).artifactId("asm-commons").version(asmVersion).startLevel(4)),
+                provision(mavenBundle().groupId(ASM_GROUP_ID).artifactId("asm-tree").version(asmVersion).startLevel(4)),
+                provision(mavenBundle().groupId(ASM_GROUP_ID).artifactId("asm-util").version(asmVersion).startLevel(4)),
                 provision(mavenBundle().groupId(HK2_EXT_GROUP_ID).artifactId("aopalliance-repackaged").version(projectVersion).startLevel(4)),
                 provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("osgi-resource-locator").version("1.0.1").startLevel(4)),
                 provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("class-model").version(projectVersion).startLevel(4)),

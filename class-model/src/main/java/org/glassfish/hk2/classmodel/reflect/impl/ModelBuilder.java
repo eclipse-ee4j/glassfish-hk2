@@ -17,7 +17,7 @@
 package org.glassfish.hk2.classmodel.reflect.impl;
 
 import org.glassfish.hk2.classmodel.reflect.*;
-import org.glassfish.hk2.external.org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Opcodes;
 import java.net.URI;
 import java.util.Collection;
 
