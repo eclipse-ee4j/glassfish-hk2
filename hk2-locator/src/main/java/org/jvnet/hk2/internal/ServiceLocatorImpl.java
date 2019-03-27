@@ -868,6 +868,10 @@ public class ServiceLocatorImpl implements ServiceLocator {
         wLock.lock();
         try {
             if (state.equals(ServiceLocatorState.SHUTDOWN)) return;
+            
+            for (ServiceLocatorImpl child : children.keySet()) {
+                child.shutdown();
+            }
 
             if (parent != null) {
                 parent.removeChild(this);
