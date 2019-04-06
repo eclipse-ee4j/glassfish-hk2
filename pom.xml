@@ -580,11 +580,6 @@
                 <version>3.2.0</version>
             </dependency>
             <dependency>
-                <groupId>org.osgi</groupId>
-                <artifactId>osgi_R4_core</artifactId>
-                <version>1.0</version>
-            </dependency>
-            <dependency>
                 <groupId>org.testng</groupId>
                 <artifactId>testng</artifactId>
                 <version>${testng.version}</version>
@@ -684,11 +679,6 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-simple</artifactId>
                 <version>${slf4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.junit</groupId>
-                <artifactId>com.springsource.org.junit</artifactId>
-                <version>4.4.0</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.felix</groupId>
