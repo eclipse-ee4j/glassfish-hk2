@@ -139,25 +139,15 @@
         <jakarta.annotation.version>1.3.4</jakarta.annotation.version>
         <jakarta.json.version>1.1.5</jakarta.json.version>
         <glassfish.json.version>1.1.5</glassfish.json.version>
-<<<<<<< HEAD
         <jaxb-api.version>2.3.1</jaxb-api.version>
         <jaxb-runtime.version>2.3.1</jaxb-runtime.version>
-=======
-        <javax.xml.bind.jaxb.version>2.1</javax.xml.bind.jaxb.version>
->>>>>>> EE4J_8
         <java.net.username>${user.name}</java.net.username>
         <hibernate-validator.version>6.0.10.Final</hibernate-validator.version>
         <hibernate-validator.version.upperbound>7</hibernate-validator.version.upperbound>
-<<<<<<< HEAD
         <jakarta.validation.version>2.0.1.Final</jakarta.validation.version>
         <jakarta.validation.version.upperbound>3</jakarta.validation.version.upperbound>
         <jakarta.validation.osgi.version>2.0.1</jakarta.validation.osgi.version>
         <glassfish.javax.el.version>3.0.1-b10</glassfish.javax.el.version>
-=======
-        <jakarta.validation.version>1.1.0.Final</jakarta.validation.version>
-        <jakarta.validation.version.upperbound>3</jakarta.validation.version.upperbound>
-        <jakarta.validation.osgi.version>1.1.0</jakarta.validation.osgi.version>
->>>>>>> EE4J_8
         <jakarta.el.version>3.0.2</jakarta.el.version>
         <jtype.version>0.1.0</jtype.version>
         <javassist.version>3.22.0-CR2</javassist.version>
@@ -177,18 +167,10 @@
         <hamcrest.version>1.3</hamcrest.version>
         <jakarta.servlet.version>4.0.2</jakarta.servlet.version>
         <jakarta.ws.rs.version>2.1.3</jakarta.ws.rs.version>
-<<<<<<< HEAD
         <classmate.version>1.3.3</classmate.version>
         <springcontext.version>4.3.16.RELEASE</springcontext.version>
         <guice.version>4.1.0</guice.version>
         <hk2.mvn.plugins.version>2.6.0-SNAPSHOT</hk2.mvn.plugins.version>
-=======
-        <jakarta.validation.version>1.1.0.Final</jakarta.validation.version>
-        <classmate.version>1.3.3</classmate.version>
-        <springcontext.version>4.3.16.RELEASE</springcontext.version>
-        <guice.version>4.1.0</guice.version>
-        <hk2.mvn.plugins.version>2.5.0-SNAPSHOT</hk2.mvn.plugins.version>
->>>>>>> EE4J_8
         <protobuf.version>3.5.1</protobuf.version>
         
         <legal.doc.source>${maven.multiModuleProjectDirectory}/</legal.doc.source>     
@@ -319,8 +301,6 @@
                     </execution>
                 </executions>
             </plugin>
-<<<<<<< HEAD
-=======
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
@@ -346,7 +326,6 @@
                     </execution>
                 </executions>
             </plugin>
->>>>>>> EE4J_8
         </plugins>
         <pluginManagement>
             <plugins>
@@ -398,7 +377,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.1.1</version>
+                    <version>2.4</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.felix</groupId>
@@ -546,7 +525,6 @@
                 <groupId>jakarta.annotation</groupId>
                 <artifactId>jakarta.annotation-api</artifactId>
                 <version>${jakarta.annotation.version}</version>
-<<<<<<< HEAD
             </dependency>
             <dependency>
                 <groupId>jakarta.json</groupId>
@@ -562,18 +540,6 @@
                 <groupId>org.glassfish.jaxb</groupId>
                 <artifactId>jaxb-runtime</artifactId>
                 <version>${jaxb-runtime.version}</version>
-=======
-            </dependency>
-            <dependency>
-                <groupId>jakarta.json</groupId>
-                <artifactId>jakarta.json-api</artifactId>
-                <version>${jakarta.json.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.xml.bind</groupId>
-                <artifactId>jaxb-api</artifactId>
-                <version>${javax.xml.bind.jaxb.version}</version>
->>>>>>> EE4J_8
             </dependency>
             <dependency>
                 <groupId>org.glassfish</groupId>
@@ -744,11 +710,7 @@
             <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.framework</artifactId>
-<<<<<<< HEAD
                 <version>6.0.1</version>
-=======
-                <version>5.6.0</version>
->>>>>>> EE4J_8
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -763,11 +725,7 @@
             <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.configadmin</artifactId>
-<<<<<<< HEAD
                 <version>1.9.10</version>
-=======
-                <version>1.8.16</version>
->>>>>>> EE4J_8
             </dependency>
             <dependency>
                 <groupId>org.ops4j.pax.logging</groupId>
