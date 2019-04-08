@@ -29,6 +29,10 @@
 
     <name>ASM library repackaged as OSGi bundle</name>
     <description>org.objectweb.asm version ${asm.version} repackaged as a module</description>
+    
+    <properties>        
+        <manifest.location></manifest.location>
+    </properties>
 
     <build>
         <plugins>

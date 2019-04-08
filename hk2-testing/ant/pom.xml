@@ -25,6 +25,10 @@
         <version>2.6.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
+    
+    <properties>        
+        <manifest.location></manifest.location> <!-- to make nullifiy the property -->
+    </properties>
 
     <artifactId>hk2-ant-test</artifactId>
     <name>HK2 Ant Inhabitant Generator Test</name>

@@ -29,6 +29,10 @@
     <name>HK2 RunLevel unit tests</name>
     <description>Extra unit tests for the HK2 RunLevelService implementation</description>
 
+    <properties>        
+        <manifest.location></manifest.location> <!-- to make nullifiy the property -->
+    </properties>
+
     <build>
         <plugins>
           <plugin>

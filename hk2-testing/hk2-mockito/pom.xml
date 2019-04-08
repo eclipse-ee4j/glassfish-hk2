@@ -27,6 +27,10 @@
     <artifactId>hk2-mockito</artifactId>
     <name>HK2 Mockito</name>
     <description>A utility for spying on HK2 services using Mockito</description>
+    
+    <properties>        
+        <manifest.location></manifest.location> <!-- to make nullifiy the property -->
+    </properties>
 
     <build>
         <plugins>
