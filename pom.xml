@@ -172,6 +172,8 @@
         <guice.version>4.1.0</guice.version>
         <hk2.mvn.plugins.version>2.6.0-SNAPSHOT</hk2.mvn.plugins.version>
         <protobuf.version>3.5.1</protobuf.version>
+        
+        <legal.doc.source>${maven.multiModuleProjectDirectory}/</legal.doc.source>     
 
         <findbugs.exclude />
         <findbugs.threshold>High</findbugs.threshold>
@@ -199,7 +201,7 @@
         <module>hk2-api</module>
         <module>hk2-configuration</module>
         <module>hk2-extras</module>
-        <module>javadocs</module>
+        <!--<module>javadocs</module>-->
     </modules>
 
     <build>
@@ -299,6 +301,31 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>add-legal-resource</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>add-resource</goal>
+                        </goals>
+                        <configuration>
+                            <resources>
+                                <resource>
+                                    <directory>${legal.doc.source}</directory>
+                                    <includes>
+                                        <include>NOTICE.md</include>
+                                        <include>LICENSE.md</include>
+                                    </includes>
+                                    <targetPath>META-INF</targetPath>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
         <pluginManagement>
             <plugins>
@@ -350,7 +377,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.1.1</version>
+                    <version>2.4</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.felix</groupId>
@@ -477,6 +504,11 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-scm-publish-plugin</artifactId>
                     <version>3.0.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.servicemix.tooling</groupId>
+                    <artifactId>depends-maven-plugin</artifactId>
+                    <version>1.4.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.servicemix.tooling</groupId>
