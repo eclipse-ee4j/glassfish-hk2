@@ -29,6 +29,10 @@
     <artifactId>hk2-testing-jersey-guice-form-param</artifactId>
     <name>Jersey Guice FormParam Test</name>
     <description>Ensures FormParam comes from HK2</description>
+    
+    <properties>        
+        <manifest.location></manifest.location> <!-- to make nullifiy the property -->
+    </properties>
 
     <dependencies>
         <dependency>

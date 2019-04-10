@@ -29,6 +29,8 @@
 
     <properties>
         <hk2.version>2.6.0-SNAPSHOT</hk2.version>
+        
+        <manifest.location></manifest.location> <!-- to make nullifiy the property -->
     </properties>
 
     <modules>
@@ -73,6 +75,6 @@
                     </configuration>
                 </plugin>
             </plugins>
-        </pluginManagement>
+       </pluginManagement>
     </build>
 </project>

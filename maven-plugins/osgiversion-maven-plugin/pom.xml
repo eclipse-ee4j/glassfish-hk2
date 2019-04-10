@@ -49,4 +49,5 @@
             <artifactId>maven-osgi</artifactId>
         </dependency>
     </dependencies>
+    
 </project>
