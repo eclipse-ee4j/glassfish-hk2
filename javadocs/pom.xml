@@ -29,7 +29,8 @@
 
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
-        <maven.site.skip>true</maven.site.skip>
+        <maven.site.skip>true</maven.site.skip>    
+        <manifest.location></manifest.location> <!-- to make nullifiy the property -->
     </properties>
 
     <build>

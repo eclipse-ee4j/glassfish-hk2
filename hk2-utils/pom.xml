@@ -38,9 +38,9 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <useDefaultManifestFile>true</useDefaultManifestFile>
+                <configuration>     
                     <archive>
+                        <manifestFile>target/classes/META-INF/MANIFEST.MF</manifestFile>
                         <manifestEntries>
                             <service>foo</service>
                         </manifestEntries>

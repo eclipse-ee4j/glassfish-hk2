@@ -29,6 +29,10 @@
     <name>Interceptor/Eventing Test Suite</name>
     <description>Tests AOP interceptions along with events</description>
 
+    <properties>        
+        <manifest.location></manifest.location> <!-- to make nullifiy the property -->
+    </properties>
+    
     <build>
         <plugins>
             <plugin>

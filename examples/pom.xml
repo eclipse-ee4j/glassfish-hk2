@@ -29,6 +29,10 @@
     <packaging>pom</packaging>
     <name>Examples of various use cases</name>
     
+    <properties>        
+        <manifest.location></manifest.location> <!-- to make nullifiy the property -->
+    </properties>
+    
     <modules>
         <module>custom-resolver</module>
         <module>security-lockdown</module>
@@ -37,4 +41,5 @@
         <module>configuration</module>
         <module>operations</module>
     </modules>
+    
 </project>

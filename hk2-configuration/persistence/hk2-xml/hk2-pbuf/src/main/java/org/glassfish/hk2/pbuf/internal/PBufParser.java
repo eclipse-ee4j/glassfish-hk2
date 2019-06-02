@@ -124,7 +124,11 @@ public class PBufParser implements XmlServiceParser {
         byte[] rawBytes;
         int size = -1;
         if (useLength) {
-            CodedInputStream cis = CodedInputStream.newInstance(input);;
+        	CodedInputStream usedCIS = getUsedInputStream(options);
+            CodedInputStream cis = (usedCIS != null) ? usedCIS : CodedInputStream.newInstance(input);
+            if (options != null) {
+            	options.put(PBufUtilities.PBUF_STREAMING_OPTION, new CISStreamCloser(cis));
+            }
             
             try {
                 size = cis.readInt32();
@@ -248,7 +252,11 @@ public class PBufParser implements XmlServiceParser {
         DynamicMessage dynamicMessage = internalMarshal(rootBean);
         int size = dynamicMessage.getSerializedSize();
         
-        CodedOutputStream cos= CodedOutputStream.newInstance(outputStream);
+        CodedOutputStream usedCos = getUsedOutputStream(options);
+        CodedOutputStream cos= (usedCos != null) ? usedCos : CodedOutputStream.newInstance(outputStream);
+        if (options != null) {
+        	options.put(PBufUtilities.PBUF_STREAMING_OPTION, new COSStreamCloser(cos));
+        }
         
         boolean prependSize = getPrependSize(options);
         
@@ -967,6 +975,24 @@ public class PBufParser implements XmlServiceParser {
         return field;
     }
     
+    private static CodedInputStream getUsedInputStream(Map<String, Object> options) {
+    	if (options == null) return null;
+    	
+    	CISStreamCloser retVal = (CISStreamCloser) options.get(PBufUtilities.PBUF_STREAMING_OPTION);
+    	if (retVal == null) return null;
+    	
+    	return retVal.stream;
+    }
+    
+    private static CodedOutputStream getUsedOutputStream(Map<String, Object> options) {
+    	if (options == null) return null;
+    	
+    	COSStreamCloser retVal = (COSStreamCloser) options.get(PBufUtilities.PBUF_STREAMING_OPTION);
+    	if (retVal == null) return null;
+    	
+    	return retVal.stream;
+    }
+    
     private static boolean getPrependSize(Map<String, Object> options) {
         if (options == null) return true;
         
@@ -974,6 +1000,34 @@ public class PBufParser implements XmlServiceParser {
         if (val == null) return true;
         
         return val;
+    }
+    
+    private static class CISStreamCloser implements AutoCloseable {
+    	private final CodedInputStream stream;
+    	
+    	private CISStreamCloser(CodedInputStream stream) {
+    		this.stream = stream;
+    	}
+
+		@Override
+		public void close() throws Exception {
+			// Do nothing
+		}
+    	
+    }
+    
+    private static class COSStreamCloser implements AutoCloseable {
+    	private final CodedOutputStream stream;
+    	
+    	private COSStreamCloser(CodedOutputStream stream) {
+    		this.stream = stream;
+    	}
+
+		@Override
+		public void close() throws Exception {
+			// Do nothing
+		}
+    	
     }
     
     @Override

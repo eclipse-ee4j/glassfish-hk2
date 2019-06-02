@@ -18,6 +18,9 @@ package org.glassfish.hk2.configuration.internal;
 
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Singleton;
 
@@ -36,15 +39,11 @@ import org.glassfish.hk2.configuration.api.ConfiguredBy;
 @Singleton
 @Visibility(DescriptorVisibility.LOCAL)
 public class ConfiguredByContext implements Context<ConfiguredBy> {
-    private final static ThreadLocal<ActiveDescriptor<?>> workingOn = new ThreadLocal<ActiveDescriptor<?>>() {
-        public ActiveDescriptor<?> initialValue() {
-            return null;
-        }
-        
-    };
-    
+
+    private final static ThreadLocal<ActiveDescriptor<?>> workingOn = ThreadLocal.withInitial(() -> null);
+
     private final Object lock = new Object();
-    private final HashMap<ActiveDescriptor<?>, Object> db = new HashMap<ActiveDescriptor<?>, Object>();
+    private final Map<ActiveDescriptor<?>, Object> db = new HashMap<>();
 
     /* (non-Javadoc)
      * @see org.glassfish.hk2.api.Context#getScope()
@@ -70,7 +69,7 @@ public class ConfiguredByContext implements Context<ConfiguredBy> {
             workingOn.set(previousValue);
         }
     }
-    
+
     /* (non-Javadoc)
      * @see org.glassfish.hk2.api.Context#findOrCreate(org.glassfish.hk2.api.ActiveDescriptor, org.glassfish.hk2.api.ServiceHandle)
      */
@@ -80,14 +79,14 @@ public class ConfiguredByContext implements Context<ConfiguredBy> {
         synchronized (lock) {
             U retVal = (U) db.get(activeDescriptor);
             if (retVal != null) return retVal;
-            
+
             if (activeDescriptor.getName() == null) {
                 throw new MultiException(new IllegalStateException("ConfiguredBy services without names are templates and cannot be created directly"));
             }
-            
+
             retVal = activeDescriptor.create(root);
             db.put(activeDescriptor, retVal);
-            
+
             return retVal;
         }
     }
@@ -111,10 +110,10 @@ public class ConfiguredByContext implements Context<ConfiguredBy> {
         synchronized (lock) {
             Object destroyMe = db.remove(descriptor);
             if (destroyMe == null) return;
-            
+
             ((ActiveDescriptor<Object>) descriptor).dispose(destroyMe);
         }
-        
+
     }
 
     /* (non-Javadoc)
@@ -139,17 +138,18 @@ public class ConfiguredByContext implements Context<ConfiguredBy> {
     @Override
     public void shutdown() {
         synchronized (lock) {
-            for (ActiveDescriptor<?> killMe : db.keySet()) {
+            Set<ActiveDescriptor<?>> activeDescriptors = new HashSet<>(db.keySet());
+            for (ActiveDescriptor<?> killMe : activeDescriptors) {
                 destroyOne(killMe);
             }
         }
-        
+
     }
-    
+
     /* package */ ActiveDescriptor<?> getWorkingOn() {
         return workingOn.get();
     }
-    
+
     /* package */ Object findOnly(ActiveDescriptor<?> descriptor) {
         synchronized (lock) {
             return db.get(descriptor);

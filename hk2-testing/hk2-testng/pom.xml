@@ -27,6 +27,10 @@
     <artifactId>hk2-testng</artifactId>
     <name>HK2 TestNG runner</name>
     <description>A utility for running HK2 under TestNG</description>
+    
+    <properties>        
+        <manifest.location></manifest.location> <!-- to make nullifiy the property -->
+    </properties>
 
     <build>
         <plugins>

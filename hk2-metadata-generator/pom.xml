@@ -29,6 +29,10 @@
     <packaging>pom</packaging>
     <name>HK2 Metadata Generator Subsystem</name>
     
+    <properties>        
+        <manifest.location></manifest.location> <!-- to make nullifiy the property -->
+    </properties>
+    
     <modules>
         <module>main</module>
         <module>test1</module>
