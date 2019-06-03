@@ -133,7 +133,7 @@ public class MultiThreaded1Test {
         }
         
         for (int lcv = 0; lcv < NUM_THREADS; lcv++) {
-            runners[lcv].isDone(20 * 1000);
+            runners[lcv].isDone(60 * 1000);
         }
         
     }
