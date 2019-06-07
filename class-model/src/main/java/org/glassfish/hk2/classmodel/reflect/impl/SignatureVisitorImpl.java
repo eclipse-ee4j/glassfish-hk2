@@ -17,8 +17,8 @@
 package org.glassfish.hk2.classmodel.reflect.impl;
 
 import org.glassfish.hk2.classmodel.reflect.InterfaceModel;
-import org.glassfish.hk2.external.org.objectweb.asm.Opcodes;
-import org.glassfish.hk2.external.org.objectweb.asm.signature.SignatureVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.signature.SignatureVisitor;
 
 import java.util.*;
 
@@ -113,7 +113,7 @@ public class SignatureVisitorImpl extends SignatureVisitor {
 
     @Override
     public void visitClassType(String s) {
-        String interfaceName = org.glassfish.hk2.external.org.objectweb.asm.Type.getObjectType(s).getClassName();
+        String interfaceName = org.objectweb.asm.Type.getObjectType(s).getClassName();
         TypeProxy<InterfaceModel> interfaceTypeProxy = typeBuilder.getHolder(interfaceName, InterfaceModel.class);
         if (interfaceTypeProxy!=null) {
             ParameterizedInterfaceModelImpl childParameterized = new ParameterizedInterfaceModelImpl(interfaceTypeProxy);

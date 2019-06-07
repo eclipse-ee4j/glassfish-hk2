@@ -17,7 +17,7 @@
 package org.glassfish.hk2.classmodel.reflect.util;
 
 import org.glassfish.hk2.classmodel.reflect.ParsingContext;
-import org.glassfish.hk2.external.org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassReader;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.packageadmin.ExportedPackage;

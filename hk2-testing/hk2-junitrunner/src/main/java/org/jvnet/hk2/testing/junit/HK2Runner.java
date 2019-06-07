@@ -50,7 +50,7 @@ import org.jvnet.hk2.testing.junit.annotations.Packages;
 import org.jvnet.hk2.testing.junit.internal.ClassVisitorImpl;
 import org.jvnet.hk2.testing.junit.internal.ErrorServiceImpl;
 import org.jvnet.hk2.testing.junit.internal.JustInTimeInjectionResolverImpl;
-import org.glassfish.hk2.external.org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassReader;
 
 /**
  * This class should be extended by test classes in order to get an automatically

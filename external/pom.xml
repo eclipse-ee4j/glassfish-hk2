@@ -35,7 +35,6 @@
     
     <modules>
         <module>aopalliance</module>
-        <module>asm-all</module>
         <module>jsr330</module>
     </modules>
 </project>
