@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2019 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -16,10 +16,10 @@
 
 package org.glassfish.hk2.utilities.general;
 
-import java.util.WeakHashMap;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.WeakReference;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This is a poor mans version of a {@link java.lang.ThreadLocal} with
@@ -28,15 +28,14 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
  * ALL threads from any other thread.
  *
  * @author jwells
- *
+ * @author Bryan Atsatt
  */
-public class Hk2ThreadLocal<T> {
-    private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
-    private final WriteLock wLock = readWriteLock.writeLock();
-    private final ReadLock rLock = readWriteLock.readLock();
-    
-    private final WeakHashMap<Thread, T> locals = new WeakHashMap<Thread, T>();
-    
+public class Hk2ThreadLocal<V> {
+    private static final Object NULL = new Object();
+
+    private final Map<Key, Object> locals = new ConcurrentHashMap<>();
+    private final ReferenceQueue<Thread> queue = new ReferenceQueue<>();
+
     /**
      * Returns the current thread's "initial value" for this
      * thread-local variable.  This method will be invoked the first
@@ -55,10 +54,10 @@ public class Hk2ThreadLocal<T> {
      *
      * @return the initial value for this thread-local
      */
-    protected T initialValue() {
+    protected V initialValue() {
         return null;
     }
-    
+
     /**
      * Returns the value in the current thread's copy of this
      * thread-local variable.  If the variable has no value for the
@@ -67,38 +66,20 @@ public class Hk2ThreadLocal<T> {
      *
      * @return the current thread's value of this thread-local
      */
-    public T get() {
-        Thread id = Thread.currentThread();
-        
-        rLock.lock();
-        try {
-            if (locals.containsKey(id)) {
-                return locals.get(id);
-            }
+    @SuppressWarnings("unchecked")
+    public V get() {
+        removeStaleEntries();
+        final Key key = newLookupKey();
+        Object value = locals.get(key);
+        if (value == null) {
+            value = initialValue();
+            locals.put(newStorageKey(queue), maskNull(value));
+        } else {
+            value = unmaskNull(value);
         }
-        finally {
-            rLock.unlock();
-        }
-        
-        // Did not previously get a value, so get it now
-        // under write lock
-        wLock.lock();
-        try {
-            if (locals.containsKey(id)) {
-                return locals.get(id);
-            }
-            
-            T initialValue = initialValue();
-            locals.put(id, initialValue);
-            
-            return initialValue;
-        }
-        finally {
-            wLock.unlock();
-        }
-        
+        return (V) value;
     }
-    
+
     /**
      * Sets the current thread's copy of this thread-local variable
      * to the specified value.  Most subclasses will have no need to
@@ -106,21 +87,13 @@ public class Hk2ThreadLocal<T> {
      * method to set the values of thread-locals.
      *
      * @param value the value to be stored in the current thread's copy of
-     *        this thread-local.
+     * this thread-local.
      */
-    public void set(T value) {
-        Thread id = Thread.currentThread();
-        
-        wLock.lock();
-        try {
-            locals.put(id, value);
-        }
-        finally {
-            wLock.unlock();
-        }
-        
+    public void set(V value) {
+        final Key key = newStorageKey(queue);
+        locals.put(key, maskNull(value));
     }
-    
+
     /**
      * Removes the current thread's value for this thread-local
      * variable.  If this thread-local variable is subsequently
@@ -130,55 +103,117 @@ public class Hk2ThreadLocal<T> {
      * in the interim.  This may result in multiple invocations of the
      * <tt>initialValue</tt> method in the current thread.
      */
-     public void remove() {
-         Thread id = Thread.currentThread();
-         
-         wLock.lock();
-         try {
-             locals.remove(id);
-         }
-         finally {
-             wLock.unlock();
-         }
-         
-     }
-     
-     /**
-      * Removes all threads current thread's value for this thread-local
-      * variable.  If this thread-local variable is subsequently
-      * {@linkplain #get read} by the current thread, its value will be
-      * reinitialized by invoking its {@link #initialValue} method,
-      * unless its value is {@linkplain #set set} by the current thread
-      * in the interim.  This may result in multiple invocations of the
-      * <tt>initialValue</tt> method in the current thread.
-      */
-      public void removeAll() {
-          wLock.lock();
-          try {
-              locals.clear();
-          }
-          finally {
-              wLock.unlock();
-          }
-          
-      }
-      
-      /**
-       * Returns the total size of the internal data structure in
-       * terms of entries.  This is used for diagnostics purposes
-       * only
-       * 
-       * @return The current number of entries across all threads.
-       * This is basically the number of threads that currently
-       * have data with the Hk2ThreadLocal
-       */
-      public int getSize() {
-          rLock.lock();
-          try {
-              return locals.size();
-          }
-          finally {
-              rLock.unlock();
-          }
-      }
+    public void remove() {
+        final Key key = newLookupKey();
+        locals.remove(key);
+    }
+
+    /**
+     * Removes all threads current thread's value for this thread-local
+     * variable.  If this thread-local variable is subsequently
+     * {@linkplain #get read} by the current thread, its value will be
+     * reinitialized by invoking its {@link #initialValue} method,
+     * unless its value is {@linkplain #set set} by the current thread
+     * in the interim.  This may result in multiple invocations of the
+     * <tt>initialValue</tt> method in the current thread.
+     */
+    public void removeAll() {
+        locals.clear();
+    }
+
+    /**
+     * Returns the total size of the internal data structure in
+     * terms of entries.  This is used for diagnostics purposes
+     * only
+     *
+     * @return The current number of entries across all threads.
+     * This is basically the number of threads that currently
+     * have data with the Hk2ThreadLocal
+     */
+    public int getSize() {
+        removeStaleEntries();
+        return locals.size();
+    }
+
+    /**
+     * Removes from the map any key that has been enqueued by the garbage
+     * collector.
+     */
+    private void removeStaleEntries() {
+        for (Object queued; (queued = queue.poll()) != null; ) {
+            final Key key = (Key) queued;
+            locals.remove(key);
+        }
+    }
+
+    /**
+     * Replace a {@code null} value with a sentinel that can be stored in the map.
+     *
+     * @param value The value.
+     * @return The value or sentinel.
+     */
+    private static Object maskNull(Object value) {
+        return (value == null) ? NULL : value;
+    }
+
+    /**
+     * Replace a sentinel with {@code null}.
+     *
+     * @param value The value or sentinel.
+     * @return The value or {@code null}.
+     */
+    private static Object unmaskNull(Object value) {
+        return (value == NULL) ? null : value;
+    }
+
+    /**
+     * Create a key for the current thread that will be enqueued unless cleared.
+     * All keys actually stored in the map must be created by this method and must
+     * not be explicitly cleared.
+     *
+     * @param queue The reference queue.
+     * @return The key.
+     */
+    private static Key newStorageKey(ReferenceQueue<Thread> queue) {
+        return new Key(Thread.currentThread(), queue);
+    }
+
+    /**
+     * Create a key for the current thread that will not be enqueued. Using this
+     * method (or clearing a 'storage' key) ensures that no extra work is required
+     * in {@link #removeStaleEntries()}.
+     *
+     * @return The key.
+     */
+    private static Key newLookupKey() {
+        return new Key(Thread.currentThread(), null);
+    }
+
+    /**
+     * A weakly referenced thread suitable as a map key.
+     */
+    private static class Key extends WeakReference<Thread> {
+        private final long threadId;
+        private final int hash;
+
+        private Key(Thread thread, ReferenceQueue<Thread> queue) {
+            super(thread, queue);
+            this.threadId = thread.getId();
+            this.hash = thread.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof Key)) {
+                return false;
+            }
+            final Key other = (Key) obj;
+            return other.threadId == threadId;
+        }
+
+        @Override
+        public int hashCode() {
+            return hash;
+        }
+    }
 }
