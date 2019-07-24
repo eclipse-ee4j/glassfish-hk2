@@ -16,13 +16,34 @@
 
 package com.sun.enterprise.module.common_impl;
 
+import com.sun.enterprise.module.HK2Module;
 import com.sun.enterprise.module.ModuleDefinition;
 import com.sun.enterprise.module.ModuleMetadata;
 import com.sun.enterprise.module.ModulesRegistry;
 import com.sun.enterprise.module.Repository;
 import com.sun.enterprise.module.ResolveError;
 import com.sun.enterprise.module.bootstrap.BootException;
-import com.sun.enterprise.module.bootstrap.ContextDuplicatePostProcessor;
+
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Logger;
 
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.Descriptor;
@@ -35,29 +56,8 @@ import org.glassfish.hk2.api.ServiceLocatorFactory;
 import org.glassfish.hk2.api.ServiceLocatorState;
 import org.glassfish.hk2.bootstrap.HK2Populator;
 import org.glassfish.hk2.utilities.BuilderHelper;
+import org.glassfish.hk2.utilities.DuplicatePostProcessor;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
-
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.logging.*;
-import com.sun.enterprise.module.HK2Module;
 
 /**
  * The Modules Registry maintains the registry of all available module.
@@ -107,7 +107,7 @@ public abstract class AbstractModulesRegistryImpl implements ModulesRegistry {
     public ServiceLocator newServiceLocator() throws MultiException {
     	return newServiceLocator(null);
     }
-    
+
     /**
      * Create a new ServiceLocator optionally providing a parent Services 
      */
@@ -115,30 +115,33 @@ public abstract class AbstractModulesRegistryImpl implements ModulesRegistry {
 	public ServiceLocator newServiceLocator(ServiceLocator parent) throws MultiException {
         // We intentionally create an unnamed service locator, because the caller is going to
         // manage its lifecycle.
-    	ServiceLocator serviceLocator =  ServiceLocatorFactory.getInstance().create(null, parent);
- 
-    	initializeServiceLocator(serviceLocator);
+        ServiceLocator serviceLocator = ServiceLocatorFactory.getInstance().create(null, parent);
+        initializeServiceLocator(serviceLocator);
         return serviceLocator;
     }
 
     protected void initializeServiceLocator(ServiceLocator serviceLocator) throws MultiException {
-        DynamicConfigurationService dcs = serviceLocator
-                .getService(DynamicConfigurationService.class);
-
+        DynamicConfigurationService dcs = getServiceOrFail(serviceLocator, DynamicConfigurationService.class);
         DynamicConfiguration config = dcs.createDynamicConfiguration();
 
         config.bind(BuilderHelper.createConstantDescriptor(Logger.getAnonymousLogger()));
-
         // default modules registry is the one that created the habitat
         config.bind(BuilderHelper.createConstantDescriptor(this));
 
-        ContextDuplicatePostProcessor processor = serviceLocator.getService(ContextDuplicatePostProcessor.class);
-
-		if (processor == null) {
-		    config.addActiveDescriptor(ContextDuplicatePostProcessor.class);
-		}
-
+        DuplicatePostProcessor processor = serviceLocator.getService(DuplicatePostProcessor.class);
+        if (processor == null) {
+            config.addActiveDescriptor(DuplicatePostProcessor.class);
+        }
         config.commit();
+    }
+
+    private <T> T getServiceOrFail(ServiceLocator serviceLocator, Class<T> contractOrImpl) {
+        final T service = serviceLocator.getService(contractOrImpl);
+        if (service == null) {
+            throw new IllegalStateException("The service '" + contractOrImpl.getName()
+                + "' could not be located by the locator '" + serviceLocator + "'!");
+        }
+        return service;
     }
 
     /**
