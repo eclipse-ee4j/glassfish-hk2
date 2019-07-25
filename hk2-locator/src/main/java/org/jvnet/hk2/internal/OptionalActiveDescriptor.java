@@ -20,16 +20,21 @@ import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import javax.inject.Provider;
+import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.DescriptorType;
 import org.glassfish.hk2.api.DescriptorVisibility;
 import org.glassfish.hk2.api.Injectee;
-import org.glassfish.hk2.api.MultiException;
+import org.glassfish.hk2.api.IterableProvider;
 import org.glassfish.hk2.api.PerLookup;
 import org.glassfish.hk2.api.ServiceHandle;
+import org.glassfish.hk2.api.messaging.Topic;
 import org.glassfish.hk2.utilities.AbstractActiveDescriptor;
+import org.glassfish.hk2.utilities.reflection.ReflectionHelper;
 
 /**
- *
+ * Descriptor for {@link Optional} to allow for injection of a service if it exists or else
+ * {@link Optional#EMPTY}.  It will also allow for injection of an {@link Optional} directly as well.
  * @author jonathan coustick
  */
 public class OptionalActiveDescriptor<T> extends AbstractActiveDescriptor<Optional> {
@@ -76,11 +81,24 @@ public class OptionalActiveDescriptor<T> extends AbstractActiveDescriptor<Option
     @Override
     public Optional<T> create(ServiceHandle<?> root) {
         Set<Annotation> qualifierAnnotations = getQualifierAnnotations();
-        Annotation[] optionalAdded = qualifierAnnotations.toArray(new Annotation[qualifierAnnotations.size()]);
+        Annotation[] annotationsArray = qualifierAnnotations.toArray(new Annotation[qualifierAnnotations.size()]);
 
-        ServiceHandle<T> handle = locator.getServiceHandle(requiredType, optionalAdded);
+        ServiceHandle<T> handle = locator.getServiceHandle(requiredType, annotationsArray);
         if (handle == null) {
-            return Optional.empty();
+            Class<?> rawType = ReflectionHelper.getRawClass(requiredType);
+            if (Provider.class.equals(rawType) || Iterable.class.equals(rawType) || IterableProvider.class.equals(rawType) || Topic.class.equals(rawType)
+                    || Optional.class.equals(rawType)) {
+                SystemInjecteeImpl copy = new SystemInjecteeImpl(rawType, injectee.getRequiredQualifiers(), injectee.getPosition(),
+                        injectee.getParent(), true, injectee.isSelf(), injectee.getUnqualified(), this);
+                ActiveDescriptor descriptor = locator.getInjecteeDescriptor(copy);
+                return Optional.of((T) descriptor.create(root));
+            }
+            ServiceHandle<Optional<T>> optionalHandle = locator.getServiceHandle(injectee.getRequiredType(), annotationsArray);
+            if (optionalHandle == null) {
+                return Optional.empty();
+            } else {
+                return optionalHandle.getService();
+            }
         }
         T service = handle.getService();
         return Optional.ofNullable(service);

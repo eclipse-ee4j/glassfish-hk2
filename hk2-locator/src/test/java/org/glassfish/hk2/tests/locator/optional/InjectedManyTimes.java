@@ -51,6 +51,12 @@ public class InjectedManyTimes {
     @Inject
     private java.util.Optional<SimpleService> simpleByContained;
     
+    @Inject
+    private java.util.Optional<Provider<OptionalService>> optionalByProviderContained;
+    
+    @Inject
+    private java.util.Optional optionalProvided;
+    
     private final SimpleService simpleByConstructor;
     private final OptionalService optionalByConstructor;
     
@@ -107,6 +113,9 @@ public class InjectedManyTimes {
         
         Assert.assertFalse(optionalByContained.isPresent());
         Assert.assertTrue(simpleByContained.isPresent());
+        Assert.assertTrue(optionalByProviderContained.isPresent());
+        Assert.assertNull(optionalByProviderContained.get().get());
+        Assert.assertEquals("testvalue", optionalProvided.get());
         
         isValid = true;
     }

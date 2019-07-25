@@ -16,6 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.optional;
 
+import java.util.Optional;
 import javax.inject.Singleton;
 
 import org.glassfish.hk2.api.DynamicConfiguration;
@@ -38,6 +39,10 @@ public class OptionalModule implements TestModule {
 
         configurator.bind(BuilderHelper.link(SimpleService.class).build());
         configurator.bind(BuilderHelper.link(InjectedManyTimes.class).in(Singleton.class.getName()).build());
+        
+        Optional<String> providedOptional = Optional.of("testvalue");
+        configurator.bind(BuilderHelper.createConstantDescriptor(providedOptional, null, Optional.class));
+        
     }
 
 }
