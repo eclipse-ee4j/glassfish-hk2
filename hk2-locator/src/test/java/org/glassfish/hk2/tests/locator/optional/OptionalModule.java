@@ -38,7 +38,8 @@ public class OptionalModule implements TestModule {
         // to ensure that optional injection points work
 
         configurator.bind(BuilderHelper.link(SimpleService.class).build());
-        configurator.bind(BuilderHelper.link(InjectedManyTimes.class).in(Singleton.class.getName()).build());
+        configurator.bind(BuilderHelper.link(InjectedManyTimes.class).in(Singleton.class).build());
+        configurator.bind(BuilderHelper.link(NullWidgetFactory.class).to(Widget.class).buildFactory());
         
         Optional<String> providedOptional = Optional.of("testvalue");
         configurator.bind(BuilderHelper.createConstantDescriptor(providedOptional, null, Optional.class));

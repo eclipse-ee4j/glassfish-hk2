@@ -17,6 +17,7 @@
 package org.glassfish.hk2.tests.locator.factory;
 
 import java.util.Date;
+import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -30,7 +31,9 @@ import javax.inject.Singleton;
 public class DateInjectee {
     @Inject private Date rawInject;
     @Inject private Provider<Date> providedInject;
+    @Inject private Optional<Date> optionalInject;
     
     public Date getRawInject() { return rawInject; }
     public Date getProvidedInject() { return providedInject.get(); }
+    public Date getOptionalInject() { return optionalInject.get(); }
 }
