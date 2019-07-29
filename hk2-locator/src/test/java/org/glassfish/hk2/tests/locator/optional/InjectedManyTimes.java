@@ -45,6 +45,27 @@ public class InjectedManyTimes {
     @Inject @Optional
     private IterableProvider<OptionalService> optionalByIterableProvider;
     
+    @Inject
+    private java.util.Optional<OptionalService> optionalByContained;
+    
+    @Inject
+    private java.util.Optional<SimpleService> simpleByContained;
+    
+    @Inject
+    private java.util.Optional<java.util.Optional<SimpleService>> simpleTwiceOptional;
+    
+    @Inject
+    private java.util.Optional<Provider<OptionalService>> optionalByProviderContained;
+    
+    @Inject
+    private java.util.Optional optionalProvided;
+    
+    @Inject
+    private Widget nullWidget;
+    
+    @Inject
+    private java.util.Optional<Widget> optionalWidget;
+    
     private final SimpleService simpleByConstructor;
     private final OptionalService optionalByConstructor;
     
@@ -98,6 +119,17 @@ public class InjectedManyTimes {
         
         Assert.assertNotNull(optionalByProvider);
         Assert.assertNull(optionalByProvider.get());
+        
+        Assert.assertFalse(optionalByContained.isPresent());
+        Assert.assertTrue(simpleByContained.isPresent());
+        Assert.assertTrue(simpleTwiceOptional.get().isPresent());
+        
+        Assert.assertTrue(optionalByProviderContained.isPresent());
+        Assert.assertNull(optionalByProviderContained.get().get());
+        Assert.assertEquals("testvalue", optionalProvided.get());
+        
+        Assert.assertNull(nullWidget);
+        Assert.assertFalse(optionalWidget.isPresent());
         
         isValid = true;
     }

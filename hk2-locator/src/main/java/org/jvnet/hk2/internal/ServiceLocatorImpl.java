@@ -541,6 +541,9 @@ public class ServiceLocatorImpl implements ServiceLocator {
 
             return new ConstantActiveDescriptor<Object>(value, this);
         }
+        if (java.util.Optional.class.equals(rawType)) {
+            return new OptionalActiveDescriptor(injectee, this, ReflectionHelper.getFirstTypeArgument(requiredType));
+        }
         
         if (Topic.class.equals(rawType)) {
             TopicImpl<?> value = new TopicImpl<Object>(this,

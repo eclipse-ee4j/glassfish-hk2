@@ -82,6 +82,9 @@ public class FactoryTest {
         Date providedDate2 = dateInjectee.getProvidedInject();
         Assert.assertNotNull(providedDate2);
         
+        Date optionalDate = dateInjectee.getOptionalInject();
+        Assert.assertNotNull(optionalDate);
+        
         Assert.assertNotSame(rawDate, providedDate1);
         Assert.assertNotSame(rawDate, providedDate2);
         Assert.assertNotSame(providedDate1, providedDate2);
