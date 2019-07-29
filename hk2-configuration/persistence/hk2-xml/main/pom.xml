@@ -99,8 +99,12 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <!-- Turns on debug logging -->
-                    <argLine>-Dorg.jvnet.hk2.logger.debugToStdout=false -Dorg.jvnet.hk2.properties.xmlservice.jaxb.getsandsets=false ${surefireArgLineExtra}</argLine>
+                    <!-- Turns on debug logging, sets the english language as a default -->
+                    <argLine>
+                      -Dorg.jvnet.hk2.logger.debugToStdout=false
+                      -Dorg.jvnet.hk2.properties.xmlservice.jaxb.getsandsets=false ${surefireArgLineExtra}
+                      -Duser.language=en
+                    </argLine>
                 </configuration>
             </plugin>
         </plugins>
