@@ -513,11 +513,6 @@
                     <artifactId>depends-maven-plugin</artifactId>
                     <version>1.4.0</version>
                 </plugin>
-                <plugin>
-                    <groupId>org.apache.servicemix.tooling</groupId>
-                    <artifactId>depends-maven-plugin</artifactId>
-                    <version>1.4.0</version>
-                </plugin>
             </plugins>
         </pluginManagement>
     </build>
