@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2019 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -871,14 +872,19 @@ public class ServiceLocatorImpl implements ServiceLocator {
         wLock.lock();
         try {
             if (state.equals(ServiceLocatorState.SHUTDOWN)) return;
-            
-            for (ServiceLocatorImpl child : children.keySet()) {
-                child.shutdown();
+
+            synchronized(children) {
+                for (Iterator<ServiceLocatorImpl> childIterator = children.keySet().iterator(); childIterator.hasNext();) {
+                    ServiceLocatorImpl child = childIterator.next();
+                    childIterator.remove();
+                    child.shutdown();
+                }
             }
 
             if (parent != null) {
                 parent.removeChild(this);
             }
+
         }
         finally {
             wLock.unlock();

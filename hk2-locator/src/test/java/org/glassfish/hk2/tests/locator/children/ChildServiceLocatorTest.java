@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2019 Payara Services Ltd.
+ * Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -33,9 +34,10 @@ public class ChildServiceLocatorTest {
     public void CreationTest() {
         ServiceLocator parent = LocatorHelper.create();
         ServiceLocator child = LocatorHelper.create(parent);
+        ServiceLocator child2 = LocatorHelper.create(parent);
         parent.shutdown();
         Assert.assertEquals(child.getState(), ServiceLocatorState.SHUTDOWN);
-        
+        Assert.assertEquals(child2.getState(), ServiceLocatorState.SHUTDOWN);
     }
     
     
