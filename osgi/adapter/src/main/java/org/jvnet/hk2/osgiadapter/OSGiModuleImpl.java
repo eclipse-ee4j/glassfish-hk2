@@ -174,7 +174,7 @@ public class OSGiModuleImpl implements HK2Module {
                     AccessController.doPrivileged(new PrivilegedExceptionAction(){
                         public Object run() throws BundleException
                         {
-                            bundle.start(Bundle.START_TRANSIENT);
+                            startBundle();
                             return null;
                         }
                     });
@@ -182,7 +182,7 @@ public class OSGiModuleImpl implements HK2Module {
                     throw (BundleException)e.getException();
                 }
             } else {
-                bundle.start(Bundle.START_TRANSIENT);
+                startBundle();
             }
             isTransientlyActive = true;
             if (logger.isLoggable(Level.FINE)) {
@@ -212,6 +212,39 @@ public class OSGiModuleImpl implements HK2Module {
             lifecyclePolicy.start(this);
         }
         return;
+    }
+
+    private void startBundle() throws BundleException {
+        BundleException exception = null;
+        for(int attempt = 1; attempt <= 3; attempt++) {
+            try {
+                if (attempt > 1) {
+                    if (logger.isLoggable(Level.FINER)) {
+                        logger.log(Level.FINER, "Retrying start of " + bundle + " due to lock race condition");
+                    }
+                    jitter();
+                }
+                bundle.start(Bundle.START_TRANSIENT);
+                return;
+            } catch (BundleException be) {
+                exception = be;
+                // When starting bundles in multiple threads, Apache Felix may run in locking race
+                // condition throwing "Unable to acquire global lock" on one of competing threads.
+                // Best course of action is to retry bundle start rather than fail unrecoverably.
+                if (!be.getMessage().contains("Unable to acquire global lock")) {
+                    break;
+                }
+            }
+        }
+        throw exception;
+    }
+
+    private void jitter() {
+        try {
+            Thread.sleep(new Random().nextInt(20));
+        } catch (InterruptedException ie) {
+            // nevermind
+        }
     }
 
     private String toString(int state)
