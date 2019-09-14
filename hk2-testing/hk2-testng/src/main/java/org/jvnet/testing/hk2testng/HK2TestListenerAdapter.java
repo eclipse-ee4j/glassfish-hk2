@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2019 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -19,10 +19,14 @@ package org.jvnet.testing.hk2testng;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.glassfish.hk2.api.DynamicConfiguration;
+import org.glassfish.hk2.api.DynamicConfigurationService;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.api.ServiceLocatorFactory;
 import org.glassfish.hk2.extras.ExtrasUtilities;
 import org.glassfish.hk2.utilities.Binder;
+import org.glassfish.hk2.utilities.BuilderHelper;
+import org.glassfish.hk2.utilities.IgnoringErrorService;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 import org.testng.IConfigurable;
 import org.testng.IConfigureCallBack;
@@ -37,9 +41,9 @@ import org.testng.ITestResult;
  */
 public class HK2TestListenerAdapter implements IExecutionListener, IHookable, IConfigurable {
 
-    private static final Map<String, ServiceLocator> serviceLocators = new ConcurrentHashMap<String, ServiceLocator>();
-    private static final Map<Class<?>, Object> testClasses = new ConcurrentHashMap<Class<?>, Object>();
-    private static final Map<Class<?>, Binder> binderClasses = new ConcurrentHashMap<Class<?>, Binder>();
+    private static final Map<String, ServiceLocator> serviceLocators = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, Object> testClasses = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, Binder> binderClasses = new ConcurrentHashMap<>();
 
     @Override
     public void onExecutionStart() {
@@ -95,6 +99,11 @@ public class HK2TestListenerAdapter implements IExecutionListener, IHookable, IC
 
       if (hk2.enableLookupExceptions()) {
         ServiceLocatorUtilities.enableLookupExceptions(locator);
+      } else {
+          final DynamicConfigurationService dcs = locator.getService(DynamicConfigurationService.class);
+          final DynamicConfiguration cfg = dcs.createDynamicConfiguration();
+          cfg.bind(BuilderHelper.createDescriptorFromClass(IgnoringErrorService.class));
+          cfg.commit();
       }
 
       if (hk2.enableEvents()) {

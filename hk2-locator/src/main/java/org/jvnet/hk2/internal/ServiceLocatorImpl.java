@@ -89,6 +89,7 @@ import org.glassfish.hk2.api.Validator;
 import org.glassfish.hk2.api.messaging.Topic;
 import org.glassfish.hk2.utilities.BuilderHelper;
 import org.glassfish.hk2.utilities.InjecteeImpl;
+import org.glassfish.hk2.utilities.RethrowErrorService;
 import org.glassfish.hk2.utilities.cache.CacheKeyFilter;
 import org.glassfish.hk2.utilities.cache.CacheUtilities;
 import org.glassfish.hk2.utilities.cache.ComputationErrorException;
@@ -151,7 +152,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
     private final LinkedHashSet<ValidationService> allValidators =
             new LinkedHashSet<ValidationService>();
     private final LinkedList<ErrorService> errorHandlers =
-            new LinkedList<ErrorService>();
+            new LinkedList<ErrorService>(Collections.singletonList(new RethrowErrorService()));
     private final LinkedList<ServiceHandle<?>> configListeners =
             new LinkedList<ServiceHandle<?>>();
     

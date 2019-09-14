@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2019 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -16,43 +16,41 @@
 
 package org.glassfish.hk2.tests.locator.negative.factory;
 
-import org.junit.Assert;
-
 import org.glassfish.hk2.api.MultiException;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.tests.locator.utilities.LocatorHelper;
 import org.glassfish.hk2.utilities.BuilderHelper;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
-import org.junit.Ignore;
 import org.junit.Test;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.Assert.fail;
 
 /**
  * @author jwells
- *
  */
 public class NegativeFactoryTest {
     private final static String TEST_NAME = "NegativeFactoryTest";
     private final static ServiceLocator locator = LocatorHelper.create(TEST_NAME, new NegativeFactoryModule());
-    
+
     /* package */ final static String THROW_STRING = "Expected thrown exception";
-    
+
     /**
      * Factories cannot have a Named annation with no value
      */
     @Test
     public void testFactoryWithBadName() {
         try {
-            locator.reifyDescriptor(locator.getBestDescriptor(BuilderHelper.createContractFilter(
-                    SimpleService2.class.getName())));
-            Assert.fail("The SimpleService2 factory has a bad name and so is invalid");
+            locator.reifyDescriptor(
+                locator.getBestDescriptor(BuilderHelper.createContractFilter(SimpleService2.class.getName())));
+            fail("The SimpleService2 factory has a bad name and so is invalid");
+        } catch (MultiException me) {
+            assertThat(me.getMessage(), me.getMessage(),
+                containsString("@Named on the provide method of a factory must have an explicit value"));
         }
-        catch (MultiException me) {
-            Assert.assertTrue(me.getMessage(), me.getMessage().contains(
-                    "@Named on the provide method of a factory must have an explicit value"));
-        }
-        
     }
-    
+
     /**
      * Ensures that a factory producing for the singleton scope works properly
      */
@@ -60,13 +58,12 @@ public class NegativeFactoryTest {
     public void testFactoryThatThrowsInSingletonScope() {
         try {
             locator.getService(SimpleService.class);
-            Assert.fail("The factory throws an exception, so should not have gotten here");
-        }
-        catch (MultiException me) {
-            Assert.assertTrue(me.getMessage().contains(THROW_STRING));
+            fail("The factory throws an exception, so should not have gotten here");
+        } catch (MultiException me) {
+            assertThat(me.getMessage(), me.getMessage(), containsString(THROW_STRING));
         }
     }
-    
+
     /**
      * Ensures that a factory producing for the per lookup scope works properly
      */
@@ -74,64 +71,57 @@ public class NegativeFactoryTest {
     public void testFactoryThatThrowsInPerLookupScope() {
         try {
             locator.getService(SimpleService3.class);
-            Assert.fail("The factory throws an exception, so should not have gotten here");
-        }
-        catch (MultiException me) {
-            Assert.assertTrue(me.getMessage().contains(THROW_STRING));
+            fail("The factory throws an exception, so should not have gotten here");
+        } catch (MultiException me) {
+            assertThat(me.getMessage(), me.getMessage(), containsString(THROW_STRING));
         }
     }
-    
+
     /**
      * Ensures that a factory producing for the per thread scope works properly
      */
     @Test
     public void testFactoryThatThrowsInPerThreadScope() {
         ServiceLocatorUtilities.enablePerThreadScope(locator);
-        
+
         try {
             locator.getService(SimpleService4.class);
-            Assert.fail("The factory throws an exception, so should not have gotten here");
-        }
-        catch (MultiException me) {
-            Assert.assertTrue(me.getMessage().contains(THROW_STRING));
+            fail("The factory throws an exception, so should not have gotten here");
+        } catch (MultiException me) {
+            assertThat(me.getMessage(), me.getMessage(), containsString(THROW_STRING));
         }
     }
-    
+
     /**
      * Ensures that a factory producing for the immediate scope works properly
      */
     @Test
     public void testFactoryThatThrowsInImmediateScope() {
         ServiceLocatorUtilities.enableImmediateScope(locator);
-        
         try {
             locator.getService(SimpleService5.class);
-            Assert.fail("The factory throws an exception, so should not have gotten here");
-        }
-        catch (MultiException me) {
-            Assert.assertTrue(me.getMessage().contains(THROW_STRING));
+            fail("The factory throws an exception, so should not have gotten here");
+        } catch (MultiException me) {
+            assertThat(me.getMessage(), me.getMessage(), containsString(THROW_STRING));
         }
     }
-    
+
     /**
      * Tests that a PerLookup factory depending on itself will notice
      * the infinite problem and throw an exception
      */
-    @Test // @org.junit.Ignore
+    @Test
     public void testInfiniteLoopPerLookupFactory() {
-        ServiceLocator locator = LocatorHelper.create();
-        ServiceLocatorUtilities.addClasses(locator, InfiniteFactory.class);
-        
+        ServiceLocator ownLocator = LocatorHelper.create();
+        ServiceLocatorUtilities.addClasses(ownLocator, InfiniteFactory.class);
         try {
-          locator.getService(SimpleService5.class);
-          Assert.fail("Should have failed due to recursion");
+          ownLocator.getService(SimpleService5.class);
+          fail("Should have failed due to recursion");
+        } catch (MultiException me) {
+            assertThat(me.getMessage(), me.getMessage(), containsString("A cycle was detected"));
+            assertThat(me.getMessage(), me.getMessage(), containsString(InfiniteFactory.class.getName()));
         }
-        catch (MultiException me) {
-            // Success
-            Assert.assertTrue(me.getMessage().contains("A cycle was detected"));
-            Assert.assertTrue(me.getMessage().contains(InfiniteFactory.class.getName()));
-        }
-        
+
     }
 
 }

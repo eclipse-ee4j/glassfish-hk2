@@ -35,32 +35,32 @@ import org.glassfish.hk2.api.MultiException;
 @Singleton @Named(ConfigurablyBadClassAnalyzer.BAD_ANALYZER_NAME)
 public class ConfigurablyBadClassAnalyzer implements ClassAnalyzer {
     public static final String BAD_ANALYZER_NAME = "BadAnalyzer";
-    
+
     private boolean throwFromConstructor = false;
     private boolean throwFromMethods = false;
     private boolean throwFromFields = false;
     private boolean throwFromPostConstruct = false;
     private boolean throwFromPreDestroy = false;
-    
+
     private boolean nullFromConstructor = false;
     private boolean nullFromMethods = false;
     private boolean nullFromFields = false;
-    
+
     @Inject @Named(ClassAnalyzer.DEFAULT_IMPLEMENTATION_NAME)
     private ClassAnalyzer delegate;
-    
+
     public void resetToGood() {
         throwFromConstructor = false;
         throwFromMethods = false;
         throwFromFields = false;
         throwFromPostConstruct = false;
         throwFromPreDestroy = false;
-        
+
         nullFromConstructor = false;
         nullFromMethods = false;
         nullFromFields = false;
     }
-    
+
     public void setThrowFromConstructor(boolean throwFromConstructor) {
         this.throwFromConstructor = throwFromConstructor;
     }
@@ -146,7 +146,7 @@ public class ConfigurablyBadClassAnalyzer implements ClassAnalyzer {
         if (throwFromPostConstruct) {
             throw new AssertionError(NegativeClassAnalysisTest.PC_THROW);
         }
-        
+
         return delegate.getPostConstructMethod(clazz);
     }
 
@@ -158,7 +158,7 @@ public class ConfigurablyBadClassAnalyzer implements ClassAnalyzer {
         if (throwFromPreDestroy) {
             throw new AssertionError(NegativeClassAnalysisTest.PD_THROW);
         }
-        
+
         return delegate.getPostConstructMethod(clazz);
     }
 
