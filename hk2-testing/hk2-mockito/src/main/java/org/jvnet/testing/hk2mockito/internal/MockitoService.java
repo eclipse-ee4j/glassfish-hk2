@@ -57,20 +57,16 @@ public class MockitoService {
     private final ObjectFactory objectFactory;
     private final IterableProvider<InjectionResolver> resolvers;
     private final InjectionResolver<Inject> systemResolver;
-    private final ServiceLocator locator;
-    private Class sut;
 
     @Inject
     MockitoService(MemberCache memberCache,
             ParentCache parentCache,
             ObjectFactory objectFactory,
-            ServiceLocator locator,
             IterableProvider<InjectionResolver> resolvers,
             @Named(SYSTEM_RESOLVER_NAME) InjectionResolver systemResolver) {
         this.memberCache = memberCache;
         this.parentCache = parentCache;
         this.objectFactory = objectFactory;
-        this.locator = locator;
         this.resolvers = resolvers;
         this.systemResolver = systemResolver;
 
@@ -130,7 +126,6 @@ public class MockitoService {
      * @return the service or a proxy spy of the service
      */
     public Object findOrCreateSUT(SUT sut, Injectee injectee, ServiceHandle<?> root) {
-        this.sut = (Class) injectee.getRequiredType();
         Member member = (Member) injectee.getParent();
         Type requiredType = injectee.getRequiredType();
         Type parentType = member.getDeclaringClass();
