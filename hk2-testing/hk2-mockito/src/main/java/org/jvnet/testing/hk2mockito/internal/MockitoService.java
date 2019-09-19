@@ -103,7 +103,7 @@ public class MockitoService {
 
         for (InjectionResolver resolver : resolvers) {
 
-            //ignore mockito inection resolver so we don't get into an infinit loop
+            //ignore mockito injection resolver so we don't get into an infinite loop
             if (resolver instanceof HK2MockitoInjectionResolver) {
                 continue;
             }
@@ -170,8 +170,8 @@ public class MockitoService {
         }
 
         //get the service's parent (the test class) cache. if one is not found 
-        //that means the test class didn't contain any inections that required 
-        //mocking/spying so we return the original sevrice.
+        //that means the test class didn't contain any injections that required
+        //mocking/spying so we return the original service.
         Map<MockitoCacheKey, Object> cache = memberCache.get(serviceParent);
 
         if (cache == null) {
@@ -201,7 +201,7 @@ public class MockitoService {
     }
 
     /**
-     * Given metadata about collborator an an injectee create or resolve the
+     * Given metadata about collaborator and an injectee create or resolve the
      * collaborating service.
      *
      * @param position method or constructor the parameter position metadata
