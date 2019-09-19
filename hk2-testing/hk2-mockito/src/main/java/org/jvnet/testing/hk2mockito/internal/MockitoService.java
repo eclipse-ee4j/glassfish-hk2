@@ -153,7 +153,6 @@ public class MockitoService {
         Member member = (Member) injectee.getParent();
         Class<?> parentType = member.getDeclaringClass();
         Type requiredType = injectee.getRequiredType();
-        Object service = resolve(injectee, root);;
 
         //get the cache for the injectee's parent type. if one is not found that
         //means we are not dealing with a test class instance so return the 
@@ -161,7 +160,15 @@ public class MockitoService {
         Type serviceParent = parentCache.get(parentType);
 
         if (serviceParent == null) {
-            return service;
+            return resolve(injectee, root);
+        }
+
+        //look for the test parent, which is at the root of the ancestry.
+        Type grandParent = parentCache.get(serviceParent);
+
+        while (grandParent != null) {
+            serviceParent = grandParent;
+            grandParent = parentCache.get(serviceParent);
         }
 
         //get the service's parent (the test class) cache. if one is not found 
@@ -170,7 +177,7 @@ public class MockitoService {
         Map<MockitoCacheKey, Object> cache = memberCache.get(serviceParent);
 
         if (cache == null) {
-            return service;
+            return resolve(injectee, root);
         }
 
         // determine the cache key for the service
@@ -183,7 +190,7 @@ public class MockitoService {
         }
 
         //get the service from the cache.
-        service = cache.get(key);
+        Object service = cache.get(key);
 
         //if the service is not found in the cache that means the test class
         //was not injected with services that required mocking or spying.
