@@ -132,18 +132,13 @@ public class MockitoService {
     public Object findOrCreateSUT(SUT sut, Injectee injectee, ServiceHandle<?> root) {
         this.sut = (Class) injectee.getRequiredType();
         Member member = (Member) injectee.getParent();
+        Type requiredType = injectee.getRequiredType();
         Type parentType = member.getDeclaringClass();
-        primeCache((Class) parentType);
 
-        Object service;
+        Map<MockitoCacheKey, Object> cache = primeCache((Class) parentType);
+        MockitoCacheKey key = objectFactory.newKey(requiredType, member.getName());
 
-        if (sut.value()) {
-            service = objectFactory.newSpy(resolve(injectee, root));
-        } else {
-            service = resolve(injectee, root);
-        }
-
-        return service;
+        return cache.get(key);
     }
 
     /**
@@ -287,7 +282,6 @@ public class MockitoService {
                     cache.put(executableKey, spy);
                     cache.put(fieldKey, spy);
                 }
-
             } else if (mc != null) {
                 //if we are dealing with a mock collaborator then get all the
                 //metadata associated with the mock and create a mock of the 
@@ -314,6 +308,27 @@ public class MockitoService {
                 MockitoCacheKey fieldKey = objectFactory.newKey(fieldClass, getFieldName(mc.field(), name));
 
                 cache.put(executableKey, service);
+                cache.put(fieldKey, service);
+            }
+        }
+
+        // Only do SUT after we've created any mock dependencies.
+        for (Field field : fields) {
+            String name = field.getName();
+            Type fieldType = field.getGenericType();
+            SUT sut = field.getAnnotation(SUT.class);
+
+            if (sut != null) {
+                List<SystemInjecteeImpl> injectees = getFieldInjectees(type, field, null);
+                SystemInjecteeImpl injectee = injectees.get(0);
+                // TODO: Check if we need root to be passed to primeCache()
+                Object service = resolve(injectee, null);
+
+                if (sut.value()) {
+                    service = objectFactory.newSpy(service);
+                }
+
+                MockitoCacheKey fieldKey = objectFactory.newKey(fieldType, name);
                 cache.put(fieldKey, service);
             }
         }
