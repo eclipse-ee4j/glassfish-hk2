@@ -30,7 +30,6 @@ import org.glassfish.hk2.api.InjectionResolver;
 import static org.glassfish.hk2.api.InjectionResolver.SYSTEM_RESOLVER_NAME;
 import org.glassfish.hk2.api.IterableProvider;
 import org.glassfish.hk2.api.ServiceHandle;
-import org.glassfish.hk2.api.ServiceLocator;
 import org.jvnet.hk2.annotations.Service;
 import org.jvnet.hk2.internal.SystemInjecteeImpl;
 import static org.jvnet.hk2.internal.Utilities.getFieldInjectees;
@@ -120,17 +119,16 @@ public class MockitoService {
      * with the injectee and use the metadata in the SUT annotation to possibly
      * create a mockito spy.
      *
-     * @param sut annotation containing sut config meta-data
      * @param injectee The injection point this value is being injected into
      * @param root The service handle of the root class being created
      * @return the service or a proxy spy of the service
      */
-    public Object findOrCreateSUT(SUT sut, Injectee injectee, ServiceHandle<?> root) {
+    public Object findOrCreateSUT(Injectee injectee, ServiceHandle<?> root) {
         Member member = (Member) injectee.getParent();
         Type requiredType = injectee.getRequiredType();
         Type parentType = member.getDeclaringClass();
 
-        Map<MockitoCacheKey, Object> cache = primeCache((Class) parentType);
+        Map<MockitoCacheKey, Object> cache = primeCache((Class) parentType, root);
         MockitoCacheKey key = objectFactory.newKey(requiredType, member.getName());
 
         return cache.get(key);
@@ -216,7 +214,7 @@ public class MockitoService {
         Type requiredType = injectee.getRequiredType();
 
         //prime the cache for the test class.
-        Map<MockitoCacheKey, Object> cache = primeCache((Class) parentType);
+        Map<MockitoCacheKey, Object> cache = primeCache((Class) parentType, root);
 
         //get the service from the cache.
         MockitoCacheKey key;
@@ -234,9 +232,10 @@ public class MockitoService {
      * proxies of found services, and them to the cache.
      *
      * @param type the class that will be analyzed
+     * @param root The service handle of the root class being created
      * @return a map containing nothing, or services or proxy/spy object
      */
-    private Map<MockitoCacheKey, Object> primeCache(final Class type) {
+    private Map<MockitoCacheKey, Object> primeCache(final Class type, ServiceHandle<?> root) {
         //if a cache already exists for the given class simply return that cache
         Map<MockitoCacheKey, Object> cache = memberCache.get(type);
 
@@ -270,7 +269,7 @@ public class MockitoService {
                 //for it and resolve that injectee
                 List<SystemInjecteeImpl> injectees = getFieldInjectees(type, field, null);
 
-                Object service = resolve(injectees.get(0), null);
+                Object service = resolve(injectees.get(0), root);
 
                 if (service != null) {
                     //if we found the service then we create two entries for it
@@ -322,9 +321,7 @@ public class MockitoService {
 
             if (sut != null) {
                 List<SystemInjecteeImpl> injectees = getFieldInjectees(type, field, null);
-                SystemInjecteeImpl injectee = injectees.get(0);
-                // TODO: Check if we need root to be passed to primeCache()
-                Object service = resolve(injectee, null);
+                Object service = resolve(injectees.get(0), root);
 
                 if (sut.value()) {
                     service = objectFactory.newSpy(service);
