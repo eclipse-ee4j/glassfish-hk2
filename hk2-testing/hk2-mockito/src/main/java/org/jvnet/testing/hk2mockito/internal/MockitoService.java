@@ -62,7 +62,7 @@ public class MockitoService {
             ParentCache parentCache,
             ObjectFactory objectFactory,
             IterableProvider<InjectionResolver> resolvers,
-            @Named(SYSTEM_RESOLVER_NAME) InjectionResolver systemResolver) {
+            @Named(SYSTEM_RESOLVER_NAME) InjectionResolver<Inject> systemResolver) {
         this.memberCache = memberCache;
         this.parentCache = parentCache;
         this.objectFactory = objectFactory;
@@ -86,7 +86,7 @@ public class MockitoService {
      * @return A possibly null value to be injected into the given injection
      * point
      */
-    public Object resolve(Injectee injectee, ServiceHandle<?> root) {
+    private Object resolve(Injectee injectee, ServiceHandle<?> root) {
         Member member = (Member) injectee.getParent();
         Class<?> parentType = member.getDeclaringClass();
 
@@ -96,7 +96,7 @@ public class MockitoService {
             return systemResolver.resolve(injectee, root);
         }
 
-        for (InjectionResolver resolver : resolvers) {
+        for (InjectionResolver<?> resolver : resolvers) {
 
             //ignore mockito injection resolver so we don't get into an infinite loop
             if (resolver instanceof HK2MockitoInjectionResolver) {
@@ -246,14 +246,7 @@ public class MockitoService {
         //add the type to the cache
         cache = memberCache.add(type);
 
-        Field[] fields = doPrivileged(new PrivilegedAction<Field[]>() {
-
-            @Override
-            public Field[] run() {
-                return type.getDeclaredFields();
-            }
-
-        });
+        Field[] fields = doPrivileged((PrivilegedAction<Field[]>) type::getDeclaredFields);
 
         //iterate over all the fields in the class
         for (Field field : fields) {
@@ -297,9 +290,9 @@ public class MockitoService {
 
                 MockSettings settings = withSettings()
                         .name(mockName)
-                        .defaultAnswer(mc.answer().get());
+                        .defaultAnswer(mc.answer());
 
-                if (interfaces != null && interfaces.length > 0) {
+                if (interfaces.length > 0) {
                     settings.extraInterfaces(mc.extraInterfaces());
                 }
 
