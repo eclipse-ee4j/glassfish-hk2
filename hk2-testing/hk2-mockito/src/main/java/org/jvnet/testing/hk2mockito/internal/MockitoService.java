@@ -259,8 +259,15 @@ public class MockitoService {
             Class<?> fieldClass = field.getType();
             Type fieldType = field.getGenericType();
 
+            SUT sut = field.getAnnotation(SUT.class);
             SC sc = field.getAnnotation(SC.class);
             MC mc = field.getAnnotation(MC.class);
+
+            if (sut != null || sc != null || mc != null) {
+                // Initialize the parent cache for test fields to make sure
+                // that the order of @SUT and @MC/@SC does not matter.
+                parentCache.put(fieldType, type);
+            }
 
             if (sc != null) {
                 //if we are dealing with spy collaborator then we create an injectee 
