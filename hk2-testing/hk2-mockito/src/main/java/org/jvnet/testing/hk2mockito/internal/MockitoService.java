@@ -173,17 +173,22 @@ public class MockitoService {
             return resolve(injectee, root);
         }
 
-        // determine the cache key for the service
-        MockitoCacheKey key;
+        //get the service from the cache.
+        Object service;
 
         if (member instanceof Field) {
-            key = objectFactory.newKey(requiredType, member.getName());
-        } else {
-            key = objectFactory.newKey(requiredType, injectee.getPosition());
-        }
+            MockitoCacheKey key = objectFactory.newKey(requiredType, member.getName());
 
-        //get the service from the cache.
-        Object service = cache.get(key);
+            service = cache.get(key);
+        } else {
+            MockitoCacheKey key = objectFactory.newKey(requiredType, injectee.getPosition());
+            service = cache.get(key);
+
+            if (service == null) {
+                key = objectFactory.newKey(requiredType, -1);
+                service = cache.get(key);
+            }
+        }
 
         //if the service is not found in the cache that means the test class
         //was not injected with services that required mocking or spying.
@@ -218,7 +223,7 @@ public class MockitoService {
 
         //get the service from the cache.
         MockitoCacheKey key;
-        if (member instanceof Field) {
+        if (member instanceof Field && position >= 0) {
             key = objectFactory.newKey(requiredType, position);
         } else {
             key = objectFactory.newKey(requiredType, getFieldName(fieldName, member.getName()));
