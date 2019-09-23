@@ -226,7 +226,7 @@ public class MockitoService {
         if (member instanceof Field && position >= 0) {
             key = objectFactory.newKey(requiredType, position);
         } else {
-            key = objectFactory.newKey(requiredType, getFieldName(fieldName, member.getName()));
+            key = objectFactory.newKey(requiredType, getOrDefault(fieldName, member.getName()));
         }
 
         return cache.get(key);
@@ -275,7 +275,7 @@ public class MockitoService {
                     //method injection
 
                     MockitoCacheKey executableKey = objectFactory.newKey(fieldType, sc.value());
-                    MockitoCacheKey fieldKey = objectFactory.newKey(fieldType, getFieldName(sc.field(), name));
+                    MockitoCacheKey fieldKey = objectFactory.newKey(fieldType, getOrDefault(sc.field(), name));
 
                     Object spy = objectFactory.newSpy(service);
                     cache.put(executableKey, spy);
@@ -286,25 +286,19 @@ public class MockitoService {
                 //metadata associated with the mock and create a mock of the 
                 //service and add it to the cache twice. one for field injection
                 //and one for method injection.
-                Class<?>[] interfaces = mc.extraInterfaces();
-                String mockName = mc.name();
-
-                if ("".equals(mockName)) {
-                    mockName = name;
-                }
-
                 MockSettings settings = withSettings()
-                        .name(mockName)
+                        .name(getOrDefault(mc.name(), name))
                         .defaultAnswer(mc.answer());
+                Class<?>[] interfaces = mc.extraInterfaces();
 
                 if (interfaces.length > 0) {
-                    settings.extraInterfaces(mc.extraInterfaces());
+                    settings.extraInterfaces(interfaces);
                 }
 
                 Object service = objectFactory.newMock(fieldClass, settings);
 
                 MockitoCacheKey executableKey = objectFactory.newKey(fieldClass, mc.value());
-                MockitoCacheKey fieldKey = objectFactory.newKey(fieldClass, getFieldName(mc.field(), name));
+                MockitoCacheKey fieldKey = objectFactory.newKey(fieldClass, getOrDefault(mc.field(), name));
 
                 cache.put(executableKey, service);
                 cache.put(fieldKey, service);
@@ -333,12 +327,12 @@ public class MockitoService {
         return cache;
     }
 
-    private String getFieldName(String fieldName, String defaultName) {
-        if ("".equals(fieldName)) {
-           return defaultName;
+    private String getOrDefault(String value, String defaultValue) {
+        if ("".equals(value)) {
+           return defaultValue;
         }
         
-        return fieldName;
+        return value;
     }
 
 }
