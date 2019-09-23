@@ -16,18 +16,20 @@
 
 package org.jvnet.testing.hk2mockito;
 
-import javax.inject.Inject;
-import static org.assertj.core.api.Assertions.assertThat;
 import org.jvnet.testing.hk2mockito.fixture.BasicGreetingService;
 import org.jvnet.testing.hk2mockito.fixture.service.DeepService;
 import org.jvnet.testing.hk2testng.HK2;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+import javax.inject.Inject;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mockingDetails;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 
 /**
  * This test implies the ability to build integration tests and mock some of the indirect dependencies.
@@ -37,13 +39,17 @@ import org.testng.annotations.Test;
 @HK2
 public class IndirectCollaboratorMockInjectionTest {
 
-    @SUT
-    @Inject
-    DeepService sut;
-
+    /**
+     * Incidentally this test also helps verify that the order in which the components are declared does not affect the
+     * outcome.
+     */
     @MC
     @Inject
     BasicGreetingService indirectCollaborator;
+
+    @SUT
+    @Inject
+    DeepService sut;
 
     @BeforeClass
     public void verifyInjection() {
