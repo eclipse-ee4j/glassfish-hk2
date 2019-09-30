@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.interception3;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.aopalliance.intercept.ConstructorInterceptor;
 import org.aopalliance.intercept.ConstructorInvocation;

@@ -16,7 +16,7 @@
 
 package org.glassfish.examples.http.test;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.glassfish.examples.http.HttpEventReceiver;
 import org.glassfish.examples.http.HttpServer;

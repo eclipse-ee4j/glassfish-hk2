@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.primitives;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.tests.locator.utilities.LocatorHelper;
@@ -108,7 +108,7 @@ public class PrimitivesTest {
     public void testThirteenFloat() {
         PrimitiveInjectee pi = locator.getService(PrimitiveInjectee.class);
         
-        Assert.assertEquals(THIRTEEN_FLOAT, pi.getThirteenFloat());
+        Assert.assertEquals(THIRTEEN_FLOAT, pi.getThirteenFloat(), 0);
     }
     
     /**
@@ -118,7 +118,7 @@ public class PrimitivesTest {
     public void testThirteenDouble() {
         PrimitiveInjectee pi = locator.getService(PrimitiveInjectee.class);
         
-        Assert.assertEquals(THIRTEEN_DOUBLE, pi.getThirteenDouble());
+        Assert.assertEquals(THIRTEEN_DOUBLE, pi.getThirteenDouble(), 0);
     }
 
 }

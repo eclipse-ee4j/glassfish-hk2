@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.proxiableinterface;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.tests.locator.utilities.LocatorHelper;

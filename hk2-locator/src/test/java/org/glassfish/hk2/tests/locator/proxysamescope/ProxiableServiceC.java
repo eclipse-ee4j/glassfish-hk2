@@ -20,7 +20,7 @@ import javax.inject.Inject;
 
 import org.glassfish.hk2.api.ProxyCtl;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 /**
  * This service is in a proxiable scope with proxyForSameScope set to false

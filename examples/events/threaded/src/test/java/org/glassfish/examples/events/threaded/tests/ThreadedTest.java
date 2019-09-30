@@ -16,7 +16,7 @@
 
 package org.glassfish.examples.events.threaded.tests;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.glassfish.examples.events.threaded.ThreadedEventDistributor;
 import org.glassfish.hk2.api.ServiceLocator;

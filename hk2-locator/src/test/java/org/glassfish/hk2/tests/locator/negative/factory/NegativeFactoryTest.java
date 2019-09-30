@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.negative.factory;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.glassfish.hk2.api.MultiException;
 import org.glassfish.hk2.api.ServiceLocator;

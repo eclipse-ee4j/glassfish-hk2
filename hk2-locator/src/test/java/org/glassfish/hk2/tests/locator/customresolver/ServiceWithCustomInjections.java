@@ -18,7 +18,7 @@ package org.glassfish.hk2.tests.locator.customresolver;
 
 import javax.inject.Inject;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.glassfish.hk2.api.ServiceLocator;
 

@@ -20,7 +20,7 @@ import java.util.List;
 
 import javax.inject.Singleton;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.DynamicConfiguration;

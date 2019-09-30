@@ -19,7 +19,7 @@ package org.glassfish.hk2.utilities.reflection;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.glassfish.hk2.utilities.reflection.Pretty;
 import org.junit.Test;

@@ -18,7 +18,7 @@ package org.glassfish.hk2.tests.locator.inheritablethread;
 
 import java.util.HashSet;
 import java.util.concurrent.CountDownLatch;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.tests.locator.utilities.LocatorHelper;
 import org.glassfish.hk2.utilities.InheritableThreadScopeModule;

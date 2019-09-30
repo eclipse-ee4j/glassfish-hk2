@@ -16,7 +16,7 @@
 
 package org.jvnet.hk2.spring.bridge.test.spring2hk2;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.glassfish.hk2.api.ServiceLocator;
 import org.junit.Test;

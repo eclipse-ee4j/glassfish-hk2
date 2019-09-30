@@ -16,7 +16,7 @@
 
 package org.glassfish.examples.caching.runner;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.glassfish.examples.caching.services.ExpensiveConstructor;
 import org.glassfish.examples.caching.services.ExpensiveMethods;
