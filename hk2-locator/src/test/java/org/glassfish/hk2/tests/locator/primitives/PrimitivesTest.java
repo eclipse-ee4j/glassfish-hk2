@@ -108,7 +108,7 @@ public class PrimitivesTest {
     public void testThirteenFloat() {
         PrimitiveInjectee pi = locator.getService(PrimitiveInjectee.class);
         
-        Assert.assertEquals(THIRTEEN_FLOAT, pi.getThirteenFloat(), 0);
+        Assert.assertEquals(THIRTEEN_FLOAT, pi.getThirteenFloat(), 0f);
     }
     
     /**
