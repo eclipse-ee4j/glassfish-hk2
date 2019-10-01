@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.factory;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.glassfish.hk2.api.Descriptor;
 import org.glassfish.hk2.api.DynamicConfiguration;
 import org.glassfish.hk2.api.Factory;

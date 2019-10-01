@@ -19,7 +19,7 @@ package org.glassfish.hk2.tests.locator.negative.injector;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.DynamicConfiguration;

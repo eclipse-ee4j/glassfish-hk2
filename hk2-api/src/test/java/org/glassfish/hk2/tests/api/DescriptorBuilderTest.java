@@ -25,7 +25,7 @@ import java.util.Set;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.glassfish.hk2.api.Descriptor;
 import org.glassfish.hk2.api.DescriptorType;

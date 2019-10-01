@@ -16,7 +16,7 @@
 
 package org.glassfish.securitylockdown.test;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.glassfish.hk2.api.MultiException;
 import org.junit.Test;

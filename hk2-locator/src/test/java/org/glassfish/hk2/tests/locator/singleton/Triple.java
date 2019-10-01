@@ -20,7 +20,7 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 /**
  * 

@@ -16,7 +16,7 @@
 
 package org.jvnet.hk2.spring.bridge.test.bidirectional;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 import org.jvnet.hk2.spring.bridge.test.utilities.LocatorAndContext;

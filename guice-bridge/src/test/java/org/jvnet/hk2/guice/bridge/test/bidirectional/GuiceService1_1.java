@@ -16,7 +16,7 @@
 
 package org.jvnet.hk2.guice.bridge.test.bidirectional;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.jvnet.hk2.guice.bridge.api.HK2Inject;
 

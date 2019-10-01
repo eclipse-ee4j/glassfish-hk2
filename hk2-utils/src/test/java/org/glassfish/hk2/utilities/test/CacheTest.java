@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.utilities.test;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.glassfish.hk2.utilities.cache.CacheEntry;
 import org.glassfish.hk2.utilities.cache.CacheKeyFilter;

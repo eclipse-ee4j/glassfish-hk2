@@ -18,7 +18,7 @@ package org.glassfish.hk2.tests.literal;
 
 import java.lang.reflect.Field;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.glassfish.hk2.api.AnnotationLiteral;
 import org.junit.Test;

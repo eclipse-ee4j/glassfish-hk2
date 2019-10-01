@@ -23,7 +23,7 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 /**
  * Tests for ParameterizedTypeImpl

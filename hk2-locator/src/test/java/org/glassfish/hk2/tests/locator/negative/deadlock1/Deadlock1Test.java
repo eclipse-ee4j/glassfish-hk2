@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.negative.deadlock1;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.DynamicConfiguration;

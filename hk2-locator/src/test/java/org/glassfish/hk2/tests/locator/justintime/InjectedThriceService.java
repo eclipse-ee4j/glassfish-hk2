@@ -19,7 +19,7 @@ package org.glassfish.hk2.tests.locator.justintime;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 /**
  * This service is injected with SimpleService three times,

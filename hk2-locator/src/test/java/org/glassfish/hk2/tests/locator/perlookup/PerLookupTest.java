@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.perlookup;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.glassfish.hk2.api.Factory;
 import org.glassfish.hk2.api.ServiceHandle;
