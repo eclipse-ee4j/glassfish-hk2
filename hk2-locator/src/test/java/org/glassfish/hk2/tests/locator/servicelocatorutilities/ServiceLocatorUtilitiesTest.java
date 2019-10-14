@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2019 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -42,6 +42,7 @@ import org.glassfish.hk2.utilities.AbstractActiveDescriptor;
 import org.glassfish.hk2.utilities.BuilderHelper;
 import org.glassfish.hk2.utilities.DescriptorImpl;
 import org.glassfish.hk2.utilities.EnableLookupExceptionsModule;
+import org.glassfish.hk2.utilities.IgnoringErrorService;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 import org.junit.Assert;
 import org.junit.Test;
@@ -76,7 +77,12 @@ public class ServiceLocatorUtilitiesTest {
     }
 
     private static ServiceLocator uniqueCreate() {
-        return ServiceLocatorFactory.getInstance().create(null);
+        ServiceLocator locator = ServiceLocatorFactory.getInstance().create(null);
+        DynamicConfigurationService dcs = locator.getService(DynamicConfigurationService.class);
+        DynamicConfiguration cfg = dcs.createDynamicConfiguration();
+        cfg.bind(BuilderHelper.createDescriptorFromClass(IgnoringErrorService.class));
+        cfg.commit();
+        return locator;
     }
 
     /**
@@ -120,7 +126,7 @@ public class ServiceLocatorUtilitiesTest {
 
         AbstractActiveDescriptor<SimpleService2> active = BuilderHelper.createConstantDescriptor(ss);
 
-        NonReifiedActiveDescriptor<SimpleService2> nonReified = new NonReifiedActiveDescriptor<SimpleService2>(active);
+        NonReifiedActiveDescriptor<SimpleService2> nonReified = new NonReifiedActiveDescriptor<>(active);
 
         ServiceLocatorUtilities.addOneDescriptor(locator, nonReified);
 
@@ -485,6 +491,7 @@ public class ServiceLocatorUtilitiesTest {
             return false;
         }
 
+        @Override
         public String getImplementation() {
             return delegate.getImplementation();
         }
@@ -496,12 +503,12 @@ public class ServiceLocatorUtilitiesTest {
         public Class<?> getImplementationClass() {
             return delegate.getImplementationClass();
         }
-        
+
         @Override
         public Type getImplementationType() {
             return delegate.getImplementationClass();
         }
-        
+
         @Override
         public void setImplementationType(Type t) {
         }
@@ -574,11 +581,11 @@ public class ServiceLocatorUtilitiesTest {
         // The lookup prior to enabling the rethrow should return null
         Assert.assertNull(locator.getService(FailService.class));
 
-        Assert.assertEquals(0, locator.getAllServices(ErrorService.class).size());
+        Assert.assertEquals(1, locator.getAllServices(ErrorService.class).size());
 
         ServiceLocatorUtilities.enableLookupExceptions(locator);
 
-        Assert.assertEquals(1, locator.getAllServices(ErrorService.class).size());
+        Assert.assertEquals(2, locator.getAllServices(ErrorService.class).size());
 
         try {
             locator.getService(FailService.class);
@@ -591,7 +598,7 @@ public class ServiceLocatorUtilitiesTest {
         // Make sure second one does not add another impl
         ServiceLocatorUtilities.enableLookupExceptions(locator);
 
-        Assert.assertEquals(1, locator.getAllServices(ErrorService.class).size());
+        Assert.assertEquals(2, locator.getAllServices(ErrorService.class).size());
 
         try {
             locator.getService(FailService.class);
@@ -617,11 +624,11 @@ public class ServiceLocatorUtilitiesTest {
         // The lookup prior to enabling the rethrow should return null
         Assert.assertNull(locator.getService(FailService.class));
 
-        Assert.assertEquals(0, locator.getAllServices(ErrorService.class).size());
+        Assert.assertEquals(1, locator.getAllServices(ErrorService.class).size());
 
         ServiceLocatorUtilities.bind(locator, new EnableLookupExceptionsModule());
 
-        Assert.assertEquals(1, locator.getAllServices(ErrorService.class).size());
+        Assert.assertEquals(2, locator.getAllServices(ErrorService.class).size());
 
         try {
             locator.getService(FailService.class);
@@ -864,20 +871,20 @@ public class ServiceLocatorUtilitiesTest {
         Assert.assertTrue(fromClass.equals(fromUtility));
         Assert.assertTrue(fromUtility.equals(fromClass));
     }
-    
+
     /**
      * Tests addClasses can be idempotent
      */
     @Test
     public void testIdempotentAddClasses() {
         ServiceLocator locator = uniqueCreate();
-        
+
         ServiceLocatorUtilities.addClasses(locator, true, SimpleService.class);
-        
+
         Filter filter = BuilderHelper.createContractFilter(SimpleService.class.getName());
         List<ActiveDescriptor<?>> descriptors = locator.getDescriptors(filter);
         Assert.assertEquals(1, descriptors.size());
-        
+
         try {
             ServiceLocatorUtilities.addClasses(locator, true, SimpleService.class);
             Assert.fail("Already have a service that should match perfectly");
@@ -885,34 +892,34 @@ public class ServiceLocatorUtilitiesTest {
         catch (MultiException fail) {
             // Expected
         }
-        
+
         descriptors = locator.getDescriptors(filter);
         Assert.assertEquals(1, descriptors.size());
-        
-        
+
+
     }
-    
+
     /**
      * Tests addClasses with factories can be idempotent
      */
     @Test
     public void testIdempotentAddClassesThatAreFactories() {
         ServiceLocator locator = uniqueCreate();
-        
+
         ServiceLocatorUtilities.addClasses(locator, true, RedFactory.class);
-        
+
         {
             Filter filter1 = BuilderHelper.createContractFilter(RedFactory.class.getName());
             List<ActiveDescriptor<?>> descriptors1 = locator.getDescriptors(filter1);
             Assert.assertEquals(1, descriptors1.size());
         }
-        
+
         {
             Filter filter2 = BuilderHelper.createContractFilter(Red.class.getName());
             List<ActiveDescriptor<?>> descriptors2 = locator.getDescriptors(filter2);
             Assert.assertEquals(1, descriptors2.size());
         }
-        
+
         try {
             ServiceLocatorUtilities.addClasses(locator, true, RedFactory.class);
             Assert.fail("Already have a factory service that should match perfectly");
@@ -924,20 +931,20 @@ public class ServiceLocatorUtilitiesTest {
                 Assert.assertTrue(error instanceof DuplicateServiceException);
             }
         }
-        
+
         {
             Filter filter1 = BuilderHelper.createContractFilter(RedFactory.class.getName());
             List<ActiveDescriptor<?>> descriptors1 = locator.getDescriptors(filter1);
             Assert.assertEquals(1, descriptors1.size());
         }
-        
+
         {
             Filter filter2 = BuilderHelper.createContractFilter(Red.class.getName());
             List<ActiveDescriptor<?>> descriptors2 = locator.getDescriptors(filter2);
             Assert.assertEquals(1, descriptors2.size());
         }
-        
-        
+
+
     }
 
     private static class BlueImpl extends AnnotationLiteral<Blue> implements Blue {

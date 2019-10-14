@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2019 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -23,22 +23,23 @@ import org.glassfish.hk2.utilities.BuilderHelper;
 
 /**
  * @author jwells
- *
  */
 public class NegativeClassAnalysisModule implements TestModule {
 
-    /* (non-Javadoc)
-     * @see org.glassfish.hk2.tests.locator.utilities.TestModule#configure(org.glassfish.hk2.api.DynamicConfiguration)
-     */
+    private final String analyzer;
+
+    public NegativeClassAnalysisModule(final String analyzerName) {
+        this.analyzer = analyzerName;
+    }
+
     @Override
     public void configure(DynamicConfiguration config) {
         config.addActiveDescriptor(ConfigurablyBadClassAnalyzer.class);
-        
+
         config.bind(BuilderHelper.link(SelfAnalyzer.class.getName()).
                 to(ClassAnalyzer.class.getName()).
-                analyzeWith(NegativeClassAnalysisTest.SELF_ANALYZER).
+                analyzeWith(this.analyzer).
                 named(NegativeClassAnalysisTest.SELF_ANALYZER).
                 build());
     }
-
 }

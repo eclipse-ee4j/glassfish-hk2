@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -26,6 +26,7 @@ import org.glassfish.hk2.api.DynamicConfigurationService;
 import org.glassfish.hk2.api.MultiException;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.utilities.BuilderHelper;
+import org.glassfish.hk2.utilities.IgnoringErrorService;
 
 /**
  * Implementation of the modules registry that use a single class loader to load
@@ -36,8 +37,8 @@ import org.glassfish.hk2.utilities.BuilderHelper;
  * @author Jerome Dochez
  */
 public class StaticModulesRegistry extends SingleModulesRegistry {
-              
-    final private StartupContext startupContext; 
+
+    final private StartupContext startupContext;
 
     public StaticModulesRegistry(ClassLoader singleCL) {
         super(singleCL);
@@ -72,8 +73,9 @@ public class StaticModulesRegistry extends SingleModulesRegistry {
         DynamicConfigurationService dcs = serviceLocator.getService(DynamicConfigurationService.class);
         DynamicConfiguration config = dcs.createDynamicConfiguration();
         config.bind(BuilderHelper.createConstantDescriptor(sc));
+        config.bind(BuilderHelper.createDescriptorFromClass(IgnoringErrorService.class));
         config.commit();
-        
+
         return serviceLocator;
     }
 
