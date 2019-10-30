@@ -357,6 +357,7 @@ public class StubProcessor extends AbstractProcessor {
             writer.append("import " + clazzQualifiedName + ";\n\n");
             
             writer.append("@Service\n@Generated(\"org.glassfish.hk2.stub.generator.StubProcessor\")\n");
+            writer.append("@SuppressWarnings({\"unchecked\", \"rawtypes\"})\n");
             if (name != null) {
                 writer.append("@Named(\"" + name + "\")\n");
             }
