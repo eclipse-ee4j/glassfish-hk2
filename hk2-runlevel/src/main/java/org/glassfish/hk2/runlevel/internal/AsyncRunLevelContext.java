@@ -65,7 +65,7 @@ public class AsyncRunLevelContext {
     
     private static final Logger logger = Logger.getLogger(AsyncRunLevelContext.class.getName());
     
-    private static final Timer timer = new Timer(true);
+    private static final Timer TIMER = new Timer("hk2-asyncrunlevelcontext", true);
     
     private static final ThreadFactory THREAD_FACTORY = new RunLevelThreadFactory();
     
@@ -501,7 +501,7 @@ public class AsyncRunLevelContext {
                     maxThreads,
                     fullyThreaded,
                     cancelTimeout,
-                    timer));
+                    TIMER));
             
             localTask = currentTask;
         }
