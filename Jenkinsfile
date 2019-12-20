@@ -35,8 +35,6 @@ apiVersion: v1
 kind: Pod
 metadata:
 spec:
-  securityContext:
-    runAsUser: 1000100000
   volumes:
     - name: maven-repo-shared-storage
       persistentVolumeClaim:
