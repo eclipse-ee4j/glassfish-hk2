@@ -18,7 +18,7 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 /**
- * Provides utility methods that were added to the JDK after Java 8.
+ * Utility methods that were added to the JDK after Java 8.
  */
 final class CompatibleWithJava8 {
   private CompatibleWithJava8() {
