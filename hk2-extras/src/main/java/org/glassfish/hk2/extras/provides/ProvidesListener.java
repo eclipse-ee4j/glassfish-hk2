@@ -15,6 +15,7 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -50,15 +51,32 @@ import org.jvnet.hk2.annotations.Optional;
 
 /**
  * Enables the {@link Provides} annotation.
+ *
+ * <p>Only one {@link ProvidesListener} instance may be registered with each
+ * {@link ServiceLocator}.
  */
 @Singleton
 public class ProvidesListener implements DynamicConfigurationListener {
   private final ServiceLocator locator;
   private final ProvidersSeen seen = new ProvidersSeen();
+  private static final Object UNIQUE = new Object() {};
 
   @Inject
   public ProvidesListener(ServiceLocator locator) {
     this.locator = Objects.requireNonNull(locator);
+
+    // Two listeners registered with the same locator could cause a feedback
+    // loop since they can't share the cache of the providers they have seen.
+    // Defend against this by disallowing the second listener.
+    synchronized (UNIQUE) {
+      if (locator.getService(UNIQUE.getClass()) != null) {
+        throw new IllegalStateException(
+            "There is already a "
+                + getClass().getSimpleName()
+                + " registered with this locator");
+      }
+      ServiceLocatorUtilities.addOneConstant(locator, UNIQUE);
+    }
   }
 
   /**
@@ -105,7 +123,7 @@ public class ProvidesListener implements DynamicConfigurationListener {
 
     int added = 0;
     for (ActiveDescriptor<?> provider : providers)
-      added += addDescriptors(provider, configuration);
+      added += addDescriptors(provider, setOf(), configuration);
 
     if (added > 0)
       configuration.commit();
@@ -113,26 +131,34 @@ public class ProvidesListener implements DynamicConfigurationListener {
 
   /**
    * Adds descriptors for each of the methods and fields annotated with {@link
-   * Provides} in the specified service.  This method is idempotent.
+   * Provides} in the specified service.  Recursively discovers {@link Provides}
+   * annotations in the implementations of the added descriptors.
+   *
+   * <p>This method is idempotent.
    *
    * @param providerDescriptor the descriptor of the service which may contain
    *        {@link Provides} annotations
+   * @param ancestors when this method is invoked recursively, the set of
+   *        provider {@linkplain ActiveDescriptor#getImplementationClass()
+   *        implementation classes} that were examined leading to the discovery
+   *        of this provider
    * @param configuration the configuration to be modified with new descriptors
    * @return the number of descriptors added as a result of the call
    */
   private int addDescriptors(ActiveDescriptor<?> providerDescriptor,
+                             Set<Class<?>> ancestors,
                              DynamicConfiguration configuration) {
 
     Objects.requireNonNull(providerDescriptor);
+    Objects.requireNonNull(ancestors);
     Objects.requireNonNull(configuration);
 
     if (!seen.add(providerDescriptor))
       return 0;
 
+    List<ActiveDescriptor<?>> added = new ArrayList<>();
     Class<?> providerClass = providerDescriptor.getImplementationClass();
     Type providerType = providerDescriptor.getImplementationType();
-
-    int added = 0;
 
     for (Method method : providerClass.getMethods()) {
       Provides providesAnnotation = method.getAnnotation(Provides.class);
@@ -143,6 +169,11 @@ public class ProvidesListener implements DynamicConfigurationListener {
         continue;
 
       Class<?> providedClass = method.getReturnType();
+
+      if (!Modifier.isStatic(method.getModifiers())
+          && (providedClass == providerClass
+              || ancestors.contains(providedClass)))
+        continue;
 
       Type providedType =
           TypeUtils.resolveType(
@@ -216,7 +247,7 @@ public class ProvidesListener implements DynamicConfigurationListener {
       if (disposeFunction == null)
         continue;
 
-      ActiveDescriptor<?> self =
+      ActiveDescriptor<?> newDescriptor =
           configuration.addActiveDescriptor(
               new ProvidesDescriptor<>(
                   method,
@@ -227,9 +258,9 @@ public class ProvidesListener implements DynamicConfigurationListener {
                   createFunction,
                   disposeFunction));
 
-      selfHolder.set(self);
+      selfHolder.set(newDescriptor);
 
-      added++;
+      added.add(newDescriptor);
     }
 
     for (Field field : providerClass.getFields()) {
@@ -241,6 +272,11 @@ public class ProvidesListener implements DynamicConfigurationListener {
         continue;
 
       Class<?> providedClass = field.getType();
+
+      if (!Modifier.isStatic(field.getModifiers())
+          && (providedClass == providerClass
+              || ancestors.contains(providedClass)))
+        continue;
 
       Type providedType =
           TypeUtils.resolveType(
@@ -269,20 +305,31 @@ public class ProvidesListener implements DynamicConfigurationListener {
       // There is no automatic disposal for fields.
       Consumer<Object> disposeFunction = instance -> {};
 
-      configuration.addActiveDescriptor(
-          new ProvidesDescriptor<>(
-              field,
-              providedClass,
-              providedType,
-              providedContracts,
-              scopeAnnotation,
-              createFunction,
-              disposeFunction));
+      ActiveDescriptor<?> newDescriptor =
+          configuration.addActiveDescriptor(
+              new ProvidesDescriptor<>(
+                  field,
+                  providedClass,
+                  providedType,
+                  providedContracts,
+                  scopeAnnotation,
+                  createFunction,
+                  disposeFunction));
 
-      added++;
+      added.add(newDescriptor);
     }
 
-    return added;
+    if (added.isEmpty())
+      return 0;
+
+    int addedCount = added.size();
+    Set<Class<?>> newAncestors = new HashSet<>(ancestors);
+    newAncestors.add(providerClass);
+
+    for (ActiveDescriptor<?> newDescriptor : added)
+      addedCount += addDescriptors(newDescriptor, newAncestors, configuration);
+
+    return addedCount;
   }
 
   /**

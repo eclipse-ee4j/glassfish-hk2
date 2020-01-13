@@ -1,18 +1,16 @@
 package org.glassfish.hk2.extras.provides;
 
-import static java.util.stream.Collectors.toSet;
 import static org.glassfish.hk2.utilities.ServiceLocatorUtilities.createAndPopulateServiceLocator;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.StreamSupport;
-import org.glassfish.hk2.api.IterableProvider;
 import org.glassfish.hk2.api.ServiceLocator;
-import org.glassfish.hk2.api.TypeLiteral;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 import org.junit.Test;
 import org.jvnet.hk2.annotations.Contract;
@@ -139,19 +137,16 @@ public final class NoInstancesFilterTest {
         ProvidesListener.class,
         EnumProvides.class);
 
-    IterableProvider<EnumProvides> provider =
-        InjectUtils.getService(
-            locator,
-            new TypeLiteral<IterableProvider<EnumProvides>>() {});
+    List<EnumProvides> services =
+        locator.getAllServices(EnumProvides.class);
 
     Set<EnumProvides> expected = EnumSet.allOf(EnumProvides.class);
 
-    assertEquals(expected.size(), provider.getSize());
+    assertEquals(expected.size(), services.size());
 
     assertEquals(
         expected,
-        StreamSupport.stream(provider.spliterator(), false)
-                     .collect(toSet()));
+        EnumSet.copyOf(services));
   }
 
   /**
@@ -167,32 +162,26 @@ public final class NoInstancesFilterTest {
         ProvidesListener.class,
         EnumProvidesContract.class);
 
-    IterableProvider<EnumContract> provider =
-        InjectUtils.getService(
-            locator,
-            new TypeLiteral<IterableProvider<EnumContract>>() {});
+    List<EnumContract> services =
+        locator.getAllServices(EnumContract.class);
 
     Set<EnumProvidesContract> expected =
         EnumSet.allOf(EnumProvidesContract.class);
 
-    assertEquals(expected.size(), provider.getSize());
+    assertEquals(expected.size(), services.size());
 
     assertEquals(
         expected,
-        StreamSupport.stream(provider.spliterator(), false)
-                     .collect(toSet()));
+        new HashSet<>(services));
 
-    IterableProvider<SecondEnumContract> secondProvider =
-        InjectUtils.getService(
-            locator,
-            new TypeLiteral<IterableProvider<SecondEnumContract>>() {});
+    List<SecondEnumContract> secondServices =
+        locator.getAllServices(SecondEnumContract.class);
 
-    assertEquals(expected.size(), secondProvider.getSize());
+    assertEquals(expected.size(), secondServices.size());
 
     assertEquals(
         expected,
-        StreamSupport.stream(secondProvider.spliterator(), false)
-                     .collect(toSet()));
+        new HashSet<>(secondServices));
   }
 
   public static final class ParamForProvides1 {}

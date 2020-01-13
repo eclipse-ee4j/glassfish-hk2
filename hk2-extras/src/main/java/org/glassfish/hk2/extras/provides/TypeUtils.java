@@ -144,37 +144,43 @@ final class TypeUtils {
    * <pre>
    *   class Box&lt;Q&gt; {
    *     Q value;
-   *     public void set(Q value) { this.value = value; }
+   *
+   *     // Copies the value from another box.
+   *     public void copy(Box&lt;Q&gt; other) { this.value = other.value; }
    *   }
    *
-   *   Type boxType = new TypeLiteral&lt;Box&lt;Optional&lt;?&gt;&gt;&gt;() {}.getType();
-   *   //   ^ Box&lt;Optional&lt;?&gt;&gt;
+   *   Type boxType = new TypeLiteral&lt;Box&lt;?&gt;&gt;() {}.getType();
+   *   //   ^ Box&lt;?&gt;
    *
-   *   Type parameterType = Box.class.getMethod("set", Object.class)
+   *   Type parameterType = Box.class.getMethod("copy", Box.class)
    *                                 .getGenericParameterTypes()[0];
-   *   //   ^ Q
+   *   //   ^ Box&lt;Q&gt;
    *
-   *   Type resolvedType = resolveType(boxType, parameterType);
-   *   //   ^ Optional&lt;capture#1 of ?&gt;
+   *   Type resolvedType = TypeUtils.resolveType(boxType, parameterType);
+   *   //   ^ Box&lt;capture#1 of ?&gt;
    *
-   *   Type argumentType = new TypeLiteral&lt;Optional&lt;String&gt;&gt;() {}.getType();
-   *   //   ^ Optional&lt;String&gt;
+   *   Type argType = new TypeLiteral&lt;Box&lt;String&gt;&gt;() {}.getType();
+   *   //   ^ Box&lt;String&gt;
    *
-   *   boolean isArgumentSafe = TypeChecker.isRawTypeSafe(resolvedType,
-   *                                                      argumentType);
+   *   boolean isArgSafe = TypeChecker.isRawTypeSafe(resolvedType, argType);
    *   //      ^ false
-   *   //      This is the correct answer.
-   *   //      A caller cannot set the value of the box to an
-   *   //      Optional&lt;String&gt; because that does not conform to the box's
-   *   //      type.
+   *   //
+   *   //      This is the correct answer.  The type checking here is analogous
+   *   //      to the type checking performed by the compiler for the following
+   *   //      code, which does not compile.
+   *   //
+   *   //          Box&lt;?&gt; box = new Box&lt;&gt;();
+   *   //          Box&lt;String&gt; arg = new Box&lt;&gt;();
+   *   //          box.copy(arg); // incompatible types
    *
-   *   Type wrongType = new TypeLiteral&lt;Optional&lt;?&gt;&gt;() {}.getType();
-   *   //   ^ Optional&lt;?&gt;
+   *   Type wrongType = new TypeLiteral&lt;Box&lt;?&gt;&gt;() {}.getType();
+   *   //   ^ Box&lt;?&gt;
+   *   //
    *   //   This is what resolveType(...) would produce if not for this class.
    *
-   *   boolean isArgumentSafe2 = TypeChecker.isRawTypeSafe(wrongType,
-   *                                                       argumentType);
+   *   boolean isArgSafe2 = TypeChecker.isRawTypeSafe(wrongType, argType);
    *   //      ^ true
+   *   //
    *   //      This is the wrong answer.
    * </pre>
    */
@@ -594,8 +600,8 @@ final class TypeUtils {
     private final Type[] actualTypeArguments;
 
     ParameterizedTypeImpl(/*@Nullable*/ Type ownerType,
-                          Class<?> rawType,
-                          Type[] actualTypeArguments) {
+                                        Class<?> rawType,
+                                        Type[] actualTypeArguments) {
 
       this.ownerType = ownerType;
       this.rawType = Objects.requireNonNull(rawType);

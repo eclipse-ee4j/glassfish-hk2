@@ -51,6 +51,7 @@ final class CompatibleWithJava8 {
   @SafeVarargs
   @SuppressWarnings("varargs")
   public static <E> List<E> listOf(E... elements) {
+    Objects.requireNonNull(elements);
     return listCopyOf(Arrays.asList(elements));
   }
 
@@ -70,10 +71,8 @@ final class CompatibleWithJava8 {
   public static <E> List<E> listCopyOf(Collection<? extends E> collection) {
     Objects.requireNonNull(collection);
     List<E> result = new ArrayList<>();
-    for (E element : collection) {
-      Objects.requireNonNull(element);
-      result.add(element);
-    }
+    for (E element : collection)
+      result.add(Objects.requireNonNull(element));
     return Collections.unmodifiableList(result);
   }
 
@@ -83,10 +82,8 @@ final class CompatibleWithJava8 {
   public static <E> Set<E> setCopyOf(Collection<? extends E> collection) {
     Objects.requireNonNull(collection);
     Set<E> result = new HashSet<>();
-    for (E element : collection) {
-      Objects.requireNonNull(element);
-      result.add(element);
-    }
+    for (E element : collection)
+      result.add(Objects.requireNonNull(element));
     return Collections.unmodifiableSet(result);
   }
 
@@ -97,11 +94,10 @@ final class CompatibleWithJava8 {
     Objects.requireNonNull(map);
     Map<K, V> result = new HashMap<>();
     map.forEach(
-        (k, v) -> {
-          result.put(
-              Objects.requireNonNull(k),
-              Objects.requireNonNull(v));
-        });
+        (key, value) ->
+            result.put(
+                Objects.requireNonNull(key),
+                Objects.requireNonNull(value)));
     return Collections.unmodifiableMap(result);
   }
 

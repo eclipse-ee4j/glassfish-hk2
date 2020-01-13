@@ -1,13 +1,17 @@
 package org.glassfish.hk2.extras.provides;
 
 import java.lang.reflect.Modifier;
+import java.util.List;
 import java.util.Objects;
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.Descriptor;
+import org.glassfish.hk2.api.DuplicateServiceException;
 import org.glassfish.hk2.api.DynamicConfiguration;
 import org.glassfish.hk2.api.DynamicConfigurationService;
+import org.glassfish.hk2.api.MultiException;
 import org.glassfish.hk2.api.ServiceHandle;
 import org.glassfish.hk2.api.ServiceLocator;
+import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 import org.jvnet.hk2.annotations.Contract;
 
 /**
@@ -63,9 +67,18 @@ public interface NoInstancesFilter {
    */
   static void enableNoInstancesFilter(ServiceLocator locator) {
     Objects.requireNonNull(locator);
-    InjectUtils.addClassesIdempotent(
-        locator,
-        NoInstancesFilter.DefaultFilter.class,
-        NoInstancesService.class);
+    try {
+      ServiceLocatorUtilities.addClasses(
+          locator,
+          true,
+          NoInstancesFilter.DefaultFilter.class,
+          NoInstancesService.class);
+    } catch (MultiException multiException) {
+      List<Throwable> errors = multiException.getErrors();
+      if (errors.isEmpty()
+          || !errors.stream()
+                    .allMatch(e -> e instanceof DuplicateServiceException))
+        throw multiException;
+    }
   }
 }
