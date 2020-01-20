@@ -29,7 +29,7 @@ final class TypeUtils {
   }
 
   /**
-   * Returns {@code true} if the specific type contains any type variables.
+   * Returns {@code true} if the specified type contains any type variables.
    */
   static boolean containsTypeVariable(Type type) {
     Objects.requireNonNull(type);
@@ -186,7 +186,6 @@ final class TypeUtils {
    */
   private static class WildcardTransformer {
     static final WildcardTransformer INSTANCE = new WildcardTransformer();
-    private static final AtomicInteger CAPTURE_NUMBER = new AtomicInteger();
 
     /**
      * Transforms "?" wildcard types contained in the specified type into unique
@@ -205,7 +204,7 @@ final class TypeUtils {
         WildcardType wildcardType = (WildcardType) type;
         return (wildcardType.getLowerBounds().length > 0)
             ? type
-            : newWildcardCapture(wildcardType.getUpperBounds());
+            : newCapturedType(wildcardType.getUpperBounds());
       }
 
       else if (type instanceof ParameterizedType) {
@@ -218,7 +217,7 @@ final class TypeUtils {
         Type[] transformedTypeArguments = new Type[typeArguments.length];
         Arrays.setAll(
             transformedTypeArguments,
-            i -> withBounds(typeParameters[i]).transform(typeArguments[i]));
+            i -> addBounds(typeParameters[i]).transform(typeArguments[i]));
 
         return new ParameterizedTypeImpl(
             (ownerType == null) ? null : INSTANCE.transform(ownerType),
@@ -240,38 +239,21 @@ final class TypeUtils {
      * Constructs a new "capture#N of ?" type variable with the specified
      * bounds.
      */
-    protected TypeVariable<?> newWildcardCapture(Type[] bounds) {
+    protected TypeVariable<?> newCapturedType(Type[] bounds) {
       Objects.requireNonNull(bounds);
-
-      StringJoiner joiner =
-          new StringJoiner(
-              " & ",
-              "capture#" + CAPTURE_NUMBER.incrementAndGet() + " of ? extends ",
-              "");
-
-      for (Type bound : bounds)
-        joiner.add(
-            (bound instanceof Class<?>)
-                ? ((Class<?>) bound).getName()
-                : bound.toString());
-
-      return new TypeVariableImpl<>(
-          bounds,
-          WildcardTransformer.class,
-          /* name= */ joiner.toString());
+      return new CapturedType(bounds);
     }
 
     /**
      * Returns a {@link WildcardTransformer} that includes the additional bounds
      * defined by the specified type variable in its {@linkplain
-     * #newWildcardCapture(Type[]) wildcard captures}.
+     * #newCapturedType(Type[]) captured types}.
      */
-    private WildcardTransformer withBounds(TypeVariable<?> typeVariable) {
+    private WildcardTransformer addBounds(TypeVariable<?> typeVariable) {
       Objects.requireNonNull(typeVariable);
-
       return new WildcardTransformer() {
         @Override
-        protected TypeVariable<?> newWildcardCapture(Type[] bounds) {
+        protected TypeVariable<?> newCapturedType(Type[] bounds) {
           Set<Type> combinedBounds = new LinkedHashSet<>();
           Collections.addAll(combinedBounds, bounds);
           Collections.addAll(combinedBounds, typeVariable.getBounds());
@@ -279,7 +261,7 @@ final class TypeUtils {
           if (combinedBounds.size() > 1)
             combinedBounds.remove(Object.class);
 
-          return super.newWildcardCapture(
+          return super.newCapturedType(
               combinedBounds.toArray(new Type[0]));
         }
       };
@@ -447,20 +429,19 @@ final class TypeUtils {
   }
 
   /**
-   * An implementation of {@link TypeVariable} that does not support
-   * annotations.
+   * An implementation of {@link TypeVariable} representing a "capture#N of ?"
+   * wildcard capture.
    */
-  private static final class TypeVariableImpl<D extends GenericDeclaration>
-      implements TypeVariable<D> {
+  private static final class CapturedType
+      implements TypeVariable<GenericDeclaration> {
 
+    private static final AtomicInteger CAPTURE_NUMBER = new AtomicInteger();
+
+    private final int id = CAPTURE_NUMBER.incrementAndGet();
     private final Type[] bounds;
-    private final D genericDeclaration;
-    private final String name;
 
-    private TypeVariableImpl(Type[] bounds, D genericDeclaration, String name) {
+    CapturedType(Type[] bounds) {
       this.bounds = Objects.requireNonNull(bounds);
-      this.genericDeclaration = Objects.requireNonNull(genericDeclaration);
-      this.name = Objects.requireNonNull(name);
     }
 
     @Override
@@ -469,13 +450,13 @@ final class TypeUtils {
     }
 
     @Override
-    public D getGenericDeclaration() {
-      return genericDeclaration;
+    public GenericDeclaration getGenericDeclaration() {
+      return CapturedType.class;
     }
 
     @Override
     public String getName() {
-      return name;
+      return "capture#" + id + " of ?";
     }
 
     @Override
@@ -500,30 +481,18 @@ final class TypeUtils {
     }
 
     @Override
-    public boolean equals(/*@Nullable*/ Object object) {
-      // Require the same class type for equality, and do not equate to other
-      // implementations of the interface.  The JDK's implementation does this,
-      // meaning that we must do the same in order to preserve symmetry.
-      if (object == this) {
-        return true;
-      } else if (!(object instanceof TypeVariableImpl)) {
-        return false;
-      } else {
-        TypeVariableImpl<?> that = (TypeVariableImpl<?>) object;
-        return this.genericDeclaration.equals(that.genericDeclaration)
-            && this.name.equals(that.name);
-      }
-    }
-
-    @Override
-    public int hashCode() {
-      return genericDeclaration.hashCode() ^ name.hashCode();
-    }
-
-    @Override
     public String toString() {
-      return getName();
+      if (bounds.length == 0 || bounds[0] == Object.class)
+        return getName();
+
+      StringJoiner joiner = new StringJoiner(" & ", getName() + " extends ", "");
+      for (Type bound : bounds)
+        joiner.add(bound.getTypeName());
+      return joiner.toString();
     }
+
+    // Inherit equals and hashCode from Object, since all instances of this
+    // class are distinct.
   }
 
   /**
@@ -571,10 +540,7 @@ final class TypeUtils {
       if (lowerBounds.length > 0) {
         StringJoiner joiner = new StringJoiner(" & ", "? super ", "");
         for (Type bound : lowerBounds)
-          joiner.add(
-              (bound instanceof Class<?>)
-                  ? ((Class<?>) bound).getName()
-                  : bound.toString());
+          joiner.add(bound.getTypeName());
         return joiner.toString();
       }
 
@@ -583,10 +549,7 @@ final class TypeUtils {
 
       StringJoiner joiner = new StringJoiner(" & ", "? extends ", "");
       for (Type bound : upperBounds)
-        joiner.add(
-            (bound instanceof Class<?>)
-                ? ((Class<?>) bound).getName()
-                : bound.toString());
+        joiner.add(bound.getTypeName());
       return joiner.toString();
     }
   }
@@ -647,11 +610,13 @@ final class TypeUtils {
     @Override
     public String toString() {
       StringBuilder sb = new StringBuilder();
-      if (ownerType != null) {
+      if (ownerType == null)
+        sb.append(rawType.getName());
+      else {
         sb.append(ownerType.getTypeName());
-        sb.append(".");
+        sb.append("$");
+        sb.append(rawType.getSimpleName());
       }
-      sb.append(rawType.getName());
       if (actualTypeArguments.length == 0)
         return sb.toString();
       StringJoiner joiner = new StringJoiner(", ", "<", ">");

@@ -1,11 +1,13 @@
 package org.glassfish.hk2.extras.provides;
 
+import static java.util.stream.Collectors.joining;
 import static org.glassfish.hk2.extras.provides.CompatibleWithJava8.canAccess;
 import static org.glassfish.hk2.extras.provides.CompatibleWithJava8.setOf;
 import static org.glassfish.hk2.extras.provides.CompatibleWithJava8.toUnmodifiableSet;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
@@ -15,17 +17,14 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.inject.Scope;
@@ -105,6 +104,66 @@ public class ProvidesListener implements DynamicConfigurationListener {
     return any -> true;
   }
 
+  /**
+   * Called when an invalid {@link Provides} annotation is found.
+   *
+   * <p>The default implementation of this method does nothing.  Override this
+   * method to consume the reported information.  For example:
+   *
+   * <pre>
+   *   &#64;Singleton
+   *   public class LoggingProvidesListener extends ProvidesListener {
+   *     private final Logger logger = LoggerFactory.getLogger(getClass());
+   *
+   *     &#64;Inject
+   *     public LoggingProvidesListener(ServiceLocator locator) {
+   *       super(locator);
+   *     }
+   *
+   *     &#64;Override
+   *     protected void onInvalidProvidesAnnotation(
+   *         ActiveDescriptor&lt;?&gt; providerDescriptor,
+   *         Provides providesAnnotation,
+   *         AnnotatedElement annotatedElement,
+   *         String message) {
+   *
+   *       logger.error(message);
+   *     }
+   *   }
+   * </pre>
+   *
+   * <p>If this method does not throw an exception, then after calling this
+   * method, this listener will ignore this {@link Provides} annotation &mdash;
+   * registering no new {@link ActiveDescriptor} on its behalf &mdash; and this
+   * listener will continue to scan this provider and other providers for other
+   * {@link Provides} annotations.
+   *
+   * <p>If this method does throw an exception, then the behavior of this
+   * listener from this point forward is undefined.
+   *
+   * @param providerDescriptor the descriptor of the service that contains this
+   *        {@link Provides} annotation
+   * @param providesAnnotation the {@link Provides} annotation on the method or
+   *        field
+   * @param annotatedElement the method or field that is annotated with {@link
+   *        Provides}
+   * @param message a message explaining why this {@link Provides} annotation
+   *        is invalid
+   */
+  protected void onInvalidProvidesAnnotation(
+      ActiveDescriptor<?> providerDescriptor,
+      Provides providesAnnotation,
+      AnnotatedElement annotatedElement,
+      String message) {
+
+    Objects.requireNonNull(providerDescriptor);
+    Objects.requireNonNull(providesAnnotation);
+    Objects.requireNonNull(annotatedElement);
+    Objects.requireNonNull(message);
+
+    // Do nothing.
+  }
+
   @Override
   public void configurationChanged() {
     Filter filter = getFilter();
@@ -160,6 +219,7 @@ public class ProvidesListener implements DynamicConfigurationListener {
     Class<?> providerClass = providerDescriptor.getImplementationClass();
     Type providerType = providerDescriptor.getImplementationType();
 
+    methodLoop:
     for (Method method : providerClass.getMethods()) {
       Provides providesAnnotation = method.getAnnotation(Provides.class);
       if (providesAnnotation == null)
@@ -171,30 +231,68 @@ public class ProvidesListener implements DynamicConfigurationListener {
       Class<?> providedClass = method.getReturnType();
 
       if (!Modifier.isStatic(method.getModifiers())
-          && (providedClass == providerClass
-              || ancestors.contains(providedClass)))
+          && (providedClass == providerClass || ancestors.contains(providedClass))) {
+        onInvalidProvidesAnnotation(
+            providerDescriptor,
+            providesAnnotation,
+            method,
+            "@" + Provides.class.getSimpleName()
+                + " method would form an infinite loop of providers.\n"
+                + "\tMethod: " + method + "\n"
+                + "\tClasses in loop: "
+                + Stream.concat(ancestors.stream(),
+                                Stream.of(providerClass, providedClass))
+                        .map(c -> c.getName())
+                        .collect(joining(" -> "))
+                + "\n");
         continue;
+      }
 
       Type providedType =
           TypeUtils.resolveType(
               providerType,
               method.getGenericReturnType());
 
-      if (TypeUtils.containsTypeVariable(providedType))
+      if (TypeUtils.containsTypeVariable(providedType)) {
+        onInvalidProvidesAnnotation(
+            providerDescriptor,
+            providesAnnotation,
+            method,
+            "@" + Provides.class.getSimpleName()
+                + " method return type contains an unresolvable type variable.\n"
+                + "\tMethod: " + method + "\n"
+                + "\tMethod owner type: " + providerType.getTypeName() + "\n"
+                + "\tDeclared method return type: " + method.getGenericReturnType() + "\n"
+                + "\tResolved method return type: " + providedType.getTypeName() + "\n");
         continue;
+      }
 
-      if (Arrays.stream(method.getParameters())
-                .map(
-                    parameter ->
-                        TypeUtils.resolveType(
-                            providerType,
-                            parameter.getParameterizedType()))
-                .anyMatch(
-                    parameterType ->
-                        TypeUtils.containsTypeVariable(parameterType)))
-        continue;
+      Parameter[] parameters = method.getParameters();
+      for (int i = 0; i < parameters.length; i++) {
+        Parameter parameter = parameters[i];
 
-      Set<Type> providedContracts =
+        Type parameterType =
+            TypeUtils.resolveType(
+                providerType,
+                parameter.getParameterizedType());
+
+        if (TypeUtils.containsTypeVariable(parameterType)) {
+          onInvalidProvidesAnnotation(
+              providerDescriptor,
+              providesAnnotation,
+              method,
+              "@" + Provides.class.getSimpleName()
+                  + " method parameter type contains an unresolvable type variable.\n"
+                  + "\tMethod: " + method + "\n"
+                  + "\tMethod owner type: " + providerType.getTypeName() + "\n"
+                  + "\tParameter index: " + i + "\n"
+                  + "\tDeclared parameter type: " + parameter.getParameterizedType() + "\n"
+                  + "\tResolved parameter type: " + parameterType + "\n");
+          continue methodLoop;
+        }
+      }
+
+      Set<Type> contracts =
           getContracts(
               providesAnnotation,
               providedType);
@@ -203,17 +301,9 @@ public class ProvidesListener implements DynamicConfigurationListener {
           getScopeAnnotation(
               providerDescriptor,
               method,
-              providedContracts);
+              contracts);
 
-      AtomicReference<ActiveDescriptor<?>> selfHolder = new AtomicReference<>();
-
-      Supplier<ActiveDescriptor<?>> selfSupplier =
-          () -> {
-            ActiveDescriptor<?> self = selfHolder.get();
-            if (self == null)
-              throw new NoSuchElementException();
-            return self;
-          };
+      AtomicReference<ActiveDescriptor<?>> self = new AtomicReference<>();
 
       Function<ServiceHandle<?>, Object> createFunction;
       if (Modifier.isStatic(method.getModifiers()))
@@ -221,7 +311,7 @@ public class ProvidesListener implements DynamicConfigurationListener {
             getCreateFunctionFromStaticMethod(
                 method,
                 providerType,
-                selfSupplier,
+                self,
                 locator);
       else
         createFunction =
@@ -229,7 +319,7 @@ public class ProvidesListener implements DynamicConfigurationListener {
                 method,
                 providerType,
                 providerDescriptor,
-                selfSupplier,
+                self,
                 locator);
 
       Consumer<Object> disposeFunction =
@@ -241,11 +331,33 @@ public class ProvidesListener implements DynamicConfigurationListener {
               providedType,
               providerClass,
               providerType,
-              selfSupplier,
+              self,
               locator);
 
-      if (disposeFunction == null)
+      if (disposeFunction == null) {
+        onInvalidProvidesAnnotation(
+            providerDescriptor,
+            providesAnnotation,
+            method,
+            "@" + Provides.class.getSimpleName()
+                + " method specifies an invalid dispose method.\n"
+                + "\tMethod: " + method + "\n"
+                + "\tMethod owner type: " + providerType.getTypeName() + "\n"
+                + "\tDispose method: " + providesAnnotation.disposeMethod() + "\n"
+                + "\tDisposal handled by: " + providesAnnotation.disposalHandledBy() + "\n"
+                + "\tPossible causes:\n"
+                + "\t\tThere is no method with the specified name.\n"
+                + "\t\tThe specified method is not public.\n"
+                + "\t\tDisposal is handled by the provided instance and...\n"
+                + "\t\t\tthe specified method is static.\n"
+                + "\t\t\tthe specified method does not have zero parameters.\n"
+                + "\t\tDisposal is handled by the provider and...\n"
+                + "\t\t\tthe specified method does not have at least one parameter.\n"
+                + "\t\t\tone of the method parameter types contains an unresolved type variable.\n"
+                + "\t\t\tthe type of the first parameter is not a supertype of the provided service.\n"
+                + "\t\t\tmore than one method matches the specifications.\n");
         continue;
+      }
 
       ActiveDescriptor<?> newDescriptor =
           configuration.addActiveDescriptor(
@@ -253,12 +365,12 @@ public class ProvidesListener implements DynamicConfigurationListener {
                   method,
                   providedClass,
                   providedType,
-                  providedContracts,
+                  contracts,
                   scopeAnnotation,
                   createFunction,
                   disposeFunction));
 
-      selfHolder.set(newDescriptor);
+      self.set(newDescriptor);
 
       added.add(newDescriptor);
     }
@@ -274,19 +386,43 @@ public class ProvidesListener implements DynamicConfigurationListener {
       Class<?> providedClass = field.getType();
 
       if (!Modifier.isStatic(field.getModifiers())
-          && (providedClass == providerClass
-              || ancestors.contains(providedClass)))
+          && (providedClass == providerClass || ancestors.contains(providedClass))) {
+        onInvalidProvidesAnnotation(
+            providerDescriptor,
+            providesAnnotation,
+            field,
+            "@" + Provides.class.getSimpleName()
+                + " field would form an infinite loop of providers.\n"
+                + "\tField: " + field + "\n"
+                + "\tClasses in loop: "
+                + Stream.concat(ancestors.stream(),
+                                Stream.of(providerClass, providedClass))
+                        .map(c -> c.getName())
+                        .collect(joining(" -> "))
+                + "\n");
         continue;
+      }
 
       Type providedType =
           TypeUtils.resolveType(
               providerType,
               field.getGenericType());
 
-      if (TypeUtils.containsTypeVariable(providedType))
+      if (TypeUtils.containsTypeVariable(providedType)) {
+        onInvalidProvidesAnnotation(
+            providerDescriptor,
+            providesAnnotation,
+            field,
+            "@" + Provides.class.getSimpleName()
+                + " field type contains an unresolvable type variable.\n"
+                + "\tField: " + field + "\n"
+                + "\tField owner type: " + providerType.getTypeName() + "\n"
+                + "\tDeclared field type: " + field.getGenericType().getTypeName() + "\n"
+                + "\tResolved field type: " + providedType.getTypeName() + "\n");
         continue;
+      }
 
-      Set<Type> providedContracts =
+      Set<Type> contracts =
           getContracts(
               providesAnnotation,
               providedType);
@@ -295,12 +431,20 @@ public class ProvidesListener implements DynamicConfigurationListener {
           getScopeAnnotation(
               providerDescriptor,
               field,
-              providedContracts);
+              contracts);
 
-      Function<ServiceHandle<?>, Object> createFunction =
-          Modifier.isStatic(field.getModifiers())
-              ? getCreateFunctionFromStaticField(field, locator)
-              : getCreateFunctionFromInstanceField(providerDescriptor, field, locator);
+      Function<ServiceHandle<?>, Object> createFunction;
+      if (Modifier.isStatic(field.getModifiers()))
+        createFunction =
+            getCreateFunctionFromStaticField(
+                field,
+                locator);
+      else
+        createFunction =
+            getCreateFunctionFromInstanceField(
+                providerDescriptor,
+                field,
+                locator);
 
       // There is no automatic disposal for fields.
       Consumer<Object> disposeFunction = instance -> {};
@@ -311,7 +455,7 @@ public class ProvidesListener implements DynamicConfigurationListener {
                   field,
                   providedClass,
                   providedType,
-                  providedContracts,
+                  contracts,
                   scopeAnnotation,
                   createFunction,
                   disposeFunction));
@@ -323,7 +467,7 @@ public class ProvidesListener implements DynamicConfigurationListener {
       return 0;
 
     int addedCount = added.size();
-    Set<Class<?>> newAncestors = new HashSet<>(ancestors);
+    Set<Class<?>> newAncestors = new LinkedHashSet<>(ancestors);
     newAncestors.add(providerClass);
 
     for (ActiveDescriptor<?> newDescriptor : added)
@@ -336,7 +480,8 @@ public class ProvidesListener implements DynamicConfigurationListener {
    * Returns the set of contracts defined by a method or field that is annotated
    * with {@link Provides}.
    *
-   * @param providesAnnotation the {@link Provides} annotation on the method or field
+   * @param providesAnnotation the {@link Provides} annotation on the method or
+   *        field
    * @param providedType the {@link Method#getGenericReturnType()} of the
    *        annotated method or the {@link Field#getGenericType()} of the
    *        annotated field
@@ -447,7 +592,7 @@ public class ProvidesListener implements DynamicConfigurationListener {
   private static Function<ServiceHandle<?>, Object>
   getCreateFunctionFromStaticMethod(Method method,
                                     Type providerType,
-                                    Supplier<ActiveDescriptor<?>> self,
+                                    AtomicReference<ActiveDescriptor<?>> self,
                                     ServiceLocator locator) {
 
     Objects.requireNonNull(method);
@@ -500,7 +645,7 @@ public class ProvidesListener implements DynamicConfigurationListener {
   getCreateFunctionFromInstanceMethod(Method method,
                                       Type providerType,
                                       ActiveDescriptor<?> providerDescriptor,
-                                      Supplier<ActiveDescriptor<?>> self,
+                                      AtomicReference<ActiveDescriptor<?>> self,
                                       ServiceLocator locator) {
 
     Objects.requireNonNull(providerDescriptor);
@@ -527,6 +672,8 @@ public class ProvidesListener implements DynamicConfigurationListener {
 
       Object provider =
           locator.getService(providerDescriptor, root, null);
+
+      Objects.requireNonNull(provider);
 
       if (!canAccess(method, provider))
         method.setAccessible(true);
@@ -591,6 +738,8 @@ public class ProvidesListener implements DynamicConfigurationListener {
     return (ServiceHandle<?> root) -> {
       Object provider = locator.getService(providerDescriptor, root, null);
 
+      Objects.requireNonNull(provider);
+
       if (!canAccess(field, provider))
         field.setAccessible(true);
 
@@ -630,7 +779,7 @@ public class ProvidesListener implements DynamicConfigurationListener {
                      Type providedType,
                      Class<?> providerClass,
                      Type providerType,
-                     Supplier<ActiveDescriptor<?>> self,
+                     AtomicReference<ActiveDescriptor<?>> self,
                      ServiceLocator locator) {
 
     Objects.requireNonNull(providerDescriptor);
@@ -678,25 +827,43 @@ public class ProvidesListener implements DynamicConfigurationListener {
       }
 
       case PROVIDER: {
-        Method disposeMethod =
+        Set<Method> disposeMethods =
             Arrays.stream(providerClass.getMethods())
                   .filter(method -> method.getName().equals(providesAnnotation.disposeMethod()))
                   .filter(method -> method.getParameterCount() >= 1)
                   .filter(method -> {
-                    Type parameterType =
-                        TypeUtils.resolveType(
-                            providerType,
-                            method.getGenericParameterTypes()[0]);
+                    int indexOfArgumentToDispose = 0;
+                    Parameter[] parameters = method.getParameters();
+                    for (int i = 0; i < parameters.length; i++) {
+                      Parameter parameter = parameters[i];
 
-                    return TypeChecker.isRawTypeSafe(
-                        parameterType,
-                        providedType);
+                      Type parameterType =
+                          TypeUtils.resolveType(
+                              providerType,
+                              parameter.getParameterizedType());
+
+                      // TODO: Additional type information is being supplied by
+                      //       the provided type, and that could theoretically
+                      //       resolve type variables in the generic parameter
+                      //       types of this method.
+
+                      if (i == indexOfArgumentToDispose
+                          && !TypeChecker.isRawTypeSafe(parameterType,
+                                                        providedType))
+                        return false;
+
+                      if (TypeUtils.containsTypeVariable(parameterType))
+                        return false;
+                    }
+
+                    return true;
                   })
-                  .findAny()
-                  .orElse(null);
+                  .collect(toUnmodifiableSet());
 
-        if (disposeMethod == null)
+        if (disposeMethods.size() != 1)
           return null;
+
+        Method disposeMethod = disposeMethods.iterator().next();
 
         return instance -> {
           if (instance == null)
@@ -755,6 +922,9 @@ public class ProvidesListener implements DynamicConfigurationListener {
               perLookupHandles.add(providerHandle);
 
             Object provider = providerHandle.getService();
+
+            Objects.requireNonNull(provider);
+
             if (!canAccess(disposeMethod, provider))
               disposeMethod.setAccessible(true);
 
@@ -851,8 +1021,9 @@ public class ProvidesListener implements DynamicConfigurationListener {
       private final /*@Nullable*/ ActiveDescriptor<?> provider;
       private final /*@Nullable*/ Member methodOrField;
 
-      CacheKey(/*@Nullable*/ ActiveDescriptor<?> provider,
-               /*@Nullable*/ Member methodOrField) {
+      CacheKey(
+          /*@Nullable*/ ActiveDescriptor<?> provider,
+          /*@Nullable*/ Member methodOrField) {
 
         this.provider = provider;
         this.methodOrField = methodOrField;

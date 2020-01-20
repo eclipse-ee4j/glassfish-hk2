@@ -1,5 +1,6 @@
 package org.glassfish.hk2.extras.provides;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -70,6 +71,7 @@ import org.jvnet.hk2.annotations.ContractsProvided;
  * <li>Otherwise, {@link PerLookup}.
  * </ul>
  */
+@Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD, ElementType.FIELD })
 public @interface Provides {
