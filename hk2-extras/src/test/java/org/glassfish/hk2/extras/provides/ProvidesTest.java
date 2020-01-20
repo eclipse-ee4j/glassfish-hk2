@@ -2389,7 +2389,7 @@ public final class ProvidesTest {
    * service undergoing disposal.
    */
   @Test
-  @Ignore("This feature has not been implemented")
+  @Ignore("This feature has not been implemented yet")
   public void testProvidesTypeArgumentsToDisposeMethod() {
     ServiceLocator locator = createAndPopulateServiceLocator();
     ServiceLocatorUtilities.addClasses(
