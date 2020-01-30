@@ -1,7 +1,6 @@
 package org.glassfish.hk2.extras.provides;
 
-import static org.glassfish.hk2.extras.provides.CompatibleWithJava8.setOf;
-
+import java.util.Collections;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import javax.inject.Inject;
@@ -80,7 +79,7 @@ final class NoInstancesService implements DynamicConfigurationService {
         rawClass,
         rawClass,
         rawClass,
-        setOf(), // Provides no contracts, not even itself.
+        Collections.emptySet(), // Provides no contracts, not even itself.
         ServiceLocatorUtilities.getPerLookupAnnotation(),
         root -> { throw new UnsupportedOperationException(); },
         instance -> { throw new UnsupportedOperationException(); });

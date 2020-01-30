@@ -1,12 +1,11 @@
 package org.glassfish.hk2.extras.provides;
 
-import static org.glassfish.hk2.extras.provides.CompatibleWithJava8.setCopyOf;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -62,7 +61,7 @@ final class InjectUtils {
         injectee.setUnqualified((Unqualified) annotation);
       }
     }
-    injectee.setRequiredQualifiers(setCopyOf(qualifiers));
+    injectee.setRequiredQualifiers(Collections.unmodifiableSet(qualifiers));
 
     return injectee;
   }

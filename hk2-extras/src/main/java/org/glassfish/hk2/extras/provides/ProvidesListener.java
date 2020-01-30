@@ -1,10 +1,5 @@
 package org.glassfish.hk2.extras.provides;
 
-import static java.util.stream.Collectors.joining;
-import static org.glassfish.hk2.extras.provides.CompatibleWithJava8.canAccess;
-import static org.glassfish.hk2.extras.provides.CompatibleWithJava8.setOf;
-import static org.glassfish.hk2.extras.provides.CompatibleWithJava8.toUnmodifiableSet;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.AnnotatedElement;
@@ -17,6 +12,7 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
@@ -25,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.inject.Scope;
@@ -182,7 +179,7 @@ public class ProvidesListener implements DynamicConfigurationListener {
 
     int added = 0;
     for (ActiveDescriptor<?> provider : providers)
-      added += addDescriptors(provider, setOf(), configuration);
+      added += addDescriptors(provider, Collections.emptySet(), configuration);
 
     if (added > 0)
       configuration.commit();
@@ -243,7 +240,7 @@ public class ProvidesListener implements DynamicConfigurationListener {
                 + Stream.concat(ancestors.stream(),
                                 Stream.of(providerClass, providedClass))
                         .map(c -> c.getName())
-                        .collect(joining(" -> "))
+                        .collect(Collectors.joining(" -> "))
                 + "\n");
         continue;
       }
@@ -398,7 +395,7 @@ public class ProvidesListener implements DynamicConfigurationListener {
                 + Stream.concat(ancestors.stream(),
                                 Stream.of(providerClass, providedClass))
                         .map(c -> c.getName())
-                        .collect(joining(" -> "))
+                        .collect(Collectors.joining(" -> "))
                 + "\n");
         continue;
       }
@@ -494,25 +491,34 @@ public class ProvidesListener implements DynamicConfigurationListener {
 
     if (providesAnnotation.contracts().length > 0)
       return Arrays.stream(providesAnnotation.contracts())
-                   .collect(toUnmodifiableSet());
+                   .collect(
+                       Collectors.collectingAndThen(
+                           Collectors.toSet(),
+                           set -> Collections.unmodifiableSet(set)));
 
     // This block of code reproduces the behavior of
     // org.jvnet.hk2.internal.Utilities#getAutoAdvertisedTypes(Type)
 
     Class<?> rawClass = ReflectionHelper.getRawClass(providedType);
     if (rawClass == null)
-      return setOf(providedType);
+      return Collections.singleton(providedType);
 
     ContractsProvided explicit = rawClass.getAnnotation(ContractsProvided.class);
     if (explicit != null)
       return Arrays.stream(explicit.value())
-                   .collect(toUnmodifiableSet());
+                   .collect(
+                       Collectors.collectingAndThen(
+                           Collectors.toSet(),
+                           set -> Collections.unmodifiableSet(set)));
 
     return Stream.concat(Stream.of(providedType),
                          ReflectionHelper.getAllTypes(providedType)
                                          .stream()
                                          .filter(t -> isContract(t)))
-                 .collect(toUnmodifiableSet());
+                 .collect(
+                     Collectors.collectingAndThen(
+                         Collectors.toSet(),
+                         set -> Collections.unmodifiableSet(set)));
   }
 
   /**
@@ -858,7 +864,10 @@ public class ProvidesListener implements DynamicConfigurationListener {
 
                     return true;
                   })
-                  .collect(toUnmodifiableSet());
+                  .collect(
+                      Collectors.collectingAndThen(
+                          Collectors.toSet(),
+                          set -> Collections.unmodifiableSet(set)));
 
         if (disposeMethods.size() != 1)
           return null;
@@ -971,6 +980,27 @@ public class ProvidesListener implements DynamicConfigurationListener {
                  .noneMatch(
                      annotation ->
                          ReflectionHelper.isAnnotationAQualifier(annotation));
+  }
+
+  /**
+   * A stand-in for Java 9's {@code AccessibleObject.canAccess(receiver)} that
+   * is compatible with Java 8.
+   */
+  private static <T extends AccessibleObject & Member>
+  boolean canAccess(T member, /*@Nullable*/ Object receiver) {
+    Objects.requireNonNull(member);
+    if (Modifier.isStatic(member.getModifiers())) {
+      if (receiver != null) {
+        throw new IllegalArgumentException();
+      }
+    } else {
+      if (!member.getDeclaringClass().isInstance(receiver)) {
+        throw new IllegalArgumentException();
+      }
+    }
+    @SuppressWarnings("deprecation")
+    boolean result = member.isAccessible();
+    return result;
   }
 
   /**

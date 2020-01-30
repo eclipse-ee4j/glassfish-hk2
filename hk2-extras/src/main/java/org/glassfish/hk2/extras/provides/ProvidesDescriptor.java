@@ -1,22 +1,19 @@
 package org.glassfish.hk2.extras.provides;
 
-import static org.glassfish.hk2.extras.provides.CompatibleWithJava8.listCopyOf;
-import static org.glassfish.hk2.extras.provides.CompatibleWithJava8.listOf;
-import static org.glassfish.hk2.extras.provides.CompatibleWithJava8.setCopyOf;
-import static org.glassfish.hk2.extras.provides.CompatibleWithJava8.toUnmodifiableMap;
-import static org.glassfish.hk2.extras.provides.CompatibleWithJava8.toUnmodifiableSet;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.inject.Named;
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.DescriptorType;
@@ -54,7 +51,7 @@ final class ProvidesDescriptor<T> implements ActiveDescriptor<T> {
     this.annotatedElement = Objects.requireNonNull(annotatedElement);
     this.implementationClass = Objects.requireNonNull(implementationClass);
     this.implementationType = Objects.requireNonNull(implementationType);
-    this.contracts = setCopyOf(Objects.requireNonNull(contracts));
+    this.contracts = Collections.unmodifiableSet(new HashSet<>(Objects.requireNonNull(contracts)));
     this.scopeAnnotation = Objects.requireNonNull(scopeAnnotation);
     this.createFunction = Objects.requireNonNull(createFunction);
     this.disposeFunction = Objects.requireNonNull(disposeFunction);
@@ -102,13 +99,13 @@ final class ProvidesDescriptor<T> implements ActiveDescriptor<T> {
 
   @Override
   public Set<Annotation> getQualifierAnnotations() {
-    return setCopyOf(
+    return Collections.unmodifiableSet(
         ReflectionHelper.getQualifierAnnotations(annotatedElement));
   }
 
   @Override
   public List<Injectee> getInjectees() {
-    return listOf();
+    return Collections.emptyList();
   }
 
   @Override
@@ -133,7 +130,10 @@ final class ProvidesDescriptor<T> implements ActiveDescriptor<T> {
         .map(contract -> ReflectionHelper.getRawClass(contract))
         .filter(contractClass -> contractClass != null)
         .map(contractClass -> contractClass.getName())
-        .collect(toUnmodifiableSet());
+        .collect(
+            Collectors.collectingAndThen(
+                Collectors.toSet(),
+                set -> Collections.unmodifiableSet(set)));
   }
 
   @Override
@@ -157,7 +157,10 @@ final class ProvidesDescriptor<T> implements ActiveDescriptor<T> {
         .stream()
         .map(annotation -> annotation.annotationType())
         .map(annotationType -> annotationType.getName())
-        .collect(toUnmodifiableSet());
+        .collect(
+            Collectors.collectingAndThen(
+                Collectors.toSet(),
+                set -> Collections.unmodifiableSet(set)));
   }
 
   @Override
@@ -180,12 +183,8 @@ final class ProvidesDescriptor<T> implements ActiveDescriptor<T> {
     for (Annotation qualifier : getQualifierAnnotations())
       BuilderHelper.getMetadataValues(qualifier, metadata);
 
-    return metadata.entrySet()
-                   .stream()
-                   .collect(
-                       toUnmodifiableMap(
-                           entry -> entry.getKey(),
-                           entry -> listCopyOf(entry.getValue())));
+    metadata.replaceAll((key, values) -> Collections.unmodifiableList(values));
+    return Collections.unmodifiableMap(metadata);
   }
 
   @Override
