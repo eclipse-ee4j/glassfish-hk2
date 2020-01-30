@@ -1,4 +1,4 @@
-package org.glassfish.hk2.extras.provides;
+package org.glassfish.hk2.tests.extras.provides;
 
 import static org.glassfish.hk2.utilities.ServiceLocatorUtilities.createAndPopulateServiceLocator;
 import static org.junit.Assert.assertEquals;
@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import org.glassfish.hk2.api.ServiceLocator;
+import org.glassfish.hk2.extras.provides.NoInstancesFilter;
+import org.glassfish.hk2.extras.provides.Provides;
+import org.glassfish.hk2.extras.provides.ProvidesListener;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 import org.junit.Test;
 import org.jvnet.hk2.annotations.Contract;

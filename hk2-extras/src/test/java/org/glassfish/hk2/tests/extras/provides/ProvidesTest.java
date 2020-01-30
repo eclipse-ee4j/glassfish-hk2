@@ -1,10 +1,8 @@
-package org.glassfish.hk2.extras.provides;
+package org.glassfish.hk2.tests.extras.provides;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
-import static org.glassfish.hk2.extras.provides.CompatibleWithJava8.listOf;
-import static org.glassfish.hk2.extras.provides.CompatibleWithJava8.setOf;
 import static org.glassfish.hk2.utilities.ServiceLocatorUtilities.createAndPopulateServiceLocator;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -21,7 +19,9 @@ import java.lang.annotation.Retention;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -44,6 +44,8 @@ import org.glassfish.hk2.api.Self;
 import org.glassfish.hk2.api.ServiceHandle;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.api.TypeLiteral;
+import org.glassfish.hk2.extras.provides.Provides;
+import org.glassfish.hk2.extras.provides.ProvidesListener;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 import org.glassfish.hk2.utilities.reflection.ReflectionHelper;
 import org.junit.Ignore;
@@ -1537,11 +1539,12 @@ public final class ProvidesTest {
             new TypeLiteral<IterableProvider<BoxFromGenericProvidesContract<String>>>() {}.getType());
 
     Set<String> expected =
-        setOf(
-            "staticField",
-            "instanceField",
-            "staticMethod",
-            "instanceMethod");
+        new HashSet<>(
+            Arrays.asList(
+                "staticField",
+                "instanceField",
+                "staticMethod",
+                "instanceMethod"));
 
     assertEquals(expected.size(), boxes.getSize());
 
@@ -1567,11 +1570,12 @@ public final class ProvidesTest {
         ProvidesGenericContracts.class);
 
     Set<String> expected =
-        setOf(
-            "staticField",
-            "instanceField",
-            "staticMethod",
-            "instanceMethod");
+        new HashSet<>(
+            Arrays.asList(
+                "staticField",
+                "instanceField",
+                "staticMethod",
+                "instanceMethod"));
 
     IterableProvider<OverrideBoxFromGenericProvidesContract<String>> overrides =
         locator.getService(
@@ -1626,7 +1630,7 @@ public final class ProvidesTest {
   }
 
   /**
-   * Verifies that if  {@link ProvidesListener#getFilter()} is not overridden,
+   * Verifies that if {@code ProvidesListener#getFilter()} is not overridden,
    * then the implementation classes of all services are scanned for {@link
    * Provides} annotations.
    */
@@ -1645,7 +1649,7 @@ public final class ProvidesTest {
   }
 
   /**
-   * Verifies that if {@link ProvidesListener#getFilter()} is overridden, then
+   * Verifies that if {@code ProvidesListener#getFilter()} is overridden, then
    * that filter restricts the set of services whose implementation classes are
    * scanned for {@link Provides} annotations.
    */
@@ -1701,12 +1705,12 @@ public final class ProvidesTest {
         UnresolvableTypeVariableInFieldType.class);
 
     assertEquals(
-        listOf(),
+        Collections.emptyList(),
         locator.getDescriptors(
             d -> d.getQualifiers().contains(BetterNotFindMe.class.getName())));
 
     assertNotEquals(
-        listOf(),
+        Collections.emptyList(),
         locator.getDescriptors(
             d -> d.getQualifiers().contains(BetterFindMe.class.getName())));
   }
@@ -1725,12 +1729,12 @@ public final class ProvidesTest {
         UnresolvableTypeVariableDeepInFieldType.class);
 
     assertEquals(
-        listOf(),
+        Collections.emptyList(),
         locator.getDescriptors(
             d -> d.getQualifiers().contains(BetterNotFindMe.class.getName())));
 
     assertNotEquals(
-        listOf(),
+        Collections.emptyList(),
         locator.getDescriptors(
             d -> d.getQualifiers().contains(BetterFindMe.class.getName())));
   }
@@ -1749,12 +1753,12 @@ public final class ProvidesTest {
         UnresolvableTypeVariableInStaticMethodReturnType.class);
 
     assertEquals(
-        listOf(),
+        Collections.emptyList(),
         locator.getDescriptors(
             d -> d.getQualifiers().contains(BetterNotFindMe.class.getName())));
 
     assertNotEquals(
-        listOf(),
+        Collections.emptyList(),
         locator.getDescriptors(
             d -> d.getQualifiers().contains(BetterFindMe.class.getName())));
   }
@@ -1774,12 +1778,12 @@ public final class ProvidesTest {
         UnresolvableTypeVariableDeepInStaticMethodReturnType.class);
 
     assertEquals(
-        listOf(),
+        Collections.emptyList(),
         locator.getDescriptors(
             d -> d.getQualifiers().contains(BetterNotFindMe.class.getName())));
 
     assertNotEquals(
-        listOf(),
+        Collections.emptyList(),
         locator.getDescriptors(
             d -> d.getQualifiers().contains(BetterFindMe.class.getName())));
   }
@@ -1798,12 +1802,12 @@ public final class ProvidesTest {
         UnresolvableTypeVariableInInstanceMethodReturnType.class);
 
     assertEquals(
-        listOf(),
+        Collections.emptyList(),
         locator.getDescriptors(
             d -> d.getQualifiers().contains(BetterNotFindMe.class.getName())));
 
     assertNotEquals(
-        listOf(),
+        Collections.emptyList(),
         locator.getDescriptors(
             d -> d.getQualifiers().contains(BetterFindMe.class.getName())));
   }
@@ -1823,12 +1827,12 @@ public final class ProvidesTest {
         UnresolvableTypeVariableDeepInInstanceMethodReturnType.class);
 
     assertEquals(
-        listOf(),
+        Collections.emptyList(),
         locator.getDescriptors(
             d -> d.getQualifiers().contains(BetterNotFindMe.class.getName())));
 
     assertNotEquals(
-        listOf(),
+        Collections.emptyList(),
         locator.getDescriptors(
             d -> d.getQualifiers().contains(BetterFindMe.class.getName())));
   }
@@ -1847,12 +1851,12 @@ public final class ProvidesTest {
         UnresolvableTypeVariableInStaticMethodParameterType.class);
 
     assertEquals(
-        listOf(),
+        Collections.emptyList(),
         locator.getDescriptors(
             d -> d.getQualifiers().contains(BetterNotFindMe.class.getName())));
 
     assertNotEquals(
-        listOf(),
+        Collections.emptyList(),
         locator.getDescriptors(
             d -> d.getQualifiers().contains(BetterFindMe.class.getName())));
   }
@@ -1872,12 +1876,12 @@ public final class ProvidesTest {
         UnresolvableTypeVariableDeepInStaticMethodParameterType.class);
 
     assertEquals(
-        listOf(),
+        Collections.emptyList(),
         locator.getDescriptors(
             d -> d.getQualifiers().contains(BetterNotFindMe.class.getName())));
 
     assertNotEquals(
-        listOf(),
+        Collections.emptyList(),
         locator.getDescriptors(
             d -> d.getQualifiers().contains(BetterFindMe.class.getName())));
   }
@@ -1898,7 +1902,7 @@ public final class ProvidesTest {
     assertNotNull(locator.getService(BetterFindMe.class));
 
     assertEquals(
-        listOf(),
+        Collections.emptyList(),
         locator.getDescriptors(
             d -> d.getQualifiers().contains(BetterNotFindMe.class.getName())));
   }
@@ -1920,7 +1924,7 @@ public final class ProvidesTest {
     assertNotNull(locator.getService(BetterFindMe.class));
 
     assertEquals(
-        listOf(),
+        Collections.emptyList(),
         locator.getDescriptors(
             d -> d.getQualifiers().contains(BetterNotFindMe.class.getName())));
   }
@@ -1983,12 +1987,12 @@ public final class ProvidesTest {
         ProvidesWrongDisposeMethodParameterType.class);
 
     assertEquals(
-        listOf(),
+        Collections.emptyList(),
         locator.getDescriptors(
             d -> d.getQualifiers().contains(BetterNotFindMe.class.getName())));
 
     assertNotEquals(
-        listOf(),
+        Collections.emptyList(),
         locator.getDescriptors(
             d -> d.getQualifiers().contains(BetterFindMe.class.getName())));
   }
@@ -2010,8 +2014,8 @@ public final class ProvidesTest {
 
     FactoryStats stats = locator.getService(FactoryStats.class);
 
-    assertEquals(listOf(), stats.valuesProvided);
-    assertEquals(listOf(), stats.valuesDisposed);
+    assertEquals(Collections.emptyList(), stats.valuesProvided);
+    assertEquals(Collections.emptyList(), stats.valuesDisposed);
     assertEquals(0, stats.factoryDisposeCounter.get());
     assertEquals(0, stats.perLookupDependencyInitCounter.get());
     assertEquals(0, stats.perLookupDependencyDisposeCounter.get());
@@ -2021,8 +2025,8 @@ public final class ProvidesTest {
     try (ServiceHandle<String> handle =
              locator.getServiceHandle(String.class, "forStaticDisposeMethod")) {
       assertEquals("1", handle.getService());
-      assertEquals(listOf("1"), stats.valuesProvided);
-      assertEquals(listOf(), stats.valuesDisposed);
+      assertEquals(Collections.singletonList("1"), stats.valuesProvided);
+      assertEquals(Collections.emptyList(), stats.valuesDisposed);
       assertEquals(0, stats.factoryDisposeCounter.get());
       assertEquals(0, stats.perLookupDependencyInitCounter.get());
       assertEquals(0, stats.perLookupDependencyDisposeCounter.get());
@@ -2030,8 +2034,8 @@ public final class ProvidesTest {
       assertEquals(0, stats.singletonDependencyDisposeCounter.get());
     }
 
-    assertEquals(listOf("1"), stats.valuesProvided);
-    assertEquals(listOf("1"), stats.valuesDisposed);
+    assertEquals(Collections.singletonList("1"), stats.valuesProvided);
+    assertEquals(Collections.singletonList("1"), stats.valuesDisposed);
     assertEquals(0, stats.factoryDisposeCounter.get());
     assertEquals(1, stats.perLookupDependencyInitCounter.get());
     assertEquals(1, stats.perLookupDependencyDisposeCounter.get());
@@ -2041,8 +2045,8 @@ public final class ProvidesTest {
     try (ServiceHandle<String> handle =
              locator.getServiceHandle(String.class, "forInstanceDisposeMethod")) {
       assertEquals("2", handle.getService());
-      assertEquals(listOf("1", "2"), stats.valuesProvided);
-      assertEquals(listOf("1"), stats.valuesDisposed);
+      assertEquals(Arrays.asList("1", "2"), stats.valuesProvided);
+      assertEquals(Collections.singletonList("1"), stats.valuesDisposed);
       assertEquals(0, stats.factoryDisposeCounter.get());
       assertEquals(1, stats.perLookupDependencyInitCounter.get());
       assertEquals(1, stats.perLookupDependencyDisposeCounter.get());
@@ -2050,8 +2054,8 @@ public final class ProvidesTest {
       assertEquals(0, stats.singletonDependencyDisposeCounter.get());
     }
 
-    assertEquals(listOf("1", "2"), stats.valuesProvided);
-    assertEquals(listOf("1", "2"), stats.valuesDisposed);
+    assertEquals(Arrays.asList("1", "2"), stats.valuesProvided);
+    assertEquals(Arrays.asList("1", "2"), stats.valuesDisposed);
     assertEquals(1, stats.factoryDisposeCounter.get());
     assertEquals(2, stats.perLookupDependencyInitCounter.get());
     assertEquals(2, stats.perLookupDependencyDisposeCounter.get());
@@ -2060,8 +2064,8 @@ public final class ProvidesTest {
 
     locator.shutdown();
 
-    assertEquals(listOf("1", "2"), stats.valuesProvided);
-    assertEquals(listOf("1", "2"), stats.valuesDisposed);
+    assertEquals(Arrays.asList("1", "2"), stats.valuesProvided);
+    assertEquals(Arrays.asList("1", "2"), stats.valuesDisposed);
     assertEquals(1, stats.factoryDisposeCounter.get());
     assertEquals(2, stats.perLookupDependencyInitCounter.get());
     assertEquals(2, stats.perLookupDependencyDisposeCounter.get());
@@ -2086,14 +2090,14 @@ public final class ProvidesTest {
 
     SeenByUsesSelf seen = locator.getService(SeenByUsesSelf.class);
 
-    assertEquals(listOf(), seen.list);
+    assertEquals(Collections.emptyList(), seen.list);
 
     ServiceHandle<String> handle = locator.getServiceHandle(String.class);
 
     assertEquals("hello", handle.getService());
 
     assertEquals(
-        listOf(UsesSelf.class, String.class),
+        Arrays.asList(UsesSelf.class, String.class),
         seen.list.stream()
                  .map(d -> d.getImplementationClass())
                  .collect(toList()));
@@ -2101,7 +2105,7 @@ public final class ProvidesTest {
     handle.close();
 
     assertEquals(
-        listOf(UsesSelf.class, String.class, UsesSelf.class, String.class),
+        Arrays.asList(UsesSelf.class, String.class, UsesSelf.class, String.class),
         seen.list.stream()
                  .map(d -> d.getImplementationClass())
                  .collect(toList()));
@@ -2403,9 +2407,9 @@ public final class ProvidesTest {
 
     assertNotNull(handle);
     ArrayList<String> list = handle.getService();
-    assertEquals(listOf("one", "two", "three"), list);
+    assertEquals(Arrays.asList("one", "two", "three"), list);
     handle.close();
-    assertEquals(listOf("three", "two", "one"), list);
+    assertEquals(Arrays.asList("three", "two", "one"), list);
   }
 
   public static final class ProvidesString {
@@ -3212,7 +3216,7 @@ public final class ProvidesTest {
   public static final class UnresolvableTypeVariableDeepInFieldType<T> {
     @Provides
     @BetterNotFindMe
-    public final List<List<Map<? super Number, T[]>>> bad = listOf();
+    public final List<List<Map<? super Number, T[]>>> bad = Collections.emptyList();
 
     @Provides
     @BetterFindMe
@@ -3242,7 +3246,7 @@ public final class ProvidesTest {
     @BetterNotFindMe
     @SuppressWarnings("TypeParameterUnusedInFormals")
     public static <T> List<List<Map<? super Number, T[]>>> bad() {
-      return listOf();
+      return Collections.emptyList();
     }
 
     @Provides
@@ -3273,7 +3277,7 @@ public final class ProvidesTest {
     @Provides
     @BetterNotFindMe
     public List<List<Map<? super Number, T[]>>> bad() {
-      return listOf();
+      return Collections.emptyList();
     }
 
     @Provides
@@ -3790,7 +3794,7 @@ public final class ProvidesTest {
         disposeMethod = "dispose",
         disposalHandledBy = Provides.DisposalHandledBy.PROVIDER)
     public ArrayList<String> provide() {
-      return new ArrayList<>(listOf("one", "two", "three"));
+      return new ArrayList<>(Arrays.asList("one", "two", "three"));
     }
 
     public static <Q> void dispose(List<Q> instance) {
