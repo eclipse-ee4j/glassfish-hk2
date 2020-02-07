@@ -48,7 +48,7 @@ public @interface MC {
      *
      * @return the index of the parameter.
      */
-    int value() default 0;
+    int value() default -1;
 
     /**
      * If the collaborator service being injected is a field of the SUT, this

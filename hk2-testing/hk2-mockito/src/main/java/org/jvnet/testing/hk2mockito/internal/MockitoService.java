@@ -30,7 +30,6 @@ import org.glassfish.hk2.api.InjectionResolver;
 import static org.glassfish.hk2.api.InjectionResolver.SYSTEM_RESOLVER_NAME;
 import org.glassfish.hk2.api.IterableProvider;
 import org.glassfish.hk2.api.ServiceHandle;
-import org.glassfish.hk2.api.ServiceLocator;
 import org.jvnet.hk2.annotations.Service;
 import org.jvnet.hk2.internal.SystemInjecteeImpl;
 import static org.jvnet.hk2.internal.Utilities.getFieldInjectees;
@@ -57,20 +56,16 @@ public class MockitoService {
     private final ObjectFactory objectFactory;
     private final IterableProvider<InjectionResolver> resolvers;
     private final InjectionResolver<Inject> systemResolver;
-    private final ServiceLocator locator;
-    private Class sut;
 
     @Inject
     MockitoService(MemberCache memberCache,
             ParentCache parentCache,
             ObjectFactory objectFactory,
-            ServiceLocator locator,
             IterableProvider<InjectionResolver> resolvers,
-            @Named(SYSTEM_RESOLVER_NAME) InjectionResolver systemResolver) {
+            @Named(SYSTEM_RESOLVER_NAME) InjectionResolver<Inject> systemResolver) {
         this.memberCache = memberCache;
         this.parentCache = parentCache;
         this.objectFactory = objectFactory;
-        this.locator = locator;
         this.resolvers = resolvers;
         this.systemResolver = systemResolver;
 
@@ -91,7 +86,7 @@ public class MockitoService {
      * @return A possibly null value to be injected into the given injection
      * point
      */
-    public Object resolve(Injectee injectee, ServiceHandle<?> root) {
+    private Object resolve(Injectee injectee, ServiceHandle<?> root) {
         Member member = (Member) injectee.getParent();
         Class<?> parentType = member.getDeclaringClass();
 
@@ -101,9 +96,9 @@ public class MockitoService {
             return systemResolver.resolve(injectee, root);
         }
 
-        for (InjectionResolver resolver : resolvers) {
+        for (InjectionResolver<?> resolver : resolvers) {
 
-            //ignore mockito inection resolver so we don't get into an infinit loop
+            //ignore mockito injection resolver so we don't get into an infinite loop
             if (resolver instanceof HK2MockitoInjectionResolver) {
                 continue;
             }
@@ -124,26 +119,19 @@ public class MockitoService {
      * with the injectee and use the metadata in the SUT annotation to possibly
      * create a mockito spy.
      *
-     * @param sut annotation containing sut config meta-data
      * @param injectee The injection point this value is being injected into
      * @param root The service handle of the root class being created
      * @return the service or a proxy spy of the service
      */
-    public Object findOrCreateSUT(SUT sut, Injectee injectee, ServiceHandle<?> root) {
-        this.sut = (Class) injectee.getRequiredType();
+    public Object findOrCreateSUT(Injectee injectee, ServiceHandle<?> root) {
         Member member = (Member) injectee.getParent();
+        Type requiredType = injectee.getRequiredType();
         Type parentType = member.getDeclaringClass();
-        primeCache((Class) parentType);
 
-        Object service;
+        Map<MockitoCacheKey, Object> cache = primeCache((Class) parentType, root);
+        MockitoCacheKey key = objectFactory.newKey(requiredType, member.getName());
 
-        if (sut.value()) {
-            service = objectFactory.newSpy(resolve(injectee, root));
-        } else {
-            service = resolve(injectee, root);
-        }
-
-        return service;
+        return cache.get(key);
     }
 
     /**
@@ -158,7 +146,6 @@ public class MockitoService {
         Member member = (Member) injectee.getParent();
         Class<?> parentType = member.getDeclaringClass();
         Type requiredType = injectee.getRequiredType();
-        Object service = resolve(injectee, root);;
 
         //get the cache for the injectee's parent type. if one is not found that
         //means we are not dealing with a test class instance so return the 
@@ -166,29 +153,42 @@ public class MockitoService {
         Type serviceParent = parentCache.get(parentType);
 
         if (serviceParent == null) {
-            return service;
+            return resolve(injectee, root);
+        }
+
+        //look for the test parent, which is at the root of the ancestry.
+        Type grandParent = parentCache.get(serviceParent);
+
+        while (grandParent != null) {
+            serviceParent = grandParent;
+            grandParent = parentCache.get(serviceParent);
         }
 
         //get the service's parent (the test class) cache. if one is not found 
-        //that means the test class didn't contain any inections that required 
-        //mocking/spying so we return the original sevrice.
+        //that means the test class didn't contain any injections that required
+        //mocking/spying so we return the original service.
         Map<MockitoCacheKey, Object> cache = memberCache.get(serviceParent);
 
         if (cache == null) {
-            return service;
-        }
-
-        // determine the cache key for the service
-        MockitoCacheKey key;
-
-        if (member instanceof Field) {
-            key = objectFactory.newKey(requiredType, member.getName());
-        } else {
-            key = objectFactory.newKey(requiredType, injectee.getPosition());
+            return resolve(injectee, root);
         }
 
         //get the service from the cache.
-        service = cache.get(key);
+        Object service;
+
+        if (member instanceof Field) {
+            MockitoCacheKey key = objectFactory.newKey(requiredType, member.getName());
+
+            service = cache.get(key);
+        } else {
+            MockitoCacheKey key = objectFactory.newKey(requiredType, injectee.getPosition());
+            service = cache.get(key);
+
+            if (service == null) {
+                key = objectFactory.newKey(requiredType, -1);
+                service = cache.get(key);
+            }
+        }
 
         //if the service is not found in the cache that means the test class
         //was not injected with services that required mocking or spying.
@@ -201,7 +201,7 @@ public class MockitoService {
     }
 
     /**
-     * Given metadata about collborator an an injectee create or resolve the
+     * Given metadata about collaborator and an injectee create or resolve the
      * collaborating service.
      *
      * @param position method or constructor the parameter position metadata
@@ -219,14 +219,14 @@ public class MockitoService {
         Type requiredType = injectee.getRequiredType();
 
         //prime the cache for the test class.
-        Map<MockitoCacheKey, Object> cache = primeCache((Class) parentType);
+        Map<MockitoCacheKey, Object> cache = primeCache((Class) parentType, root);
 
         //get the service from the cache.
         MockitoCacheKey key;
-        if (member instanceof Field) {
+        if (member instanceof Field && position >= 0) {
             key = objectFactory.newKey(requiredType, position);
         } else {
-            key = objectFactory.newKey(requiredType, getFieldName(fieldName, member.getName()));
+            key = objectFactory.newKey(requiredType, getOrDefault(fieldName, member.getName()));
         }
 
         return cache.get(key);
@@ -237,9 +237,10 @@ public class MockitoService {
      * proxies of found services, and them to the cache.
      *
      * @param type the class that will be analyzed
+     * @param root The service handle of the root class being created
      * @return a map containing nothing, or services or proxy/spy object
      */
-    private Map<MockitoCacheKey, Object> primeCache(final Class type) {
+    private Map<MockitoCacheKey, Object> primeCache(final Class type, ServiceHandle<?> root) {
         //if a cache already exists for the given class simply return that cache
         Map<MockitoCacheKey, Object> cache = memberCache.get(type);
 
@@ -250,14 +251,7 @@ public class MockitoService {
         //add the type to the cache
         cache = memberCache.add(type);
 
-        Field[] fields = doPrivileged(new PrivilegedAction<Field[]>() {
-
-            @Override
-            public Field[] run() {
-                return type.getDeclaredFields();
-            }
-
-        });
+        Field[] fields = doPrivileged((PrivilegedAction<Field[]>) type::getDeclaredFields);
 
         //iterate over all the fields in the class
         for (Field field : fields) {
@@ -265,15 +259,22 @@ public class MockitoService {
             Class<?> fieldClass = field.getType();
             Type fieldType = field.getGenericType();
 
+            SUT sut = field.getAnnotation(SUT.class);
             SC sc = field.getAnnotation(SC.class);
             MC mc = field.getAnnotation(MC.class);
+
+            if (sut != null || sc != null || mc != null) {
+                // Initialize the parent cache for test fields to make sure
+                // that the order of @SUT and @MC/@SC does not matter.
+                parentCache.put(fieldType, type);
+            }
 
             if (sc != null) {
                 //if we are dealing with spy collaborator then we create an injectee 
                 //for it and resolve that injectee
                 List<SystemInjecteeImpl> injectees = getFieldInjectees(type, field, null);
 
-                Object service = resolve(injectees.get(0), null);
+                Object service = resolve(injectees.get(0), root);
 
                 if (service != null) {
                     //if we found the service then we create two entries for it
@@ -281,39 +282,51 @@ public class MockitoService {
                     //method injection
 
                     MockitoCacheKey executableKey = objectFactory.newKey(fieldType, sc.value());
-                    MockitoCacheKey fieldKey = objectFactory.newKey(fieldType, getFieldName(sc.field(), name));
+                    MockitoCacheKey fieldKey = objectFactory.newKey(fieldType, getOrDefault(sc.field(), name));
 
                     Object spy = objectFactory.newSpy(service);
                     cache.put(executableKey, spy);
                     cache.put(fieldKey, spy);
                 }
-
             } else if (mc != null) {
                 //if we are dealing with a mock collaborator then get all the
                 //metadata associated with the mock and create a mock of the 
                 //service and add it to the cache twice. one for field injection
                 //and one for method injection.
-                Class<?>[] interfaces = mc.extraInterfaces();
-                String mockName = mc.name();
-
-                if ("".equals(mockName)) {
-                    mockName = name;
-                }
-
                 MockSettings settings = withSettings()
-                        .name(mockName)
-                        .defaultAnswer(mc.answer().get());
+                        .name(getOrDefault(mc.name(), name))
+                        .defaultAnswer(mc.answer());
+                Class<?>[] interfaces = mc.extraInterfaces();
 
-                if (interfaces != null && interfaces.length > 0) {
-                    settings.extraInterfaces(mc.extraInterfaces());
+                if (interfaces.length > 0) {
+                    settings.extraInterfaces(interfaces);
                 }
 
                 Object service = objectFactory.newMock(fieldClass, settings);
 
                 MockitoCacheKey executableKey = objectFactory.newKey(fieldClass, mc.value());
-                MockitoCacheKey fieldKey = objectFactory.newKey(fieldClass, getFieldName(mc.field(), name));
+                MockitoCacheKey fieldKey = objectFactory.newKey(fieldClass, getOrDefault(mc.field(), name));
 
                 cache.put(executableKey, service);
+                cache.put(fieldKey, service);
+            }
+        }
+
+        // Only do SUT after we've created any mock dependencies.
+        for (Field field : fields) {
+            String name = field.getName();
+            Type fieldType = field.getGenericType();
+            SUT sut = field.getAnnotation(SUT.class);
+
+            if (sut != null) {
+                List<SystemInjecteeImpl> injectees = getFieldInjectees(type, field, null);
+                Object service = resolve(injectees.get(0), root);
+
+                if (sut.value()) {
+                    service = objectFactory.newSpy(service);
+                }
+
+                MockitoCacheKey fieldKey = objectFactory.newKey(fieldType, name);
                 cache.put(fieldKey, service);
             }
         }
@@ -321,12 +334,12 @@ public class MockitoService {
         return cache;
     }
 
-    private String getFieldName(String fieldName, String defaultName) {
-        if ("".equals(fieldName)) {
-           return defaultName;
+    private String getOrDefault(String value, String defaultValue) {
+        if ("".equals(value)) {
+           return defaultValue;
         }
         
-        return fieldName;
+        return value;
     }
 
 }

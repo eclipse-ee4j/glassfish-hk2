@@ -63,7 +63,7 @@ public class HK2MockitoInjectionResolver implements InjectionResolver<Inject> {
         parentCache.put(requiredType, parentType);
 
         if (sut != null) {
-            service = mockitoService.findOrCreateSUT(sut, injectee, root);
+            service = mockitoService.findOrCreateSUT(injectee, root);
         } else if (sc != null) {
             service = mockitoService.findOrCreateCollaborator(sc.value(), sc.field(), injectee, root);
         } else if (mc != null) {
