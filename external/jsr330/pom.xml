@@ -44,8 +44,8 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>javax.inject</groupId>
-                                    <artifactId>javax.inject</artifactId>
+                                    <groupId>jakarta.inject</groupId>
+                                    <artifactId>jakarta.inject-api</artifactId>
                                     <version>${javax-inject.version}</version>
                                     <classifier>sources</classifier>
                                     <overWrite>false</overWrite>
@@ -107,8 +107,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>javax.inject</groupId>
-            <artifactId>javax.inject</artifactId>
+            <groupId>jakarta.inject</groupId>
+            <artifactId>jakarta.inject-api</artifactId>
             <optional>true</optional>
         </dependency>
     </dependencies>
