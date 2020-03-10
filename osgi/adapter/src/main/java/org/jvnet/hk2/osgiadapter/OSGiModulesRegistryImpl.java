@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2007, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -66,7 +67,6 @@ public class OSGiModulesRegistryImpl
                         "Not able convert bundle [{0}] having location [{1}] " +
                                 "to module because of exception: {2}",
                         new Object[]{b, b.getLocation(), e});
-                continue;
             }
         }
 
@@ -79,6 +79,7 @@ public class OSGiModulesRegistryImpl
         }
     }
 
+    @Override
     public void bundleChanged(BundleEvent event) {
         // Extender implementation.
         try {
@@ -86,7 +87,7 @@ public class OSGiModulesRegistryImpl
             switch (event.getType()) {
                 case BundleEvent.INSTALLED : {
                     if (logger.isLoggable(Level.FINE)) {
-                        logger.fine("[" + bundle.getBundleId() + "] " + bundle.getSymbolicName() +  " installed");
+                        logger.log(Level.FINE, "[{0}] {1} installed", new Object[]{bundle.getBundleId(), bundle.getSymbolicName()});
                     }
                     break;
                 } 
@@ -185,6 +186,7 @@ public class OSGiModulesRegistryImpl
     }
 
     // factory method
+    @Override
     protected HK2Module newModule(ModuleDefinition moduleDef) {
         String location = moduleDef.getLocations()[0].toString();
         try {
@@ -207,6 +209,7 @@ public class OSGiModulesRegistryImpl
         return null;
     }
 
+    @Override
     public synchronized void shutdown() {
 
         for (HK2Module m : modules.values()) {

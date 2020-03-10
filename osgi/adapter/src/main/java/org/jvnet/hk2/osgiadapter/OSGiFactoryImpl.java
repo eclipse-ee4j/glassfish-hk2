@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2007, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -44,16 +45,19 @@ public class OSGiFactoryImpl extends AbstractFactory {
         this.ctx = ctx;
     }
 
+    @Override
     public AbstractOSGiModulesRegistryImpl createModulesRegistry() {
         String val = ctx.getProperty(Constants.OBR_ENABLED);
         return (val != null && Boolean.valueOf(val)) ? new OSGiObrModulesRegistryImpl(ctx) : new OSGiModulesRegistryImpl(ctx);
     }
 
+    @Override
     public ModuleId createModuleId(String name, String version)
     {
         return new OSGiModuleId(name, version);
     }
 
+    @Override
     public ModuleId createModuleId(ModuleDefinition md)
     {
         return new OSGiModuleId(md);

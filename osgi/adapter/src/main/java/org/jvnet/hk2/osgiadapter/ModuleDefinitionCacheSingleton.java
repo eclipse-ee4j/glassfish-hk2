@@ -34,7 +34,7 @@ class ModuleDefinitionCacheSingleton {
 
     private static ModuleDefinitionCacheSingleton _instance;
 
-    private Map<URI, ModuleDefinition> cachedData = new HashMap<URI, ModuleDefinition>();
+    private Map<URI, ModuleDefinition> cachedData = new HashMap<>();
     private boolean cacheInvalidated = false;
 
     private ModuleDefinitionCacheSingleton() {
@@ -85,10 +85,9 @@ class ModuleDefinitionCacheSingleton {
             logger.logp(Level.INFO, getClass().getSimpleName(), "loadCachedData", "HK2 cache file = {0}", new Object[]{io});
         }
 
-       ObjectInputStream stream = new ObjectInputStream(new BufferedInputStream(new GZIPInputStream(new FileInputStream(io), getBufferSize())));
-
-       cachedData = (Map<URI, ModuleDefinition>) stream.readObject();
-       stream.close();
+        try (ObjectInputStream stream = new ObjectInputStream(new BufferedInputStream(new GZIPInputStream(new FileInputStream(io), getBufferSize())))) {
+            cachedData = (Map<URI, ModuleDefinition>) stream.readObject();
+        }
     }
 
     /**
@@ -111,7 +110,7 @@ class ModuleDefinitionCacheSingleton {
         }
         if (io.exists()) io.delete();
         io.createNewFile();
-        Map<URI, ModuleDefinition> data = new HashMap<URI, ModuleDefinition>();
+        Map<URI, ModuleDefinition> data = new HashMap<>();
         for (ModuleDefinition m : cachedData.values()) {
             data.put(m.getLocations()[0], m);
         }
