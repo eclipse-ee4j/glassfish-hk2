@@ -22,10 +22,10 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.util.Map;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Provider;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Provider;
+import jakarta.inject.Singleton;
 import javax.xml.bind.Unmarshaller.Listener;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;

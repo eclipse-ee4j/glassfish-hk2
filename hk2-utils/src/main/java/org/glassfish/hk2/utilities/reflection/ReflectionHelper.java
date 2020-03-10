@@ -45,9 +45,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.inject.Named;
-import javax.inject.Qualifier;
-import javax.inject.Scope;
+import jakarta.inject.Named;
+import jakarta.inject.Qualifier;
+import jakarta.inject.Scope;
 
 import org.glassfish.hk2.utilities.general.GeneralUtilities;
 import org.glassfish.hk2.utilities.reflection.internal.MethodWrapperImpl;

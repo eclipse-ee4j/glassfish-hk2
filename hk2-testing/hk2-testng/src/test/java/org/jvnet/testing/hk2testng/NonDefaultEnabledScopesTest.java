@@ -16,7 +16,7 @@
 
 package org.jvnet.testing.hk2testng;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.glassfish.hk2.api.Descriptor;
 import org.glassfish.hk2.api.HK2Loader;

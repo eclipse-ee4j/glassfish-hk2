@@ -16,7 +16,7 @@
 
 package org.glassfish.examples.configuration.xml.webserver.internal;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.glassfish.examples.configuration.xml.webserver.WebServerBean;
 import org.glassfish.hk2.api.IterableProvider;

@@ -19,7 +19,7 @@ package sample.controllers;
 import sample.model.Param;
 import sample.util.SampleUtil;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;

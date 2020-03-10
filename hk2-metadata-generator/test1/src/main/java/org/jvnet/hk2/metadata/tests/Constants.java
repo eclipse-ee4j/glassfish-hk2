@@ -31,7 +31,7 @@ public class Constants {
     
     public final static String GENERATE_METHOD_DELETE_IMPL = "com.acme.service.DeleteImpl";
     public final static String GENERATE_METHOD_DELETE_CONTRACT = "com.acme.api.GenerateMethod";
-    public final static String GENERATE_METHOD_DELETE_SCOPE = "javax.inject.Singleton";
+    public final static String GENERATE_METHOD_DELETE_SCOPE = "jakarta.inject.Singleton";
     
     // metadata constants
     public final static String KEY1 = "key1";

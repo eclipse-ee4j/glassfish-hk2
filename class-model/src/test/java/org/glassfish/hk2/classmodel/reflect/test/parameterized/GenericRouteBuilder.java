@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.classmodel.reflect.test.parameterized;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 /**
  * Generic type

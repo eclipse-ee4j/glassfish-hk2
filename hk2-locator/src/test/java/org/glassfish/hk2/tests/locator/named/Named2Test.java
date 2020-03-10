@@ -19,7 +19,7 @@ package org.glassfish.hk2.tests.locator.named;
 import java.lang.annotation.Annotation;
 import java.util.Set;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 
 import org.glassfish.hk2.api.Injectee;
 import org.glassfish.hk2.api.MultiException;

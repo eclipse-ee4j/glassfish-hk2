@@ -19,7 +19,7 @@ package org.glassfish.hk2.api;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 
 /**
  * This object can be injected rather than {@link Provider} when

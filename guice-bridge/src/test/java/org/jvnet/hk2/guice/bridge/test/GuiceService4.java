@@ -16,7 +16,7 @@
 
 package org.jvnet.hk2.guice.bridge.test;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class GuiceService4 {

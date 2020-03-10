@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.configuration.tests.injected;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.glassfish.hk2.api.IterableProvider;
 import org.jvnet.hk2.annotations.Service;

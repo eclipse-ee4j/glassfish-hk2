@@ -76,7 +76,7 @@ public class IterableProviderImpl<T> implements IterableProvider<T> {
     }
 
     /* (non-Javadoc)
-     * @see javax.inject.Provider#get()
+     * @see jakarta.inject.Provider#get()
      */
     @SuppressWarnings("unchecked")
     @Override

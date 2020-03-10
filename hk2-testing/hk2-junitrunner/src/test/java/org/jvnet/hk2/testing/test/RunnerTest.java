@@ -18,7 +18,7 @@ package org.jvnet.hk2.testing.test;
 
 import java.util.LinkedList;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.junit.Assert;
 import org.junit.Before;

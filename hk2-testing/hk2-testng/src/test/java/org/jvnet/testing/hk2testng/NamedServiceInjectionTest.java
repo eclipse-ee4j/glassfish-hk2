@@ -17,8 +17,8 @@
 package org.jvnet.testing.hk2testng;
 
 import org.jvnet.testing.hk2testng.service.NamedService;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.testng.annotations.Test;
 

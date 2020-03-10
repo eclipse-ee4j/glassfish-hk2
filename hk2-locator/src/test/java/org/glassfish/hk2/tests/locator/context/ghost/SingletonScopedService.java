@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.context.ghost;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 /**
  * This class is explicitly marked with Singleton, but will be modified

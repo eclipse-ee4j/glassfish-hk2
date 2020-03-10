@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.negative.immediate.cycle;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.utilities.ImmediateErrorHandler;

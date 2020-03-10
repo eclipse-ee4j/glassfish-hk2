@@ -100,7 +100,7 @@ public abstract class AbstractBinder implements Binder, DynamicConfiguration {
 
     /**
      * Start building a new instance-based service binding. The binding is naturally
-     * considered to be a {@link javax.inject.Singleton singleton-scoped}.
+     * considered to be a {@link jakarta.inject.Singleton singleton-scoped}.
      *
      * Does NOT bind the service type itself as a contract type.
      *

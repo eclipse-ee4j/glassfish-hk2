@@ -22,7 +22,7 @@ import org.glassfish.hk2.tests.locator.utilities.TestModule;
 import org.glassfish.hk2.utilities.AbstractActiveDescriptor;
 import org.glassfish.hk2.utilities.BuilderHelper;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 /**
  * @author jwells

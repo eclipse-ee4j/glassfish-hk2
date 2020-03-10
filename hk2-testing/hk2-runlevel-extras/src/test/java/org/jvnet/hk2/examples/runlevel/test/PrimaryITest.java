@@ -16,7 +16,7 @@
 
 package org.jvnet.hk2.examples.runlevel.test;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.jvnet.hk2.examples.runlevel.kernel.Kernel;
 import org.jvnet.testing.hk2testng.HK2;

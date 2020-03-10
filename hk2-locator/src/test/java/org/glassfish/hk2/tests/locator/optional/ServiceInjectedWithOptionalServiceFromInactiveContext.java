@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.optional;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.jvnet.hk2.annotations.Optional;
 

@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.iterableinject;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 /**
  * @author jwells

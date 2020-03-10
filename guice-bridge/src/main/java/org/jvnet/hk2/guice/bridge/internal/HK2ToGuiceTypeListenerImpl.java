@@ -23,7 +23,7 @@ import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.LinkedList;
 
-import javax.inject.Qualifier;
+import jakarta.inject.Qualifier;
 
 import org.glassfish.hk2.api.ServiceHandle;
 import org.glassfish.hk2.api.ServiceLocator;

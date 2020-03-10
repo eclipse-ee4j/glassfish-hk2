@@ -18,7 +18,7 @@ package org.glassfish.hk2.configuration.tests.threaded;
 
 import java.util.HashMap;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.glassfish.hk2.api.ServiceHandle;
 import org.glassfish.hk2.configuration.api.ConfigurationUtilities;

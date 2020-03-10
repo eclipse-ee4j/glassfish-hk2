@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 /**
  * @author jwells

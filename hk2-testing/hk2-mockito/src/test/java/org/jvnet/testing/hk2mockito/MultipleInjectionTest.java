@@ -23,7 +23,7 @@ import org.jvnet.testing.hk2testng.HK2;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mockingDetails;

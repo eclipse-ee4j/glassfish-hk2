@@ -93,7 +93,7 @@ public interface ScopedBindingBuilder<T> extends BindingBuilder<T> {
     public ScopedBindingBuilder<T> qualifiedBy(Annotation annotation);
 
     /**
-     * {@link javax.inject.Named Name} the binding.
+     * {@link jakarta.inject.Named Name} the binding.
      *
      * @param name new name value.
      * @return updated binding.

@@ -18,7 +18,7 @@ package org.glassfish.hk2.tests.locator.negative.errorservice1;
 
 import java.lang.reflect.Type;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.glassfish.hk2.api.ServiceHandle;
 import org.glassfish.hk2.utilities.AbstractActiveDescriptor;

@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.negative.immediate.cycle2;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 /**
  * @author jwells

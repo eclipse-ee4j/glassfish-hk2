@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.glassfish.hk2.api.ClassAnalyzer;
 import org.glassfish.hk2.api.Descriptor;

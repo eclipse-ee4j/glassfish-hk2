@@ -17,7 +17,7 @@
 package org.glassfish.hk2.tests.locator.negative.errorservice1;
 
 import jakarta.annotation.PostConstruct;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 /**
  * @author jwells

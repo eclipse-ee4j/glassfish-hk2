@@ -16,8 +16,8 @@
 
 package org.glassfish.hk2.tests.locator.messaging.basic;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.Self;

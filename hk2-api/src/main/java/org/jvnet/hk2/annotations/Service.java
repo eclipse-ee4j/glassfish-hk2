@@ -27,7 +27,7 @@ import org.glassfish.hk2.api.ClassAnalyzer;
 /**
  * Annotation placed on classes that are to be automatically added
  * to an hk2 {@link org.glassfish.hk2.api.ServiceLocator}.  A service
- * marked with this annotation has the default scope of {@link javax.inject.Singleton},
+ * marked with this annotation has the default scope of {@link jakarta.inject.Singleton},
  * but any other scope annotation placed on the class will override that default.
  * <p>
  * This annotation is read at build time using the hk2-inhabitant-generator

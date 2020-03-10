@@ -18,7 +18,7 @@ package org.glassfish.hk2.tests.locator.factory;
 
 import java.util.Date;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.glassfish.hk2.api.DescriptorType;
 import org.glassfish.hk2.api.DynamicConfiguration;

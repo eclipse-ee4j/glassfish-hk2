@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.provider;
 
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 
 import org.junit.Assert;
 

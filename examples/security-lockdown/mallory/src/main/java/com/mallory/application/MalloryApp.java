@@ -16,7 +16,7 @@
 
 package com.mallory.application;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.glassfish.hk2.api.Descriptor;
 import org.glassfish.hk2.api.DynamicConfiguration;

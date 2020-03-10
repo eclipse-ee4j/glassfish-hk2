@@ -63,7 +63,7 @@ public class StubTest {
     }
     
     /**
-     * Ensures that {@link javax.inject.Named} works in a stub
+     * Ensures that {@link jakarta.inject.Named} works in a stub
      */
     @Test
     public void testNamedWorks() {

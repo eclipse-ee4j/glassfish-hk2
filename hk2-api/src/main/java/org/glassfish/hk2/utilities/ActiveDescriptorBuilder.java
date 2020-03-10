@@ -30,7 +30,7 @@ import org.glassfish.hk2.api.HK2Loader;
  * analysis of the associated class file, assuming instead that
  * all the information from the ActiveDescriptor is what the
  * user intended.  This can be used to supply qualifiers that are
- * not marked with {@link javax.inject.Qualifier} or contracts that are not
+ * not marked with {@link jakarta.inject.Qualifier} or contracts that are not
  * marked with {@link org.jvnet.hk2.annotations.Contract}.  An unreified ActiveDescriptor given
  * to a bind method need not implement the create or destroy method,
  * as they are automatically created and destroyed by the system.

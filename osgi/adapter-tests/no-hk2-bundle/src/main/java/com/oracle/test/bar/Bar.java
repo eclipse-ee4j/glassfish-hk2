@@ -16,7 +16,7 @@
 
 package com.oracle.test.bar;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 /**
  * Empty implementation

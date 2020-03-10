@@ -16,7 +16,7 @@
 
 package org.jvnet.testing.hk2testng.service.impl;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.glassfish.hk2.api.messaging.Topic;
 import org.jvnet.hk2.annotations.Service;

@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.negative.injector;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.glassfish.hk2.tests.locator.utilities.LocatorHelper;
 

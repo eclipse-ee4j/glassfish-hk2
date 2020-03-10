@@ -23,7 +23,7 @@ import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.utilities.BuilderHelper;
 import org.jvnet.testing.hk2testng.service.PrimaryService;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

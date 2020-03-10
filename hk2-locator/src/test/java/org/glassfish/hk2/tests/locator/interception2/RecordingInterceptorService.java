@@ -21,9 +21,9 @@ import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Provider;
+import jakarta.inject.Singleton;
 
 import org.aopalliance.intercept.ConstructorInterceptor;
 import org.aopalliance.intercept.MethodInterceptor;

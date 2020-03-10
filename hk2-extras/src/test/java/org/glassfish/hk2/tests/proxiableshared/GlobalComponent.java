@@ -16,8 +16,8 @@
 
 package org.glassfish.hk2.tests.proxiableshared;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 /**
  * Global component that is managed by its own "bean manager".

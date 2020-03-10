@@ -17,7 +17,7 @@
 package org.glassfish.hk2.tests.locator.proxiable2;
 
 import jakarta.annotation.PostConstruct;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.jvnet.hk2.annotations.Service;
 

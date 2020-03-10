@@ -18,7 +18,7 @@ package org.glassfish.hk2.tests.locator.context.ghost;
 
 import java.lang.annotation.Annotation;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.AnnotationLiteral;

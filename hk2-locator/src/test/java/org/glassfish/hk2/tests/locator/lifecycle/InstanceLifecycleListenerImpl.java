@@ -21,7 +21,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.glassfish.hk2.api.Filter;
 import org.glassfish.hk2.api.InstanceLifecycleEvent;

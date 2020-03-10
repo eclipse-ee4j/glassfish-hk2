@@ -18,8 +18,8 @@ package org.glassfish.examples.configuration.xml.webserver.tests;
 
 import java.net.URI;
 
-import javax.inject.Inject;
-import javax.inject.Provider;
+import jakarta.inject.Inject;
+import jakarta.inject.Provider;
 
 import org.glassfish.examples.configuration.xml.webserver.ApplicationBean;
 import org.glassfish.examples.configuration.xml.webserver.WebServerBean;

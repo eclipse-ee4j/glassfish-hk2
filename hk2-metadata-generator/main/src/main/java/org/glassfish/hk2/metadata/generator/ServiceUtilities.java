@@ -26,10 +26,10 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.inject.Named;
-import javax.inject.Qualifier;
-import javax.inject.Scope;
-import javax.inject.Singleton;
+import jakarta.inject.Named;
+import jakarta.inject.Qualifier;
+import jakarta.inject.Scope;
+import jakarta.inject.Singleton;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;

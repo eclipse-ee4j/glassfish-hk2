@@ -20,7 +20,7 @@ import java.lang.annotation.Annotation;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.HashMap;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.Context;
 import org.glassfish.hk2.api.DescriptorVisibility;

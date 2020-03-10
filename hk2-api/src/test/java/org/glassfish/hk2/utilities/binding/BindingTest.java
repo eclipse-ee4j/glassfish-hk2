@@ -25,7 +25,7 @@ import org.glassfish.hk2.utilities.FactoryDescriptorsImpl;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 import org.junit.Test;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import static org.easymock.EasyMock.*;
 import static org.glassfish.hk2.utilities.binding.BindingBuilderFactory.newBinder;
@@ -68,7 +68,7 @@ public class BindingTest {
         expectedDescriptor.setLoader(hk2Loader);
         expectedDescriptor.setName("foo");
         expectedDescriptor.addMetadata("foo", "bar");
-        expectedDescriptor.addQualifier("javax.inject.Named");
+        expectedDescriptor.addQualifier("jakarta.inject.Named");
         expectedDescriptor.addAdvertisedContract("org.glassfish.hk2.utilities.binding.BindingTest$MyContract");
         expectedDescriptor.setClassAnalysisName(MY_CUSTOM_ANALYZER);
 

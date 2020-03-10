@@ -25,7 +25,7 @@ import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.junit.Assert;
 
@@ -146,7 +146,7 @@ public class DescriptorImplTest {
         String lookingFors[] = {
                 "implementation=org.glassfish.hk2.tests.api.FullDescriptorImpl",
                 "contracts={org.glassfish.hk2.tests.api.FullDescriptorImpl,org.glassfish.hk2.tests.api.MarkerInterface}",
-                "scope=javax.inject.Singleton",
+                "scope=jakarta.inject.Singleton",
                 "name=Full",
                 "descriptorType=PROVIDE_METHOD"
         };

@@ -20,7 +20,7 @@ package org.glassfish.hk2.runlevel;
 import org.glassfish.hk2.api.Metadata;
 import org.jvnet.hk2.annotations.Contract;
 
-import javax.inject.Scope;
+import jakarta.inject.Scope;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;

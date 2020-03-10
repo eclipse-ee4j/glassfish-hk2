@@ -17,7 +17,7 @@
 package org.glassfish.hk2.runlevel.tests.ordering;
 
 import jakarta.annotation.PostConstruct;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.glassfish.hk2.api.Rank;
 import org.glassfish.hk2.runlevel.RunLevel;

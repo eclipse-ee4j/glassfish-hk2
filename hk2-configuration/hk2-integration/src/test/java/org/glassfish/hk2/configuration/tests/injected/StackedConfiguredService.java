@@ -16,8 +16,8 @@
 
 package org.glassfish.hk2.configuration.tests.injected;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.glassfish.hk2.configuration.api.Configured;
 import org.glassfish.hk2.configuration.api.ConfiguredBy;

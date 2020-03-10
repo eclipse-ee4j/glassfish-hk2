@@ -16,7 +16,7 @@
 
 package org.jvnet.hk2.spring.bridge.test.bidirectional;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 /**
  * @author jwells

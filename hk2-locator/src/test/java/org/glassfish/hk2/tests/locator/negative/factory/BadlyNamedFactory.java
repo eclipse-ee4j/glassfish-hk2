@@ -16,8 +16,8 @@
 
 package org.glassfish.hk2.tests.locator.negative.factory;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 
 import org.glassfish.hk2.api.Factory;
 import org.glassfish.hk2.api.PerLookup;

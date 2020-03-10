@@ -16,7 +16,7 @@
 
 package org.jvnet.hk2.metadata.tests;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 
 import org.glassfish.hk2.api.PerLookup;
 import org.jvnet.hk2.annotations.Service;

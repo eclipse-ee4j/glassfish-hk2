@@ -22,7 +22,7 @@ import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.glassfish.hk2.api.Injectee;
 import org.glassfish.hk2.api.JustInTimeInjectionResolver;

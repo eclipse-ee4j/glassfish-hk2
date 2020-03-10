@@ -34,9 +34,9 @@ import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.hk2.utilities.reflection.ParameterizedTypeImpl;
 import org.junit.Test;
 
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Provider;
+import jakarta.inject.Singleton;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;

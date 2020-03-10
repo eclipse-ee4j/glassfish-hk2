@@ -22,8 +22,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import jakarta.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 import org.aopalliance.intercept.ConstructorInterceptor;
 import org.aopalliance.intercept.MethodInterceptor;

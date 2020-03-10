@@ -18,7 +18,7 @@ package org.glassfish.hk2.tests.locator.memory;
 
 import java.util.WeakHashMap;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.ServiceLocator;

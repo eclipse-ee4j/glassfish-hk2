@@ -16,7 +16,7 @@
 
 package org.jvnet.hk2.guice.bridge.test;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 
 /**
  * @author jwells

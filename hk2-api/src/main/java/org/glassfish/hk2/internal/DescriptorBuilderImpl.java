@@ -25,7 +25,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 
 import org.glassfish.hk2.api.DescriptorType;
 import org.glassfish.hk2.api.DescriptorVisibility;

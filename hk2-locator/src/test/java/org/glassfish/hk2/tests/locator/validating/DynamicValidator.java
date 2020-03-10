@@ -18,7 +18,7 @@ package org.glassfish.hk2.tests.locator.validating;
 
 import java.util.HashSet;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.ValidationInformation;

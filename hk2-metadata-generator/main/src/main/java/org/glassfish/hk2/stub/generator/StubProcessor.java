@@ -30,8 +30,8 @@ import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.inject.Named;
-import javax.inject.Scope;
+import jakarta.inject.Named;
+import jakarta.inject.Scope;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
@@ -348,7 +348,7 @@ public class StubProcessor extends AbstractProcessor {
             
             writer.append("import jakarta.annotation.Generated;\n");
             if (name != null) {
-                writer.append("import javax.inject.Named;\n");
+                writer.append("import jakarta.inject.Named;\n");
             }
             writer.append("import org.jvnet.hk2.annotations.Service;\n");
             if (contractsProvided != null) {

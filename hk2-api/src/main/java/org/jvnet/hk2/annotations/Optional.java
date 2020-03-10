@@ -26,7 +26,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * Marker annotation indicating that an instance variable or method marked with {@link javax.inject.Inject}
+ * Marker annotation indicating that an instance variable or method marked with {@link jakarta.inject.Inject}
  * is not required to be present at run-time. If the service is not present, there will be no error and 
  * injection will not be performed.
  * 

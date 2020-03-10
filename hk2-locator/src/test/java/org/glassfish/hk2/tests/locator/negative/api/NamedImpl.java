@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.negative.api;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 
 import org.glassfish.hk2.api.AnnotationLiteral;
 
@@ -37,7 +37,7 @@ public class NamedImpl extends AnnotationLiteral<Named> implements Named {
     private static final long serialVersionUID = -8893798618346961132L;
 
     /* (non-Javadoc)
-     * @see javax.inject.Named#value()
+     * @see jakarta.inject.Named#value()
      */
     @Override
     public String value() {

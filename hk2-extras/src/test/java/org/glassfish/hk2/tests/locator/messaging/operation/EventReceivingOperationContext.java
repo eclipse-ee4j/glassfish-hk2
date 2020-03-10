@@ -18,7 +18,7 @@ package org.glassfish.hk2.tests.locator.messaging.operation;
 
 import java.lang.annotation.Annotation;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.glassfish.hk2.extras.operation.OperationContext;
 

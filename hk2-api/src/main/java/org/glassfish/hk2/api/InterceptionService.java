@@ -28,7 +28,7 @@ import org.jvnet.hk2.annotations.Contract;
  * This service is implemented in order to configure
  * interceptors on methods or constructors provided by
  * hk2 services.  All implementations must be in the 
- * {@link javax.inject.Singleton} scope.  Only services
+ * {@link jakarta.inject.Singleton} scope.  Only services
  * that are created by HK2 are candidates for interception.
  * In particular services created by the provide method of
  * the {@link Factory} interface can not be intercepted.  
@@ -37,7 +37,7 @@ import org.jvnet.hk2.annotations.Contract;
  * Implementations of InterceptionService will be instantiated as soon as
  * they are added to HK2 in order to avoid deadlocks and circular references.
  * Therefore it is recommended that implementations of InterceptionService
- * make liberal use of {@link javax.inject.Provider} or {@link IterableProvider}
+ * make liberal use of {@link jakarta.inject.Provider} or {@link IterableProvider}
  * when injecting dependent services so that these services are not instantiated
  * when the InterceptionService is created
  * 

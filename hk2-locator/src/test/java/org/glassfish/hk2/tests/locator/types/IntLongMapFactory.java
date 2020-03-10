@@ -19,7 +19,7 @@ package org.glassfish.hk2.tests.locator.types;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.glassfish.hk2.api.Factory;
 

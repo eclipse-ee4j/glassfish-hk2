@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.proxysamescope;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.glassfish.hk2.api.ProxyForSameScope;
 import org.glassfish.hk2.api.UseProxy;

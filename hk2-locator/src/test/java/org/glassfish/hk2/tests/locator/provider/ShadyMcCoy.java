@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.provider;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 
 /**
  * @author jwells

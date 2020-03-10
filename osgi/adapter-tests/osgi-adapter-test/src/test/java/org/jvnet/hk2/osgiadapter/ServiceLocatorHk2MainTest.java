@@ -28,7 +28,7 @@ import static org.ops4j.pax.exam.CoreOptions.workingDirectory;
 import java.io.File;
 import java.util.List;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.utilities.BuilderHelper;

@@ -18,7 +18,7 @@ package org.glassfish.hk2.tests.locator.destroy;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 /**
  * This one uses annotations to indicate the post construct

@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.runlevel.tests.listener;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.glassfish.hk2.runlevel.ChangeableRunLevelFuture;
 import org.glassfish.hk2.runlevel.ErrorInformation;

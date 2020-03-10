@@ -18,7 +18,7 @@ package org.glassfish.hk2.classmodel.reflect.test.model;
 
 import org.glassfish.hk2.classmodel.reflect.test.model.qualifier.Synchronous;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 /**
  * Created by IntelliJ IDEA.

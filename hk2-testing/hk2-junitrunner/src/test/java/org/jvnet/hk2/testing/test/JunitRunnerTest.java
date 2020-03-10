@@ -4,7 +4,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.jvnet.hk2.testing.junit.HK2JunitRunner;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import static org.junit.Assert.assertNotNull;
 

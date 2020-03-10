@@ -21,8 +21,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Set;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.extras.operation.OperationHandle;

@@ -16,7 +16,7 @@
 
 package org.jvnet.testing.hk2testng;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.jvnet.testing.hk2testng.service.Event;
 import org.jvnet.testing.hk2testng.service.EventReceiverService;

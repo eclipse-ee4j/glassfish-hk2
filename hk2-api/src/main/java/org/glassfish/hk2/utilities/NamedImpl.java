@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.utilities;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 
 import org.glassfish.hk2.api.AnnotationLiteral;
 
@@ -42,7 +42,7 @@ public class NamedImpl extends AnnotationLiteral<Named> implements Named {
     }
 
     /* (non-Javadoc)
-     * @see javax.inject.Named#value()
+     * @see jakarta.inject.Named#value()
      */
     @Override
     public String value() {

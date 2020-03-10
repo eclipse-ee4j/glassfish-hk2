@@ -18,7 +18,7 @@ package org.glassfish.hk2.tests.locator.classanalysis;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.junit.Assert;
 

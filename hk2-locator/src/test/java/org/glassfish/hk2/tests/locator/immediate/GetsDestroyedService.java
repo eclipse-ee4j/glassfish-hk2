@@ -17,7 +17,7 @@
 package org.glassfish.hk2.tests.locator.immediate;
 
 import jakarta.annotation.PreDestroy;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.glassfish.hk2.api.Immediate;
 

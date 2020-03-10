@@ -18,7 +18,7 @@ package org.jvnet.testing.hk2testng.binder;
 
 import org.jvnet.testing.hk2testng.service.PrimaryService;
 import org.jvnet.testing.hk2testng.service.impl.PrimaryServiceImpl;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 
 /**

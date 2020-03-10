@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.negative.validation;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.glassfish.hk2.api.ErrorInformation;
 import org.glassfish.hk2.api.ErrorService;

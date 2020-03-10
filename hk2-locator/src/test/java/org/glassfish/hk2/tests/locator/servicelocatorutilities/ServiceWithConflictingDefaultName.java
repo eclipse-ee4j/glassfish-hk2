@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.servicelocatorutilities;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 
 import org.jvnet.hk2.annotations.Service;
 

@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.xml.test.customizer;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 /**
  * @author jwells

@@ -20,7 +20,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeListener;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.glassfish.hk2.xml.api.XmlHk2ConfigurationBean;
 import org.glassfish.hk2.xml.api.XmlRootHandle;

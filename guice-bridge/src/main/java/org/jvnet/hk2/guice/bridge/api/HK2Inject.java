@@ -25,7 +25,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * In Guice you cannot override the meaning of {#link javax.inject.Inject}.  Therefor
+ * In Guice you cannot override the meaning of {#link jakarta.inject.Inject}.  Therefor
  * when injecting HK2 services into Guice services you must use this annotation
  * 
  * @author jwells

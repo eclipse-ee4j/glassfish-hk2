@@ -16,8 +16,8 @@
 
 package org.glassfish.hk2.tests.locator.memory;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 import org.glassfish.hk2.api.ProxyCtl;
 

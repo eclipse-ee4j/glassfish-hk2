@@ -20,7 +20,7 @@ import java.beans.PropertyChangeEvent;
 import java.net.URL;
 import java.util.List;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.configuration.hub.api.BeanDatabase;
