@@ -346,7 +346,7 @@ public class StubProcessor extends AbstractProcessor {
         try {
             writer.append("package " + packageName + ";\n\n");
             
-            writer.append("import javax.annotation.Generated;\n");
+            writer.append("import jakarta.annotation.Generated;\n");
             if (name != null) {
                 writer.append("import javax.inject.Named;\n");
             }

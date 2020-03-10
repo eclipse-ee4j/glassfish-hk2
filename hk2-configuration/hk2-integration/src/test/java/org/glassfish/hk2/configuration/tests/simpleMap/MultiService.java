@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.configuration.tests.simpleMap;
 
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PreDestroy;
 
 import org.glassfish.hk2.configuration.api.Configured;
 import org.glassfish.hk2.configuration.api.ConfiguredBy;

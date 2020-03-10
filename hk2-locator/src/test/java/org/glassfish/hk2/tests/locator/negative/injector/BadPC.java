@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.negative.injector;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 /**
  * This class has a bad post construct method

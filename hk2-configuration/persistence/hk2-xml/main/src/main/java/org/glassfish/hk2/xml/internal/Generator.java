@@ -108,7 +108,7 @@ public class Generator {
     }));
     
     private final static Set<String> NO_COPY_ANNOTATIONS_METHOD = new HashSet<String>(Arrays.asList(new String[] {
-            // Done as a String so that javax.annotation need not be on compiler classpath
+            // Done as a String so that jakarta.annotation need not be on compiler classpath
             "javax.validation.Valid"
     }));
     

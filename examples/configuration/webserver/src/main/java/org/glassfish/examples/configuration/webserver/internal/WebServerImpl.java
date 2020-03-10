@@ -20,8 +20,8 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import javax.inject.Inject;
 
 import org.glassfish.examples.configuration.webserver.WebServer;

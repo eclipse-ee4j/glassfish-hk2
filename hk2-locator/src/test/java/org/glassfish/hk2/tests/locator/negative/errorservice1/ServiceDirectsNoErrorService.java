@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.negative.errorservice1;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.glassfish.hk2.api.MultiException;
 

@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.proxiable;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 /**
  * This is only in SeasonScope because it is proxied.  It isn't really a season.  I swear.

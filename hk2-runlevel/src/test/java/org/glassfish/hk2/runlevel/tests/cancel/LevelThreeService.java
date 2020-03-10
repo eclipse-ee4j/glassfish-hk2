@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.runlevel.tests.cancel;
 
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PreDestroy;
 
 import org.glassfish.hk2.runlevel.RunLevel;
 

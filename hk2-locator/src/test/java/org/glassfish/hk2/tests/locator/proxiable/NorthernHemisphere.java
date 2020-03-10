@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.proxiable;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 /**
  * This class has methods of different access to ensure that all the methods

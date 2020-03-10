@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.proxiable2;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 /**
  * @author jwells

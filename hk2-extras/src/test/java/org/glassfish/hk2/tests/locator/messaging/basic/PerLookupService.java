@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.messaging.basic;
 
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PreDestroy;
 
 import org.glassfish.hk2.api.PerLookup;
 

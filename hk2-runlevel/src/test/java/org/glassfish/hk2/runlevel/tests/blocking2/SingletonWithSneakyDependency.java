@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.runlevel.tests.blocking2;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 

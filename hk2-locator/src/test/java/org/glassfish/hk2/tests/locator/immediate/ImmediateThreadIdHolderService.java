@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.immediate;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.glassfish.hk2.api.Immediate;
 

@@ -16,8 +16,8 @@
 
 package org.glassfish.hk2.tests.locator.extras.contextclassloader;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import javax.inject.Inject;
 
 import org.glassfish.hk2.api.PerLookup;

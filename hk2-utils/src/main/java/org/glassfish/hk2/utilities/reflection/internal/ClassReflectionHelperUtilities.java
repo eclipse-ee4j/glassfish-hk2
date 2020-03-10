@@ -24,8 +24,8 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 
 import org.glassfish.hk2.utilities.reflection.MethodWrapper;
 import org.glassfish.hk2.utilities.reflection.Pretty;

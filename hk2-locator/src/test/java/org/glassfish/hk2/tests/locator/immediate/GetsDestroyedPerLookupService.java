@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.immediate;
 
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PreDestroy;
 
 /**
  * @author jwells

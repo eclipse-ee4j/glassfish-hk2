@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.operation.basic;
 
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Provider;
 

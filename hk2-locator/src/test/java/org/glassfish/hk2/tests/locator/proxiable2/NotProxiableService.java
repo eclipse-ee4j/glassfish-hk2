@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.proxiable2;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 /**
  * This service is not proxiable only because in the ProxiableModule .proxy(false)

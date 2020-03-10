@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.configuration.tests.simple;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.glassfish.hk2.configuration.api.Configured;
 import org.glassfish.hk2.configuration.api.ConfiguredBy;

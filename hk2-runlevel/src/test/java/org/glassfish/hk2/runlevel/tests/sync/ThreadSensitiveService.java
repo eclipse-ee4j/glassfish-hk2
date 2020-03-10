@@ -16,8 +16,8 @@
 
 package org.glassfish.hk2.runlevel.tests.sync;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import javax.inject.Inject;
 
 import org.glassfish.hk2.runlevel.RunLevel;

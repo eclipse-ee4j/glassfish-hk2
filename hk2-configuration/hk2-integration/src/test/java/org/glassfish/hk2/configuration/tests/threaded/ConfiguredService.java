@@ -18,7 +18,7 @@ package org.glassfish.hk2.configuration.tests.threaded;
 
 import java.util.List;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.glassfish.hk2.api.IterableProvider;
