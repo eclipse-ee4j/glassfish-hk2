@@ -26,8 +26,8 @@
     </parent>
     <groupId>org.glassfish.hk2.external</groupId>
     <artifactId>jakarta.inject</artifactId>
-    <name>javax.inject:${jakarta-inject.version} as OSGi bundle</name>
-    <description>Injection API (JSR 330) version ${javax.inject.version} repackaged as OSGi bundle</description>
+    <name>jakarta.inject:${jakarta-inject.version} as OSGi bundle</name>
+    <description>Injection API (JSR 330) version ${jakarta-inject.version} repackaged as OSGi bundle</description>
 
     <build>
         <plugins>
@@ -87,7 +87,7 @@
                                 packages so that our special context class loader can find them.
                                 See http://opensource.atlassian.com/projects/hibernate/browse/HV-363
                             -->
-                            jakarata.inject.*; version=${jakarta-inject.version} 
+                            jakarata.inject; version=${jakarta-inject.version} 
                         </Export-Package>
                         <Implementation-Version>${jakarta-inject.version}</Implementation-Version>
                     </instructions>
