@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2011, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -26,7 +27,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 import java.util.Hashtable;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
@@ -58,7 +58,7 @@ class ObrHandler extends ServiceTracker {
     private boolean deployOptionalRequirements = false;
     // We maintain our own repository list which we use during resolution process.
     // That way, we are not affected by any repository added by user to a shared instance of repository admin.
-    private List<Repository> repositories = new ArrayList<Repository>();
+    private List<Repository> repositories = new ArrayList<>();
 
     public ObrHandler(BundleContext bctx) {
         super(bctx, RepositoryAdmin.class.getName(), null);
@@ -182,7 +182,7 @@ class ObrHandler extends ServiceTracker {
      */
     private Repository createRepository(File repoFile, File repoDir) throws IOException {
         DataModelHelper dmh = getRepositoryAdmin().getHelper();
-        List<Resource> resources = new ArrayList<Resource>();
+        List<Resource> resources = new ArrayList<>();
         for (File jar : findAllJars(repoDir)) {
             Resource r = dmh.createResource(jar.toURI().toURL());
             
@@ -264,7 +264,7 @@ class ObrHandler extends ServiceTracker {
     }
 
     private List<File> findAllJars(File repo) {
-        final List<File> files = new ArrayList<File>();
+        final List<File> files = new ArrayList<>();
         repo.listFiles(new FileFilter() {
             @Override
             public boolean accept(File pathname) {
@@ -378,7 +378,7 @@ class ObrHandler extends ServiceTracker {
         Filter filter = filterExpr != null ? getRepositoryAdmin().getHelper().filter(filterExpr) : null;
         Resource[] resources;
         Repository[] repos = getRepositories();
-        List<Resource> matchList = new ArrayList<Resource>();
+        List<Resource> matchList = new ArrayList<>();
         for (int repoIdx = 0; (repos != null) && (repoIdx < repos.length); repoIdx++) {
             resources = repos[repoIdx].getResources();
             for (int resIdx = 0; (resources != null) && (resIdx < resources.length); resIdx++) {
@@ -412,7 +412,7 @@ class ObrHandler extends ServiceTracker {
             sb.append("\n").append(r.getURI());
         }
         String optionalRequirementsDeployed = deployOptionalRequirements ? "deployed" : "not deployed";
-        sb.append("]\nOptional resources (" + optionalRequirementsDeployed + "): [");
+        sb.append("]\nOptional resources (").append(optionalRequirementsDeployed).append("): [");
         for (Resource r : optionalResources) {
             sb.append("\n").append(r.getURI());
         }

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2012, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -47,10 +48,8 @@ public abstract class AbstractOSGiModulesRegistryImpl extends AbstractModulesReg
      */
     BundleContext bctx;
     protected PackageAdmin pa;
-    private Map<ModuleChangeListener, BundleListener> moduleChangeListeners =
-            new HashMap<ModuleChangeListener, BundleListener>();
-    private Map<ModuleLifecycleListener, BundleListener> moduleLifecycleListeners =
-            new HashMap<ModuleLifecycleListener, BundleListener>();
+    private Map<ModuleChangeListener, BundleListener> moduleChangeListeners = new HashMap<>();
+    private Map<ModuleLifecycleListener, BundleListener> moduleLifecycleListeners = new HashMap<>();
 
     protected AbstractOSGiModulesRegistryImpl(BundleContext bctx) {
         super(null);
@@ -66,7 +65,7 @@ public abstract class AbstractOSGiModulesRegistryImpl extends AbstractModulesReg
         for (Repository repo : repositories.values()) {
             try {
                 repo.shutdown();
-            } catch(Exception e) {
+            } catch(IOException e) {
                 java.util.logging.Logger.getAnonymousLogger().log(Level.SEVERE, "Error while closing repository " + repo, e);
                 // swallows
             }
@@ -75,6 +74,7 @@ public abstract class AbstractOSGiModulesRegistryImpl extends AbstractModulesReg
         // something like Eclipse.
     }
 
+    @Override
     public List<ActiveDescriptor> parseInhabitants(
             HK2Module module, String name, ServiceLocator serviceLocator, List<PopulatorPostProcessor> postProcessors)
             throws IOException, BootException {
@@ -93,7 +93,7 @@ public abstract class AbstractOSGiModulesRegistryImpl extends AbstractModulesReg
             if (activeDescriptors != null) {
 
                 // use the copy constructor to create (nonactive) descriptor for serialization into the cache
-                descriptors = new ArrayList<Descriptor>();
+                descriptors = new ArrayList<>();
                 for (Descriptor d : activeDescriptors) {
                     descriptors.add(new DescriptorImpl(d));
                 }
@@ -102,7 +102,7 @@ public abstract class AbstractOSGiModulesRegistryImpl extends AbstractModulesReg
 
             }
         } else {
-            activeDescriptors = new ArrayList<ActiveDescriptor>();
+            activeDescriptors = new ArrayList<>();
 
             DynamicConfiguration dcs = createDynamicConfiguration(serviceLocator);
             for (Descriptor descriptor : descriptors) {
@@ -124,10 +124,12 @@ public abstract class AbstractOSGiModulesRegistryImpl extends AbstractModulesReg
 
     }
 
+    @Override
     public ModulesRegistry createChild() {
         throw new UnsupportedOperationException("Not Yet Implemented"); // TODO(Sahoo)
     }
 
+    @Override
     public synchronized void detachAll() {
         for (HK2Module m : modules.values()) {
             m.detach();
@@ -139,6 +141,7 @@ public abstract class AbstractOSGiModulesRegistryImpl extends AbstractModulesReg
      * associated with this registry.
      * @param parent parent class loader
      */
+    @Override
     public void setParentClassLoader(ClassLoader parent) {
         throw new UnsupportedOperationException("This method can't be implemented in OSGi environment");
     }
@@ -148,6 +151,7 @@ public abstract class AbstractOSGiModulesRegistryImpl extends AbstractModulesReg
      * by modules associated with this registry.
      * @return the parent classloader
      */
+    @Override
     public ClassLoader getParentClassLoader() {
         return Bundle.class.getClassLoader();
     }
@@ -164,11 +168,12 @@ public abstract class AbstractOSGiModulesRegistryImpl extends AbstractModulesReg
      * @throws com.sun.enterprise.module.ResolveError if one of the provided module
      *         definition cannot be resolved
      */
+    @Override
     public ClassLoader getModulesClassLoader(final ClassLoader parent,
                                              Collection<ModuleDefinition> mds,
                                              URL[] urls) throws ResolveError {
-        final List<ClassLoader> delegateCLs = new ArrayList<ClassLoader>();
-        final List<HK2Module> delegateModules = new ArrayList<HK2Module>();
+        final List<ClassLoader> delegateCLs = new ArrayList<>();
+        final List<HK2Module> delegateModules = new ArrayList<>();
         for (ModuleDefinition md : mds) {
             HK2Module m = makeModuleFor(md.getName(), md.getVersion());
             delegateModules.add(m);
@@ -187,7 +192,7 @@ public abstract class AbstractOSGiModulesRegistryImpl extends AbstractModulesReg
              */
             @Override
             public URL[] getURLs() {
-                List<URL> result = new ArrayList<URL>();
+                List<URL> result = new ArrayList<>();
                 if (parent instanceof URLClassLoader) {
                     URL[] parentURLs = URLClassLoader.class.cast(parent).getURLs();
                     result.addAll(Arrays.asList(parentURLs));
@@ -200,7 +205,7 @@ public abstract class AbstractOSGiModulesRegistryImpl extends AbstractModulesReg
                         try {
                             urls[i] = uris[i].toURL();
                         } catch (MalformedURLException e) {
-                            logger.warning("Exception " + e + " while converting " + uris[i] + " to URL");
+                            logger.log(Level.WARNING, "Exception {0} while converting {1} to URL", new Object[]{e, uris[i]});
                         }
                     }
                     result.addAll(Arrays.asList(urls));
@@ -234,7 +239,7 @@ public abstract class AbstractOSGiModulesRegistryImpl extends AbstractModulesReg
 
             @Override
             public Enumeration<URL> findResources(String name) throws IOException {
-                List<Enumeration<URL>> enumerators = new ArrayList<Enumeration<URL>>();
+                List<Enumeration<URL>> enumerators = new ArrayList<>();
                 for (ClassLoader delegate : delegateCLs) {
                     Enumeration<URL> enumerator = delegate.getResources(name);
                     enumerators.add(enumerator);
@@ -256,12 +261,14 @@ public abstract class AbstractOSGiModulesRegistryImpl extends AbstractModulesReg
      * @throws ResolveError if one of the provided module
      *         definition cannot be resolved
      */
+    @Override
     public ClassLoader getModulesClassLoader(ClassLoader parent,
                                              Collection<ModuleDefinition> defs)
         throws ResolveError {
         return getModulesClassLoader(parent, defs, null);
     }
 
+    @Override
     public HK2Module find(Class clazz) {
         Bundle b = pa.getBundle(clazz);
         if (b!=null) {
@@ -296,6 +303,7 @@ public abstract class AbstractOSGiModulesRegistryImpl extends AbstractModulesReg
         return false;
     }
 
+    @Override
     public void register(final ModuleLifecycleListener listener) {
         // This is purposefully made an asynchronous bundle listener
         BundleListener bundleListener = new BundleListener() {
@@ -323,6 +331,7 @@ public abstract class AbstractOSGiModulesRegistryImpl extends AbstractModulesReg
         moduleLifecycleListeners.put(listener,  bundleListener);
     }
 
+    @Override
     public void unregister(ModuleLifecycleListener listener) {
         BundleListener bundleListener = moduleLifecycleListeners.remove(listener);
         if (bundleListener!=null) {
@@ -334,6 +343,7 @@ public abstract class AbstractOSGiModulesRegistryImpl extends AbstractModulesReg
         return modules.get(new OSGiModuleId(bundle));
     }
     
+    @Override
     public void remove(HK2Module module) {
         super.remove(module);
         

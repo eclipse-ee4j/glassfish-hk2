@@ -19,7 +19,6 @@ package org.jvnet.hk2.osgiadapter;
 import com.sun.enterprise.module.common_impl.ModuleId;
 import com.sun.enterprise.module.ModuleDefinition;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.Constants;
 
 /**
  * @author Sanjeeb.Sahoo@Sun.COM

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2007, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -70,7 +71,7 @@ public class HK2Main extends Main implements
     private BundleContext ctx;
 
     private ServiceRegistration mrReg;
-    private Map<ServiceLocator, HabitatInfo> habitatInfos = new HashMap<ServiceLocator, HabitatInfo>();
+    private Map<ServiceLocator, HabitatInfo> habitatInfos = new HashMap<>();
 
     /**
      * Stores additional artifacts corresponding to each Habitat created by us.
@@ -96,7 +97,7 @@ public class HK2Main extends Main implements
         createHK2ServiceTracker(habitatInfo);
         //convert properties to Hashtable
         Properties contextArgs = context.getArguments();
-        Hashtable<String,String> contextArgTable = new Hashtable<String,String>();
+        Hashtable<String,String> contextArgTable = new Hashtable<>();
         for(Object propKey:contextArgs.stringPropertyNames()) {
         	contextArgTable.put((String)propKey, (String)contextArgs.get(propKey));        	
         }
@@ -139,6 +140,7 @@ public class HK2Main extends Main implements
         }
     }
 
+    @Override
     public void start(BundleContext context) throws Exception {
         this.ctx = context;
         
@@ -222,6 +224,7 @@ public class HK2Main extends Main implements
         // OSGi doesn't have this feature, so ignore it for now.
     }
 
+    @Override
     public void stop(BundleContext context) throws Exception {
         // When OSGi framework shuts down, it shuts down all started bundles, but the order is unspecified.
         // So, since we are going to shutdown the registry, it's better that we stop startup service just incase it is still running.
@@ -230,12 +233,12 @@ public class HK2Main extends Main implements
         // Execute code in reverse order w.r.t. start()
 
         // Take a copy to avoid ConcurrentModificationException. This will happen as destroHabitat removes the entry.
-        for (HabitatInfo habitatInfo : new ArrayList<HabitatInfo>(habitatInfos.values())) {
+        for (HabitatInfo habitatInfo : new ArrayList<>(habitatInfos.values())) {
             ModuleStartup startupService =
                     habitatInfo.serviceLocator.getService(ModuleStartup.class, DEFAULT_NAME);
             if (startupService != null) {
                 try {
-                    logger.info("Stopping " + startupService);
+                    logger.log(Level.INFO, "Stopping {0}", startupService);
                     startupService.stop();
                 } catch (Exception e) {
                     logger.log(Level.WARNING, "HK2Main:stop():Exception while stopping ModuleStartup service.", e);
@@ -253,6 +256,7 @@ public class HK2Main extends Main implements
 
     }
 
+        @Override
     public void bundleChanged(BundleEvent event) {
         logger.logp(Level.FINE, "HK2Main", "bundleChanged",
                 "source= {0}, type= {1}", new Object[]{event.getSource(),
@@ -271,6 +275,7 @@ public class HK2Main extends Main implements
         /* (non-Javadoc)
          * @see org.osgi.framework.Filter#match(java.util.Dictionary)
          */
+        @Override
         public boolean match(Dictionary dictionary) {
             throw new RuntimeException("Unexpected method called");
         }
@@ -278,6 +283,7 @@ public class HK2Main extends Main implements
         /* (non-Javadoc)
          * @see org.osgi.framework.Filter#matches(java.util.Map)
          */
+        @Override
         public boolean matches(Map<String, ?> map) {
             throw new RuntimeException("Unexpected method called");
         }
@@ -285,10 +291,12 @@ public class HK2Main extends Main implements
         /* (non-Javadoc)
          * @see org.osgi.framework.Filter#matchCase(java.util.Dictionary)
          */
+        @Override
         public boolean matchCase(Dictionary dictionary) {
             throw new RuntimeException("Unexpected method called");
         }
         
+        @Override
         public String toString() {
             return "(objectClass=*)";
         }
@@ -301,6 +309,7 @@ public class HK2Main extends Main implements
             this.serviceLocator = serviceLocator;
         }
 
+        @Override
         public Object addingService(final ServiceReference reference) {
             final Object object = ctx.getService(reference);
             
@@ -362,9 +371,11 @@ public class HK2Main extends Main implements
             return descriptor;
         }
 
+        @Override
         public void modifiedService(ServiceReference reference, Object service) {
         }
 
+        @Override
         public void removedService(ServiceReference reference, final Object service) {
 
             DynamicConfigurationService dcs = serviceLocator.getService(DynamicConfigurationService.class);

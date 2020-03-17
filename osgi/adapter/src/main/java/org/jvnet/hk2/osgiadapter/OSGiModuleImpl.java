@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2007, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -29,20 +30,11 @@ import java.util.*;
 import java.util.logging.Level;
 
 import org.glassfish.hk2.api.ActiveDescriptor;
-import org.glassfish.hk2.api.Descriptor;
 import org.glassfish.hk2.api.DescriptorFileFinder;
-import org.glassfish.hk2.api.DynamicConfiguration;
-import org.glassfish.hk2.api.DynamicConfigurationService;
-import org.glassfish.hk2.api.Filter;
 import org.glassfish.hk2.api.PopulatorPostProcessor;
 import org.glassfish.hk2.api.ServiceLocator;
-import org.glassfish.hk2.api.ServiceLocatorFactory;
 import org.glassfish.hk2.bootstrap.HK2Populator;
 import org.glassfish.hk2.bootstrap.impl.URLDescriptorFileFinder;
-import org.glassfish.hk2.utilities.Binder;
-import org.glassfish.hk2.utilities.BuilderHelper;
-import org.glassfish.hk2.utilities.DescriptorImpl;
-import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.service.packageadmin.PackageAdmin;
@@ -82,10 +74,12 @@ public class OSGiModuleImpl implements HK2Module {
     private LifecyclePolicy lifecyclePolicy;
     private static final Enumeration<URL> EMPTY_URLS = new Enumeration<URL>() {
 
+        @Override
         public boolean hasMoreElements() {
             return false;
         }
 
+        @Override
         public URL nextElement() {
             throw new NoSuchElementException();
         }
@@ -97,18 +91,22 @@ public class OSGiModuleImpl implements HK2Module {
         this.md = md;
     }
 
+    @Override
     public ModuleDefinition getModuleDefinition() {
         return md;
     }
 
+    @Override
     public String getName() {
         return md.getName();
     }
 
+    @Override
     public ModulesRegistry getRegistry() {
         return registry;
     }
 
+    @Override
     public ModuleState getState() {
         // We don't cache the module state locally. Instead we always map
         // the underlying bundle's state to HK2 state. This avoids us
@@ -143,12 +141,14 @@ public class OSGiModuleImpl implements HK2Module {
         return state;
     }
 
+    @Override
     public synchronized void resolve() throws ResolveError {
         // Since OSGi bundle does not have a separate resolve method,
         // we use the same implementation as start();
         start();
     }
 
+    @Override
     public synchronized void start() throws ResolveError {
         int state = bundle.getState();
         if (((Bundle.STARTING | Bundle.ACTIVE | Bundle.STOPPING) & state) != 0) {
@@ -202,16 +202,13 @@ public class OSGiModuleImpl implements HK2Module {
                 lifecyclePolicy = lifecyclePolicyClass.newInstance();
             } catch(ClassNotFoundException e) {
                 throw new ResolveError("ClassNotFound : " + e.getMessage(), e);
-            } catch(java.lang.InstantiationException e) {
-                throw new ResolveError(e);
-            } catch(IllegalAccessException e) {
+            } catch(java.lang.InstantiationException | IllegalAccessException e) {
                 throw new ResolveError(e);
             }
         }
         if (lifecyclePolicy!=null) {
             lifecyclePolicy.start(this);
         }
-        return;
     }
 
     private void startBundle() throws BundleException {
@@ -220,7 +217,7 @@ public class OSGiModuleImpl implements HK2Module {
             try {
                 if (attempt > 1) {
                     if (logger.isLoggable(Level.FINER)) {
-                        logger.log(Level.FINER, "Retrying start of " + bundle + " due to lock race condition");
+                        logger.log(Level.FINER, "Retrying start of {0} due to lock race condition", bundle);
                     }
                     jitter();
                 }
@@ -276,6 +273,7 @@ public class OSGiModuleImpl implements HK2Module {
         return value;
     }
 
+    @Override
     public synchronized boolean stop() {
         detach();
         // Don't refresh packages, as we are not uninstalling the bundle.
@@ -310,6 +308,7 @@ public class OSGiModuleImpl implements HK2Module {
         }
     }
 
+    @Override
     public void uninstall() {
         // This method is called when the hk2-osgi-adapter module is stopped.
         // During that time, we need to stop all the modules, hence no sticky check is
@@ -323,6 +322,7 @@ public class OSGiModuleImpl implements HK2Module {
         this.registry = null;
     }
 
+    @Override
     public void refresh() {
         URI location = md.getLocations()[0];
         File f = new File(location);
@@ -336,17 +336,20 @@ public class OSGiModuleImpl implements HK2Module {
         }
     }
 
+    @Override
     public ModuleMetadata getMetadata() {
         return md.getMetadata();
     }
 
+    @Override
     public <T> Iterable<Class<? extends T>> getProvidersClass(
             Class<T> serviceClass) {
         return (Iterable)getProvidersClass(serviceClass.getName());
     }
 
+    @Override
     public Iterable<Class> getProvidersClass(String name) {
-        List<Class> r = new ArrayList<Class>();
+        List<Class> r = new ArrayList<>();
         for( String provider : getMetadata().getEntry(name).providerNames) {
             try {
                 r.add(getClassLoader().loadClass(provider));
@@ -357,19 +360,23 @@ public class OSGiModuleImpl implements HK2Module {
         return r;
     }
 
+    @Override
     public boolean hasProvider(Class serviceClass) {
         String name = serviceClass.getName();
         return getMetadata().getEntry(name).hasProvider();
     }
 
+    @Override
     public void addListener(ModuleChangeListener listener) {
         registry.addModuleChangeListener(listener, this);
     }
 
+    @Override
     public void removeListener(ModuleChangeListener listener) {
         registry.removeModuleChangeListener(listener);
     }
 
+    @Override
     public void dumpState(PrintStream writer) {
         writer.print(toString());
     }
@@ -395,7 +402,7 @@ public class OSGiModuleImpl implements HK2Module {
 
         	final OSGiModuleImpl module = this;
 
-            ArrayList<PopulatorPostProcessor> allPostProcessors = new ArrayList<PopulatorPostProcessor>();
+            ArrayList<PopulatorPostProcessor> allPostProcessors = new ArrayList<>();
             allPostProcessors.add(new OsgiPopulatorPostProcessor(module));
             if (populatorPostProcessors != null) {
               allPostProcessors.addAll(populatorPostProcessors);
@@ -417,6 +424,7 @@ public class OSGiModuleImpl implements HK2Module {
         });
     }
 
+    @Override
     public ClassLoader getClassLoader() {
         /*
          * This is a delegating class loader.
@@ -476,24 +484,29 @@ public class OSGiModuleImpl implements HK2Module {
         };
     }
 
+    @Override
     public void addImport(HK2Module module) {
         throw new UnsupportedOperationException("This method can't be implemented in OSGi environment");
     }
 
+    @Override
     public HK2Module addImport(ModuleDependency dependency) {
         throw new UnsupportedOperationException("This method can't be implemented in OSGi environment");
     }
 
+    @Override
     public boolean isSticky() {
         return true; // all modules are always sticky
     }
 
+    @Override
     public void setSticky(boolean sticky) {
         // NOOP: It's not required in OSGi.
     }
 
+    @Override
     public List<HK2Module> getImports() {
-        List<HK2Module> result = new ArrayList<HK2Module>();
+        List<HK2Module> result = new ArrayList<>();
         RequiredBundle[] requiredBundles =
                 registry.getPackageAdmin().getRequiredBundles(bundle.getSymbolicName());
         if (requiredBundles!=null) {
@@ -512,6 +525,7 @@ public class OSGiModuleImpl implements HK2Module {
         return result;
     }
 
+    @Override
     public boolean isShared() {
         return true; // all OSGi bundles are always shared.
     }
@@ -524,6 +538,7 @@ public class OSGiModuleImpl implements HK2Module {
         return isTransientlyActive;
     }
 
+    @Override
     public String toString() {
         return "OSGiModuleImpl:: Bundle = [" + bundle
                 + "], State = [" + getState() + "]";

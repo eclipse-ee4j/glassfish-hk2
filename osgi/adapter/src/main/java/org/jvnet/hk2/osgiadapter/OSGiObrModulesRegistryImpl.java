@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2011, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -77,7 +78,6 @@ public class OSGiObrModulesRegistryImpl extends AbstractOSGiModulesRegistryImpl 
                 HK2Module module = getModule(event.getBundle());
                 if (module instanceof OSGiObrModuleImpl) {
                     OSGiObrModuleImpl.class.cast(module).setBundle(event.getBundle());
-                    return;
                 }
         }
     }
@@ -109,7 +109,7 @@ public class OSGiObrModulesRegistryImpl extends AbstractOSGiModulesRegistryImpl 
      * @return a list of bundles to be uninstalled. Bundles should be uninstalled as they appear in the returned list.
      */
     private List<Bundle> getBundlesToUninstall() {
-        List<Bundle> bundlesToUninstall = new ArrayList<Bundle>();
+        List<Bundle> bundlesToUninstall = new ArrayList<>();
         for (Bundle bundle : bctx.getBundles()) {
             // TODO(Sahoo): When we implement SCOPE in GlassFish, we don't have to rely on this technique to
             // identify bundles that are loaded on demand.
@@ -128,7 +128,7 @@ public class OSGiObrModulesRegistryImpl extends AbstractOSGiModulesRegistryImpl 
     }
 
     private List<Long> getBundleIds(List<Bundle> bundlesToUninstall) {
-        List<Long> ids = new ArrayList<Long>(bundlesToUninstall.size());
+        List<Long> ids = new ArrayList<>(bundlesToUninstall.size());
         for (Bundle bundle : bundlesToUninstall) {
             ids.add(bundle.getBundleId());
         }

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2007, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -107,10 +108,12 @@ public class OSGiModuleDefinition implements ModuleDefinition, Serializable {
         }
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public String[] getPublicInterfaces() {
         throw new UnsupportedOperationException(
                 "This method should not be called in OSGi environment, " +
@@ -120,12 +123,12 @@ public class OSGiModuleDefinition implements ModuleDefinition, Serializable {
     /**
      * @return List of bundles on which this bundle depends on using Require-Bundle
      */
+    @Override
     public ModuleDependency[] getDependencies() {
-        List<ModuleDependency> mds = new ArrayList<ModuleDependency>();
-        String requiredBundles =
-                getManifest().getMainAttributes().getValue(Constants.REQUIRE_BUNDLE);
+        List<ModuleDependency> mds = new ArrayList<>();
+        String requiredBundles = getManifest().getMainAttributes().getValue(Constants.REQUIRE_BUNDLE);
         if (requiredBundles != null) {
-            Logger.logger.log(Level.INFO, name + " -> " + requiredBundles);
+            Logger.logger.log(Level.INFO, "{0} -> {1}", new Object[]{name, requiredBundles});
             // The string looks like
             // Require-Bundle: b1; version="[1.0, 2.0)", b2, b3;visbility:=reexport; version="1.0",...
             // First remove the regions that appear between a pair of quotes (""), as that
@@ -158,28 +161,34 @@ public class OSGiModuleDefinition implements ModuleDefinition, Serializable {
         return mds.toArray(new ModuleDependency[mds.size()]);
     }
 
+    @Override
     public URI[] getLocations() {
         return new URI[]{location};
     }
 
+    @Override
     public String getVersion() {
         return version;
     }
 
+    @Override
     public String getImportPolicyClassName() {
         throw new UnsupportedOperationException(
                 "This method should not be called in OSGi environment, " +
                         "hence not supported");
     }
 
+    @Override
     public String getLifecyclePolicyClassName() {
         return lifecyclePolicyClassName;
     }
 
+    @Override
     public Manifest getManifest() {
         return manifest;
     }
 
+    @Override
     public ModuleMetadata getMetadata() {
         return metadata;
     }
@@ -204,10 +213,12 @@ public class OSGiModuleDefinition implements ModuleDefinition, Serializable {
             m = new BundleManifest(b);
         }
 
+        @Override
         public Manifest getManifest() throws IOException {
             return m;
         }
 
+        @Override
         public void loadMetadata(ModuleMetadata result) {
             parseServiceDescriptors(result);
             parseDescriptors(result);
@@ -264,7 +275,7 @@ public class OSGiModuleDefinition implements ModuleDefinition, Serializable {
 
                     if (url != null) {
 
-                        List<Descriptor> descriptors = new ArrayList<Descriptor>();
+                        List<Descriptor> descriptors = new ArrayList<>();
 
                         try {
                             is = url.openStream();
@@ -307,6 +318,7 @@ public class OSGiModuleDefinition implements ModuleDefinition, Serializable {
         }
 
 
+        @Override
         public String getBaseName() {
             throw new UnsupportedOperationException("Method not implemented");
         }
