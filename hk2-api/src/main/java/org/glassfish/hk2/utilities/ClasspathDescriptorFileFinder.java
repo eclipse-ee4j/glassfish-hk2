@@ -16,10 +16,14 @@
 
 package org.glassfish.hk2.utilities;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
@@ -51,8 +55,8 @@ public class ClasspathDescriptorFileFinder implements DescriptorFileFinder, Desc
 
     private final ClassLoader classLoader;
     private final String names[];
-    private final ArrayList<String> identifiers = new ArrayList<String>();
-    
+    private final List<String> identifiers = new ArrayList<>();
+    private final String resourceBase;
     /**
      * If this constructor is used then HK2 descriptor files will be found
      * by looking in the classpath of the process.  The classloader used
@@ -63,7 +67,7 @@ public class ClasspathDescriptorFileFinder implements DescriptorFileFinder, Desc
      * which all the JAR files are on a single classpath
      */
     public ClasspathDescriptorFileFinder() {
-        this(ClasspathDescriptorFileFinder.class.getClassLoader(), DEFAULT_NAME);
+        this (ClasspathDescriptorFileFinder.class.getClassLoader(), DEFAULT_NAME);
     }
     
     /**
@@ -78,7 +82,7 @@ public class ClasspathDescriptorFileFinder implements DescriptorFileFinder, Desc
      * searching for HK2 descriptor files
      */
     public ClasspathDescriptorFileFinder (ClassLoader cl) {
-        this(cl, DEFAULT_NAME);
+        this (cl, DEFAULT_NAME);
     }
     
     /**
@@ -92,10 +96,27 @@ public class ClasspathDescriptorFileFinder implements DescriptorFileFinder, Desc
      * search for in the META-INF/hk2-locator directory
      */
     public ClasspathDescriptorFileFinder (ClassLoader cl, String... names) {
+        this(RESOURCE_BASE, cl, names);
+    }
+    
+    /**
+     * This constructor can be used to select the particular classloader
+     * to search for all files from the given locator directory. By using 
+     * this constructor, all files in the given directory are assumed to 
+     * be HK2 descriptor files.
+     *  
+     * @param resourceBase The directory of locator files, the class loader will search from
+     * @param cl May not be null and must be the classloader to use when
+     * searching for HK2 descriptor files
+     */
+    public ClasspathDescriptorFileFinder (String resourceBase, ClassLoader cl) {
+        this(resourceBase, cl, DEFAULT_NAME);
+    }
+    private ClasspathDescriptorFileFinder (String resourceBase, ClassLoader cl, String... names) {
+        this.resourceBase = resourceBase.endsWith(File.separator) ? resourceBase : resourceBase + File.separatorChar;
         this.classLoader = cl;
         this.names = names;
     }
-
     /**
      * Simple implementation of the findDescriptorFiles which does a
      * simple getResources on the classloader in order to find the
@@ -104,17 +125,16 @@ public class ClasspathDescriptorFileFinder implements DescriptorFileFinder, Desc
     @Override
     public List<InputStream> findDescriptorFiles() throws IOException {
         identifiers.clear();
-        
-        ArrayList<InputStream> returnList = new ArrayList<InputStream>();
+        List<InputStream> returnList = new ArrayList<>();
         
         for (String name : names) {
-            Enumeration<URL> e = classLoader.getResources(RESOURCE_BASE+name);
-
+            String resourceName = resourceBase + name;
+            Enumeration<URL> e = classLoader.getResources(resourceName);
             for (; e.hasMoreElements();) {
                 URL url = e.nextElement();
                 
                 if (DEBUG_DESCRIPTOR_FINDER) {
-                    Logger.getLogger().debug("Adding in URL to set being parsed: " + url + " from " + RESOURCE_BASE+name);
+                    Logger.getLogger().debug("Adding in URL to set being parsed: " + url + " from " + resourceName);
                 }
                 try {
                     identifiers.add(url.toURI().toString());
@@ -141,7 +161,7 @@ public class ClasspathDescriptorFileFinder implements DescriptorFileFinder, Desc
                 }
                 
                 if (DEBUG_DESCRIPTOR_FINDER) {
-                    Logger.getLogger().debug("Input stream for: " + url + " from " + RESOURCE_BASE+name + " has succesfully been opened");
+                    Logger.getLogger().debug("Input stream for: " + url + " from " + resourceName + " has succesfully been opened");
                 }
                 returnList.add(inputStream);
             }
@@ -161,6 +181,4 @@ public class ClasspathDescriptorFileFinder implements DescriptorFileFinder, Desc
     public String toString() {
         return "ClasspathDescriptorFileFinder(" + classLoader + "," + Arrays.toString(names) + "," + System.identityHashCode(this) + ")";
     }
-
-    
 }
