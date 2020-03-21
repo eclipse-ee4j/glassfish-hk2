@@ -16,10 +16,14 @@
 
 package org.glassfish.hk2.utilities;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
@@ -52,7 +56,7 @@ public class ClasspathDescriptorFileFinder implements DescriptorFileFinder, Desc
     private final ClassLoader classLoader;
     private final String names[];
     private final ArrayList<String> identifiers = new ArrayList<String>();
-    
+    private final String resourceBase;
     /**
      * If this constructor is used then HK2 descriptor files will be found
      * by looking in the classpath of the process.  The classloader used
@@ -92,8 +96,37 @@ public class ClasspathDescriptorFileFinder implements DescriptorFileFinder, Desc
      * search for in the META-INF/hk2-locator directory
      */
     public ClasspathDescriptorFileFinder (ClassLoader cl, String... names) {
+        this.resourceBase = RESOURCE_BASE;
         this.classLoader = cl;
         this.names = names;
+    }
+    
+    /**
+     * This constructor can be used to select the particular classloader
+     * to search for all files from the given locator directory. By using 
+     * this constructor, all files in the given directory are assumed to 
+     * be HK2 descriptor files.
+     *  
+     * @param locatorDirectory The directory of locator files, the class loader will search from 
+     * @param cl May not be null and must be the classloader to use when
+     * searching for HK2 descriptor files
+     */
+    public ClasspathDescriptorFileFinder (String locatorDirectory, ClassLoader cl) {
+        this.resourceBase = locatorDirectory.endsWith(File.separator) ? locatorDirectory : locatorDirectory + File.separatorChar;
+        this.classLoader = cl;
+        this.names = getLocatorFileNames(locatorDirectory);
+    }
+    private String[] getLocatorFileNames(String locatorDirectory) {
+        URL locatorDirectoryURL = this.classLoader.getResource(locatorDirectory);
+        try {
+            Path locatorDirectoryPath = Paths.get(locatorDirectoryURL.toURI());
+            return Files.list(locatorDirectoryPath).map(p -> p.getFileName().toString())		
+                    .toArray(String[]::new);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("Unable to convert the directory " + locatorDirectory + " to URI", e);
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to get locator file names due to " + e, e);
+        }
     }
 
     /**
@@ -108,13 +141,13 @@ public class ClasspathDescriptorFileFinder implements DescriptorFileFinder, Desc
         ArrayList<InputStream> returnList = new ArrayList<InputStream>();
         
         for (String name : names) {
-            Enumeration<URL> e = classLoader.getResources(RESOURCE_BASE+name);
+            Enumeration<URL> e = classLoader.getResources(resourceBase+name);
 
             for (; e.hasMoreElements();) {
                 URL url = e.nextElement();
                 
                 if (DEBUG_DESCRIPTOR_FINDER) {
-                    Logger.getLogger().debug("Adding in URL to set being parsed: " + url + " from " + RESOURCE_BASE+name);
+                    Logger.getLogger().debug("Adding in URL to set being parsed: " + url + " from " + resourceBase+name);
                 }
                 try {
                     identifiers.add(url.toURI().toString());
@@ -141,7 +174,7 @@ public class ClasspathDescriptorFileFinder implements DescriptorFileFinder, Desc
                 }
                 
                 if (DEBUG_DESCRIPTOR_FINDER) {
-                    Logger.getLogger().debug("Input stream for: " + url + " from " + RESOURCE_BASE+name + " has succesfully been opened");
+                    Logger.getLogger().debug("Input stream for: " + url + " from " + resourceBase+name + " has succesfully been opened");
                 }
                 returnList.add(inputStream);
             }
