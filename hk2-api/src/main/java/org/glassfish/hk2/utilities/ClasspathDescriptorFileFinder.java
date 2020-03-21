@@ -52,7 +52,7 @@ public class ClasspathDescriptorFileFinder implements DescriptorFileFinder, Desc
     private final ClassLoader classLoader;
     private final String names[];
     private final ArrayList<String> identifiers = new ArrayList<String>();
-    
+    private final String resourceBase;
     /**
      * If this constructor is used then HK2 descriptor files will be found
      * by looking in the classpath of the process.  The classloader used
@@ -92,7 +92,23 @@ public class ClasspathDescriptorFileFinder implements DescriptorFileFinder, Desc
      * search for in the META-INF/hk2-locator directory
      */
     public ClasspathDescriptorFileFinder (ClassLoader cl, String... names) {
-        this.classLoader = cl;
+        this(RESOURCE_BASE,cl,names);
+    }
+    
+    /**
+     * This constructor can be used to select the particular classloader
+     * to search for HK2 descriptor files from the given locator directory.  
+     * The names of the the files found in this classloader will be ${locatorDirectory}/name.
+     *  
+     * @param locatorDirectory The directory of locator files, the class loader will search from 
+     * @param cl May not be null and must be the classloader to use when
+     * searching for HK2 descriptor files
+     * @param names May not be null and must be the name of the files to
+     * search for in the META-INF/hk2-locator directory
+     */
+    public ClasspathDescriptorFileFinder (String locatorDirectory, ClassLoader cl, String... names) {
+        this.resourceBase = locatorDirectory;
+    	this.classLoader = cl;
         this.names = names;
     }
 
@@ -108,7 +124,7 @@ public class ClasspathDescriptorFileFinder implements DescriptorFileFinder, Desc
         ArrayList<InputStream> returnList = new ArrayList<InputStream>();
         
         for (String name : names) {
-            Enumeration<URL> e = classLoader.getResources(RESOURCE_BASE+name);
+            Enumeration<URL> e = classLoader.getResources(resourceBase+name);
 
             for (; e.hasMoreElements();) {
                 URL url = e.nextElement();
