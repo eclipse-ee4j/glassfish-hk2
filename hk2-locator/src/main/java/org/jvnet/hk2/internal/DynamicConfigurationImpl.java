@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2012, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -16,6 +17,7 @@
 
 package org.jvnet.hk2.internal;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 
 import org.glassfish.hk2.api.ActiveDescriptor;
@@ -226,9 +228,7 @@ public class DynamicConfigurationImpl implements DynamicConfiguration {
             if (iFilter == null) throw new IllegalArgumentException();
         }
         
-        for (Filter iFilter : idempotentFilter) {
-            allIdempotentFilters.add(iFilter);
-        }
+        allIdempotentFilters.addAll(Arrays.asList(idempotentFilter));
     }
     
     /* (non-Javadoc)
@@ -240,8 +240,7 @@ public class DynamicConfigurationImpl implements DynamicConfiguration {
         
         if (resources == null) return;
         
-        for (int lcv = 0; lcv < resources.length; lcv++) {
-            TwoPhaseResource resource = resources[lcv];
+        for (TwoPhaseResource resource : resources) {
             if (resource == null) continue;
             
             allResources.add(resource);
@@ -307,6 +306,7 @@ public class DynamicConfigurationImpl implements DynamicConfiguration {
 
     
     
+    @Override
     public String toString() {
         return "DynamicConfigurationImpl(" + locator + "," +
             Pretty.collection(allDescriptors) + "," +

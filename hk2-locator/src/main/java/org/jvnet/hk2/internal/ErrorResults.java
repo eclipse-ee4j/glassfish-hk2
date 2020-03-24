@@ -59,6 +59,7 @@ public class ErrorResults {
         return me;
     }
     
+    @Override
     public String toString() {
         return "ErrorResult(" + descriptor + "," + injectee + "," + me + "," + System.identityHashCode(this) + ")";
     }

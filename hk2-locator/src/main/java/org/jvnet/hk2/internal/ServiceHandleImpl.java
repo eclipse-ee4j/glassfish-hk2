@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2012, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -16,7 +17,6 @@
 
 package org.jvnet.hk2.internal;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -39,7 +39,7 @@ import org.glassfish.hk2.utilities.reflection.ReflectionHelper;
  *
  */
 public class ServiceHandleImpl<T> implements ServiceHandle<T> {
-    private ActiveDescriptor<T> root;
+    private final ActiveDescriptor<T> root;
     private final ServiceLocatorImpl locator;
     private final LinkedList<Injectee> injectees = new LinkedList<Injectee>();
     private final Object lock = new Object();
@@ -223,9 +223,9 @@ public class ServiceHandleImpl<T> implements ServiceHandle<T> {
         return injectee;
     }
     
+    @Override
     public String toString() {
         return "ServiceHandle(" + root + "," + System.identityHashCode(this) + ")"; 
     }
-
     
 }

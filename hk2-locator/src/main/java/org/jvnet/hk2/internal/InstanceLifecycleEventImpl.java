@@ -84,6 +84,7 @@ public class InstanceLifecycleEventImpl implements InstanceLifecycleEvent {
         return knownInjectees;
     }
 
+    @Override
     public String toString() {
         String descName = (descriptor == null) ? "null" : descriptor.getImplementation() ;
         

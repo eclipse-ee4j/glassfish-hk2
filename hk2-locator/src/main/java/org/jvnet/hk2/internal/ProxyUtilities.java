@@ -17,7 +17,6 @@
 package org.jvnet.hk2.internal;
 
 import java.lang.reflect.Proxy;
-import java.security.AccessControlException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.HashMap;

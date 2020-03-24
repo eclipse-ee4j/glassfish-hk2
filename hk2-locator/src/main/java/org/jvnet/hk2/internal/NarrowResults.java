@@ -58,6 +58,7 @@ public class NarrowResults {
         return unnarrowedResults.remove(0);
     }
     
+    @Override
     public String toString() {
         return "NarrowResults(goodResultsSize=" + goodResults.size() + ",errorsSize=" + errors.size() +
                 "," + System.identityHashCode(this) + ")";
