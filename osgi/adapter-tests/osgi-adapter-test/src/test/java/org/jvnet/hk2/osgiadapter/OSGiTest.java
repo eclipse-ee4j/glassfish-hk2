@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2014, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (C) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -100,7 +101,7 @@ public class OSGiTest {
                 provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("hk2-runlevel").version(projectVersion).startLevel(4)),
                 provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("hk2-core").version(projectVersion).startLevel(4)),
                 provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("hk2-locator").version(projectVersion).startLevel(4)),
-                provision(mavenBundle().groupId(HK2_EXT_GROUP_ID).artifactId("jakarta.inject").version(projectVersion).startLevel(4)),
+                provision(mavenBundle().groupId("jakarta.inject").artifactId("jakarta.inject-api").versionAsInProject().startLevel(4)),
                 provision(mavenBundle().groupId("org.javassist").artifactId("javassist").versionAsInProject().startLevel(4)),
                 provision(mavenBundle().groupId(ASM_GROUP_ID).artifactId("asm").version(asmVersion).startLevel(4)),
                 provision(mavenBundle().groupId(ASM_GROUP_ID).artifactId("asm-analysis").version(asmVersion).startLevel(4)),

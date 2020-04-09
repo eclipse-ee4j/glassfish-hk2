@@ -35,6 +35,5 @@
     
     <modules>
         <module>aopalliance</module>
-        <module>jsr330</module>
     </modules>
 </project>
