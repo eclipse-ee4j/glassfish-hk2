@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2012, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Payara Services ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -43,14 +44,14 @@ public class DescriptorComparator implements Comparator<Descriptor>, Serializabl
         if (o1Ranking < o2Ranking) return 1;
         if (o1Ranking > o2Ranking) return -1;
         
-        long o1LocatorId = o1.getLocatorId().longValue();
-        long o2LocatorId = o2.getLocatorId().longValue();
+        long o1LocatorId = o1.getLocatorId();
+        long o2LocatorId = o2.getLocatorId();
         
         if (o1LocatorId < o2LocatorId) return 1;
         if (o1LocatorId > o2LocatorId) return -1;
         
-        long o1ServiceId = o1.getServiceId().longValue();
-        long o2ServiceId = o2.getServiceId().longValue();
+        long o1ServiceId = o1.getServiceId();
+        long o2ServiceId = o2.getServiceId();
         
         if (o1ServiceId > o2ServiceId) return 1;
         if (o1ServiceId < o2ServiceId) return -1;

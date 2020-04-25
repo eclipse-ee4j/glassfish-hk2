@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2012, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -115,7 +116,6 @@ public class MethodInterceptorImpl implements MethodHandler {
         Class<?>[] params = m.getParameterTypes();
         if (params == null || params.length != 1) return false;
         
-        if (!Object.class.equals(params[0])) return false;
-        return true;
+        return Object.class.equals(params[0]);
     }
 }

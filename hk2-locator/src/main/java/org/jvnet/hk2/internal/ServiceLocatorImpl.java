@@ -115,7 +115,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
     });
     
     private final static String BIND_TRACING_STACKS_PROPERTY = "org.jvnet.hk2.properties.bind.tracing.stacks";
-    private static boolean BIND_TRACING_STACKS = AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
+    private static final boolean BIND_TRACING_STACKS = AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
         @Override
         public Boolean run() {
             return Boolean.parseBoolean(
@@ -143,18 +143,13 @@ public class ServiceLocatorImpl implements ServiceLocator {
     private final PerLocatorUtilities perLocatorUtilities = new PerLocatorUtilities(this);
 
     private final IndexedListData allDescriptors = new IndexedListData();
-    private final HashMap<String, IndexedListData> descriptorsByAdvertisedContract =
-            new HashMap<String, IndexedListData>();
-    private final HashMap<String, IndexedListData> descriptorsByName =
-            new HashMap<String, IndexedListData>();
+    private final HashMap<String, IndexedListData> descriptorsByAdvertisedContract = new HashMap<>();
+    private final HashMap<String, IndexedListData> descriptorsByName = new HashMap<>();
     private final Context<Singleton> singletonContext = new SingletonContext(this);
     private final Context<PerLookup> perLookupContext = new PerLookupContext();
-    private final LinkedHashSet<ValidationService> allValidators =
-            new LinkedHashSet<ValidationService>();
-    private final LinkedList<ErrorService> errorHandlers =
-            new LinkedList<ErrorService>(Collections.singletonList(new RethrowErrorService()));
-    private final LinkedList<ServiceHandle<?>> configListeners =
-            new LinkedList<ServiceHandle<?>>();
+    private final LinkedHashSet<ValidationService> allValidators = new LinkedHashSet<>();
+    private final LinkedList<ErrorService> errorHandlers = new LinkedList<>(Collections.singletonList(new RethrowErrorService()));
+    private final LinkedList<ServiceHandle<?>> configListeners = new LinkedList<>();
     
     private volatile boolean hasInterceptionServices = false;
     private final LinkedList<InterceptionService> interceptionServices =
@@ -591,7 +586,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
                 throw new IllegalArgumentException("The descriptor passed to getServiceHandle is not associated with any ServiceLocator");
             }
             
-            if (sdLocator.longValue() != id) {
+            if (sdLocator != id) {
                 if (parent != null) {
                     return parent.getServiceHandle(activeDescriptor, injectee);
                 }

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2012, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -2240,11 +2241,7 @@ public class Utilities {
         }
                 
          Class<? extends Annotation> trueScope = Utilities.getScopeAnnotationType(beanClass, null);
-         if (trueScope.equals((Class<? extends Annotation>) requiredClass)) {
-             return true;
-         }
-         
-         return false;
+         return trueScope.equals((Class<? extends Annotation>) requiredClass);
     }
     
     private static Boolean proxiesAvailable = null;

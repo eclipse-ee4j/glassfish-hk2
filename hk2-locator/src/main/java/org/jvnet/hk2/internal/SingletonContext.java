@@ -148,7 +148,7 @@ public class SingletonContext implements Context<Singleton> {
                 if (one.getCache() == null) continue;
             }
 
-            if (one.getLocatorId() == null || one.getLocatorId().longValue() != myLocatorId) continue;
+            if (one.getLocatorId() == null || one.getLocatorId() != myLocatorId) continue;
 
             SystemDescriptor<Object> oneAsObject = (SystemDescriptor<Object>) one;
 

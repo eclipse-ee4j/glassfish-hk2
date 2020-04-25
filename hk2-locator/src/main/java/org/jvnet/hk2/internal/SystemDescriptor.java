@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2012, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -410,6 +411,7 @@ public class SystemDescriptor<T> implements ActiveDescriptor<T>, Closeable {
         return creator.getInjectees();
     }
 
+    @Override
     public Long getFactoryServiceId() {
         if (activeDescriptor != null) {
             return activeDescriptor.getFactoryServiceId();
@@ -418,6 +420,7 @@ public class SystemDescriptor<T> implements ActiveDescriptor<T>, Closeable {
         return factoryServiceId;
     }
 
+    @Override
     public Long getFactoryLocatorId() {
         if (activeDescriptor != null) {
             return activeDescriptor.getFactoryLocatorId();
@@ -792,7 +795,7 @@ public class SystemDescriptor<T> implements ActiveDescriptor<T>, Closeable {
                     " is marked both @Proxiable and @Unproxiable"));
         }
 
-        if ((isProxiable() != null) && isProxiable().booleanValue() && Utilities.isUnproxiableScope(scope)) {
+        if ((isProxiable() != null) && isProxiable() && Utilities.isUnproxiableScope(scope)) {
             collector.addThrowable(new IllegalArgumentException("The descriptor is in an Unproxiable scope but has " +
                 " isProxiable set to true"));
         }
@@ -845,7 +848,7 @@ public class SystemDescriptor<T> implements ActiveDescriptor<T>, Closeable {
     /* package */ boolean isValidating(ValidationService service) {
         Boolean cachedResult = validationServiceCache.get(service);
         if (cachedResult != null) {
-            return cachedResult.booleanValue();
+            return cachedResult;
         }
 
         boolean decision = true;
@@ -892,7 +895,7 @@ public class SystemDescriptor<T> implements ActiveDescriptor<T>, Closeable {
     @Override
     public int hashCode() {
         int low32 = id.intValue();
-        int high32 = (int) (id.longValue() >> 32);
+        int high32 = (int) (id >> 32);
 
         int locatorLow32 = (int) sdLocator.getLocatorId();
         int locatorHigh32 = (int) (sdLocator.getLocatorId() >> 32);
@@ -919,7 +922,7 @@ public class SystemDescriptor<T> implements ActiveDescriptor<T>, Closeable {
 
         DescriptorImpl.pretty(sb, this);
 
-        sb.append("\n\treified=" + reified);
+        sb.append("\n\treified=").append(reified);
 
         sb.append(")");
 
