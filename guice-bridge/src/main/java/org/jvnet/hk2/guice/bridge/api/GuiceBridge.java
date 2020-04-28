@@ -16,6 +16,12 @@
 
 package org.jvnet.hk2.guice.bridge.api;
 
+import com.google.inject.internal.Annotations;
+import jakarta.inject.Qualifier;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 import org.glassfish.hk2.api.MultiException;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.jvnet.hk2.guice.bridge.internal.GuiceBridgeImpl;
@@ -30,6 +36,37 @@ import org.jvnet.hk2.guice.bridge.internal.GuiceBridgeImpl;
 public abstract class GuiceBridge {
     
     private final static GuiceBridge INSTANCE = new GuiceBridgeImpl();
+    
+    /**
+     * Configure Guice to allow for Jakarta annotations.
+     * This function must be called before any annotation bindings
+     * are created.
+     */
+    @SuppressWarnings("ResultOfObjectAllocationIgnored")
+    public static void allowJakartaInject() {
+        try {
+            //Load the class so reflection will work
+            new Annotations();
+            //Get the list of binding annotations, which uses javax
+            Field bindingAnnotations = Annotations.class.getDeclaredField("bindingAnnotationChecker");
+            bindingAnnotations.setAccessible(true);
+            //Get the AnnotationChecker class, which is the type of the above field and is private
+            Class<?> annotationCheckerClass = Class.forName("com.google.inject.internal.Annotations$AnnotationChecker");
+            //Access the annotation checker value
+            Object annotationChecker = annotationCheckerClass.cast(bindingAnnotations.get(null));
+            //The field, which is actually a collection containing javax.inject.Qualifier
+            Field annotationTypesField = annotationChecker.getClass().getDeclaredField("annotationTypes");
+            annotationTypesField.setAccessible(true);
+            //Create a new List, which contains jakarta.inject.Qualifer as well as all the old ones.
+            List<Class<? extends Annotation>> annotationsList = new ArrayList<>(3);
+            annotationsList.add(Qualifier.class);
+            annotationsList.addAll((List<Class<? extends Annotation>>) annotationTypesField.get(annotationChecker));
+            //Set the value of the field to the new list
+            annotationTypesField.set(annotationChecker, annotationsList);
+        } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException | ClassNotFoundException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
     
     public static GuiceBridge getGuiceBridge() {
         return INSTANCE;

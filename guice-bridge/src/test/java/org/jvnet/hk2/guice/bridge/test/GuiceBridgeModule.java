@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2013, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -19,6 +20,13 @@ package org.jvnet.hk2.guice.bridge.test;
 import org.glassfish.hk2.utilities.NamedImpl;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.internal.Annotations;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.util.List;
+import jakarta.inject.Qualifier;
+import java.util.ArrayList;
+import org.jvnet.hk2.guice.bridge.api.GuiceBridge;
 
 /**
  * @author jwells
@@ -30,7 +38,10 @@ public class GuiceBridgeModule extends AbstractModule {
      * @see com.google.inject.AbstractModule#configure()
      */
     @Override
+    @SuppressWarnings("ResultOfObjectAllocationIgnored")
     protected void configure() {
+        GuiceBridge.allowJakartaInject();
+        
         bind(GuiceService1.class).to(GuiceService1Impl.class);
         bind(GuiceService3.class).annotatedWith(new NamedImpl(GuiceBridgeTest.ALICE)).to(GuiceService3Alice.class);
         bind(GuiceService3.class).annotatedWith(new NamedImpl(GuiceBridgeTest.HATTER)).to(GuiceService3Hatter.class);
