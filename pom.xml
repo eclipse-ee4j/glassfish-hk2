@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (c) 2010, 2018 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 2010, 2020 Oracle and/or its affiliates. All rights reserved.
     Copyright (c) 2020 Payara Services Ltd.
 
     This program and the accompanying materials are made available under the
@@ -24,7 +24,7 @@
     <parent>
         <groupId>org.eclipse.ee4j</groupId>
         <artifactId>project</artifactId>
-        <version>1.0.5</version>
+        <version>1.0.6</version>
         <relativePath />
     </parent>
     <groupId>org.glassfish.hk2</groupId>
