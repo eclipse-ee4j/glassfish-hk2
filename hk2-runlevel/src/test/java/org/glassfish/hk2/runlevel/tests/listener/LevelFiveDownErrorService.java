@@ -16,8 +16,8 @@
 
 package org.glassfish.hk2.runlevel.tests.listener;
 
-import javax.annotation.PreDestroy;
-import javax.inject.Inject;
+import jakarta.annotation.PreDestroy;
+import jakarta.inject.Inject;
 
 import org.glassfish.hk2.runlevel.RunLevel;
 

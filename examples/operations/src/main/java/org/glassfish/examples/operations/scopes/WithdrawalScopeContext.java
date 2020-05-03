@@ -18,7 +18,7 @@ package org.glassfish.examples.operations.scopes;
 
 import java.lang.annotation.Annotation;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.glassfish.hk2.extras.operation.OperationContext;
 

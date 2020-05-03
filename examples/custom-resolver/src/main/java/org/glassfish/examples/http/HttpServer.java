@@ -16,8 +16,8 @@
 
 package org.glassfish.examples.http;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 /**
  * @author jwells

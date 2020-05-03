@@ -18,8 +18,8 @@ package org.jvnet.testing.hk2mockito.internal.cache;
 
 import java.lang.reflect.Type;
 import java.util.Map;
-import javax.inject.Inject;
-import javax.inject.Provider;
+import jakarta.inject.Inject;
+import jakarta.inject.Provider;
 import org.jvnet.hk2.annotations.Service;
 import org.jvnet.testing.hk2mockito.internal.HK2Mockito;
 import org.jvnet.testing.hk2mockito.internal.MockitoCacheKey;

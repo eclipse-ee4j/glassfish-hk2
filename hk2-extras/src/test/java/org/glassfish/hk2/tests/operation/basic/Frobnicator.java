@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.operation.basic;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.glassfish.hk2.api.ProxyCtl;
 import org.glassfish.hk2.api.ServiceLocator;

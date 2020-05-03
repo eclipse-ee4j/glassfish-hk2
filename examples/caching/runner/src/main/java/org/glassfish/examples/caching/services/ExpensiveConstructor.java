@@ -16,7 +16,7 @@
 
 package org.glassfish.examples.caching.services;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.glassfish.examples.caching.hk2.Cache;
 import org.glassfish.hk2.api.PerLookup;

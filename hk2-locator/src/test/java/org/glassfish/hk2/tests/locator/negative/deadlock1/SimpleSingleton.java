@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.negative.deadlock1;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 /**
  * The point of this service is to be small

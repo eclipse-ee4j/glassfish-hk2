@@ -16,9 +16,9 @@
 
 package org.glassfish.hk2.tests.operation.basic;
 
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Provider;
+import jakarta.inject.Singleton;
 
 import org.glassfish.hk2.api.Factory;
 

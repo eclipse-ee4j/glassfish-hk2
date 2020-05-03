@@ -19,7 +19,7 @@ package org.glassfish.hk2.runlevel.internal;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.glassfish.hk2.api.DescriptorVisibility;
 import org.glassfish.hk2.api.MultiException;

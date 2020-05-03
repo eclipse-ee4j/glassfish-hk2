@@ -22,7 +22,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.TreeSet;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.Context;

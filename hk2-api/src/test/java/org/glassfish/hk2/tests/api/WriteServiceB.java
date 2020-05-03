@@ -16,8 +16,8 @@
 
 package org.glassfish.hk2.tests.api;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 
 import org.glassfish.hk2.api.Factory;
 import org.glassfish.hk2.api.ProxyForSameScope;

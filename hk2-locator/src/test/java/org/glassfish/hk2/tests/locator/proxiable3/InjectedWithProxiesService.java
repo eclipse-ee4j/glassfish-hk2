@@ -16,8 +16,8 @@
 
 package org.glassfish.hk2.tests.locator.proxiable3;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
+import jakarta.annotation.PostConstruct;
+import jakarta.inject.Inject;
 
 import org.glassfish.hk2.api.PerLookup;
 import org.glassfish.hk2.api.ProxyCtl;

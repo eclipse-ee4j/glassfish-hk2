@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.configuration.hub.test;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.glassfish.hk2.api.DynamicConfiguration;
 import org.glassfish.hk2.api.DynamicConfigurationService;

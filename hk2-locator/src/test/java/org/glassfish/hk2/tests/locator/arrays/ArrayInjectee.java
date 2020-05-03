@@ -19,8 +19,8 @@ package org.glassfish.hk2.tests.locator.arrays;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 /**
  * @author jwells

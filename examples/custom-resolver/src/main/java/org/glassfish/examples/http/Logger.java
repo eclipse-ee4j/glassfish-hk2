@@ -16,7 +16,7 @@
 
 package org.glassfish.examples.http;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 /**
  * This is just an example of another service a method might

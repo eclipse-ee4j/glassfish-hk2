@@ -118,7 +118,7 @@ public interface ServiceBindingBuilder<T> extends BindingBuilder<T> {
     public ScopedBindingBuilder<T> in(Class<? extends Annotation> scopeAnnotation);
 
     /**
-     * {@link javax.inject.Named Name} the binding.
+     * {@link jakarta.inject.Named Name} the binding.
      *
      * @param name new name value.
      * @return updated binding.

@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.negative.scope;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 /**
  * Has Singleton scope but is bound with PerLookup scope

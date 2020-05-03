@@ -18,7 +18,7 @@ package org.jvnet.testing.hk2testng.service.impl;
 
 import org.jvnet.testing.hk2testng.service.PrimaryService;
 import org.jvnet.testing.hk2testng.service.SecondaryService;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import org.jvnet.hk2.annotations.Service;
 
 @Service

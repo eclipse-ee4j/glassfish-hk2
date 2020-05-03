@@ -16,8 +16,8 @@
 
 package org.glassfish.hk2.tests.locator.servicelocatorutilities;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
+import jakarta.annotation.PostConstruct;
+import jakarta.inject.Inject;
 
 import org.junit.Assert;
 

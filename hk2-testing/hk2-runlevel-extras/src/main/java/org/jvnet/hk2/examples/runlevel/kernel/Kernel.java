@@ -16,9 +16,9 @@
 
 package org.jvnet.hk2.examples.runlevel.kernel;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.inject.Inject;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import jakarta.inject.Inject;
 
 import org.glassfish.hk2.runlevel.RunLevelController;
 import org.jvnet.hk2.annotations.Service;

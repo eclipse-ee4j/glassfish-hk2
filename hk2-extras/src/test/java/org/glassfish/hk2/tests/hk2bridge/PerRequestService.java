@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.hk2bridge;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.jvnet.hk2.annotations.Service;
 

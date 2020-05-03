@@ -18,8 +18,8 @@ package org.jvnet.testing.hk2testng.service.provider;
 
 import org.jvnet.testing.hk2testng.service.ProvidedService;
 import org.jvnet.testing.hk2testng.service.SecondaryService;
-import javax.inject.Inject;
-import javax.inject.Provider;
+import jakarta.inject.Inject;
+import jakarta.inject.Provider;
 import org.glassfish.hk2.api.Factory;
 import org.jvnet.hk2.annotations.Service;
 

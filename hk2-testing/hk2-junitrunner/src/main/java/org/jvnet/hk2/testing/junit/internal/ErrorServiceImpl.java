@@ -16,7 +16,7 @@
 
 package org.jvnet.hk2.testing.junit.internal;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.glassfish.hk2.api.ErrorInformation;
 import org.glassfish.hk2.api.ErrorService;

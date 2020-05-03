@@ -19,7 +19,7 @@ package org.glassfish.hk2.tests.locator.servicelocatorutilities;
 import java.lang.reflect.Type;
 import java.util.List;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.AnnotationLiteral;

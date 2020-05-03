@@ -16,7 +16,7 @@
 
 package org.glassfish.examples.events.threaded.tests;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.glassfish.hk2.api.messaging.Topic;
 

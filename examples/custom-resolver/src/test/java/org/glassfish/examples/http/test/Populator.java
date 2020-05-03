@@ -16,7 +16,7 @@
 
 package org.glassfish.examples.http.test;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.glassfish.examples.http.AlternateInjectResolver;
 import org.glassfish.examples.http.HttpEventReceiver;

@@ -16,8 +16,8 @@
 
 package org.jvnet.testing.hk2mockito.fixture.named;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.jvnet.hk2.annotations.Service;
 import org.jvnet.testing.hk2mockito.fixture.NamedGreetingService;
 

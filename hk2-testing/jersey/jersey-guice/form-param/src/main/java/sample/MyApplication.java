@@ -25,7 +25,7 @@ import org.jvnet.hk2.guice.bridge.api.GuiceIntoHK2Bridge;
 import org.jvnet.hk2.guice.bridge.api.HK2IntoGuiceBridge;
 import sample.util.SampleUtil;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 /**
  * Created by yoan on 2016/06/02.

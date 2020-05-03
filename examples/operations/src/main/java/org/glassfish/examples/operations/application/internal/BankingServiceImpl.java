@@ -19,8 +19,8 @@ package org.glassfish.examples.operations.application.internal;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 import org.glassfish.examples.operations.application.BankingService;
 import org.glassfish.examples.operations.application.DepositorService;

@@ -20,7 +20,7 @@ import org.jvnet.hk2.annotations.Service;
 import org.jvnet.testing.hk2mockito.fixture.BasicGreetingService;
 import org.jvnet.testing.hk2mockito.fixture.NamedGreetingService;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 /**
  *

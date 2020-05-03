@@ -25,7 +25,7 @@ import org.jvnet.hk2.annotations.Contract;
  * Implementations of ValidationService will be instantiated as soon as
  * they are added to HK2 in order to avoid deadlocks and circular references.
  * Therefore it is recommended that implementations of ValidationService
- * make liberal use of {@link javax.inject.Provider} or {@link IterableProvider}
+ * make liberal use of {@link jakarta.inject.Provider} or {@link IterableProvider}
  * when injecting dependent services so that these services are not instantiated
  * when the ValidationService is created
  *

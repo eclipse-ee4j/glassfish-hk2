@@ -18,7 +18,7 @@ package org.glassfish.hk2.configuration.persistence.properties.internal;
 
 import java.beans.PropertyChangeEvent;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.glassfish.hk2.configuration.hub.api.Hub;
 import org.glassfish.hk2.configuration.hub.api.Instance;

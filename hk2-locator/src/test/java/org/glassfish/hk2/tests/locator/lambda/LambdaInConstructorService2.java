@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.function.BinaryOperator;
 import java.util.function.Supplier;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 /**
  * @author jwells

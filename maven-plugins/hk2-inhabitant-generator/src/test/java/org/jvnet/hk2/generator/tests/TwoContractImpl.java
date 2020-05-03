@@ -16,7 +16,7 @@
 
 package org.jvnet.hk2.generator.tests;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.jvnet.hk2.annotations.Service;
 

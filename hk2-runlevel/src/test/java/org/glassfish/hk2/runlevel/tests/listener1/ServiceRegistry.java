@@ -19,7 +19,7 @@ package org.glassfish.hk2.runlevel.tests.listener1;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 /**
  * @author jwells

@@ -16,8 +16,8 @@
 
 package org.glassfish.hk2.runlevel.tests.sorter;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
+import jakarta.annotation.PostConstruct;
+import jakarta.inject.Inject;
 
 /**
  * @author jwells

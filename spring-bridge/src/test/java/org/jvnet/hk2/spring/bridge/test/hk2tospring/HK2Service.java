@@ -16,7 +16,7 @@
 
 package org.jvnet.hk2.spring.bridge.test.hk2tospring;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 /**
  * @author jwells

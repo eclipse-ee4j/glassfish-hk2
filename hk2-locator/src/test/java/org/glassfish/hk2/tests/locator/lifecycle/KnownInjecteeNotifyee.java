@@ -19,8 +19,8 @@ package org.glassfish.hk2.tests.locator.lifecycle;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.glassfish.hk2.api.PerLookup;
 

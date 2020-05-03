@@ -24,10 +24,10 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import javax.inject.Scope;
+import jakarta.inject.Scope;
 
 /**
- * Immediate is a scope that operates like {@link javax.inject.Singleton} scope, except that instances are created as soon as their
+ * Immediate is a scope that operates like {@link jakarta.inject.Singleton} scope, except that instances are created as soon as their
  * corresponding {@link Descriptor}s are added.  When the corresponding {@link Descriptor} is removed from the 
  * locator the Immediate scope service is destroyed.  In particular Immediate scope services are not destroyed if
  * the {@link ServiceHandle#destroy()} method is called.  Care should be taken with the services injected into

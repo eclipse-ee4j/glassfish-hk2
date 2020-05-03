@@ -19,7 +19,7 @@ package org.glassfish.hk2.tests.locator.types;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.glassfish.hk2.api.ServiceLocator;
 

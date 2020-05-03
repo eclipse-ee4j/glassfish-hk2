@@ -16,7 +16,7 @@
 
 package org.acme.security;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.glassfish.hk2.api.Filter;
 import org.glassfish.hk2.api.ValidationService;

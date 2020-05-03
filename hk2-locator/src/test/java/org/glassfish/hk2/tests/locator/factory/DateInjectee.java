@@ -19,9 +19,9 @@ package org.glassfish.hk2.tests.locator.factory;
 import java.util.Date;
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Provider;
+import jakarta.inject.Singleton;
 
 /**
  * @author jwells

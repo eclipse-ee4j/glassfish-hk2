@@ -16,7 +16,7 @@
 
 package org.jvnet.hk2.testing.test;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 
 import org.jvnet.hk2.annotations.Service;
 

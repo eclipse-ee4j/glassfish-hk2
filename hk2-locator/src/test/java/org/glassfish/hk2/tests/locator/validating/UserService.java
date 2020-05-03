@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.validating;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 /**
  * This service is NOT allowed to inject the super secret service

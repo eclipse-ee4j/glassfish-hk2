@@ -15,7 +15,7 @@ Bundle-ManifestVersion: 2
 Bundle-License: http://glassfish.java.net/nonav/public/CDDL+GPL_1_1.ht
  ml
 Bundle-Description: Inhabitant Generator
-Import-Package: javax.inject;version="[1.0,2)",org.apache.maven.plugin
+Import-Package: jakarta.inject;version="[2.0,3)",org.apache.maven.plugin
  ,org.glassfish.hk2.api;version="[2.0,3)",org.glassfish.hk2.utilities;
  version="[2.0,3)",org.jvnet.hk2.annotations;version="[2.0,3)",org.obj
  ectweb.asm;password=GlassFish;version="[3.3,4)"

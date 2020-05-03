@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.messaging.basic;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.glassfish.hk2.api.Unqualified;
 import org.glassfish.hk2.api.messaging.MessageReceiver;

@@ -18,7 +18,7 @@ package org.glassfish.hk2.tests.operation.shutdown;
 
 import java.util.HashSet;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 /**
  * @author jwells

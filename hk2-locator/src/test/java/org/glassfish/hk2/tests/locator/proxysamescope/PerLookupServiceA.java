@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.proxysamescope;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.glassfish.hk2.api.PerLookup;
 import org.glassfish.hk2.api.ProxyCtl;

@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.negative.errorservice1;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 /**
  * This amazing service does NOT fail!

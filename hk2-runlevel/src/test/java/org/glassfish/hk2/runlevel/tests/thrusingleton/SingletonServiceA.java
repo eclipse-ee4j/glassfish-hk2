@@ -16,8 +16,8 @@
 
 package org.glassfish.hk2.runlevel.tests.thrusingleton;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 /**
  * @author jwells

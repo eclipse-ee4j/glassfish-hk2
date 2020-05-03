@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.classmodel.reflect.test.model.qualifier;
 
-import javax.inject.Qualifier;
+import jakarta.inject.Qualifier;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import static java.lang.annotation.ElementType.*;

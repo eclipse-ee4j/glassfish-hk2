@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
  * the hk2-metadata-generator along with an empty
  * {@link org.jvnet.hk2.annotations.Service} annotation
  * <p>
- * Any {@link javax.inject.Named} or {@link org.jvnet.hk2.annotations.ContractsProvided}
+ * Any {@link jakarta.inject.Named} or {@link org.jvnet.hk2.annotations.ContractsProvided}
  * annotation on the class marked with this annotation will also be copied to the
  * implementation.  No other qualifier or annotation will be copied to the concrete
  * implementation.  However, the {@link org.glassfish.hk2.api.Rank} annotation

@@ -16,8 +16,8 @@
 
 package org.jvnet.testing.hk2mockito;
 
-import javax.inject.Inject;
-import javax.inject.Provider;
+import jakarta.inject.Inject;
+import jakarta.inject.Provider;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.jvnet.testing.hk2mockito.fixture.BasicGreetingService;
 import org.jvnet.testing.hk2mockito.fixture.service.ProviderInjectedGreetingService;

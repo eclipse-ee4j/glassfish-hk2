@@ -16,7 +16,7 @@
 
 package org.jvnet.hk2.generator.tests;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.glassfish.hk2.api.Factory;
 import org.glassfish.hk2.api.UseProxy;

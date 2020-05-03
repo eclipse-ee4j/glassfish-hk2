@@ -16,9 +16,9 @@
 
 package org.glassfish.hk2.tests.locator.singleton;
 
-import javax.annotation.PreDestroy;
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.annotation.PreDestroy;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 import org.junit.Assert;
 

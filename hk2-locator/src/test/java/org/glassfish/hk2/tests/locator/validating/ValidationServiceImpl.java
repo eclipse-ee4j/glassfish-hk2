@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.validating;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.glassfish.hk2.api.Descriptor;
 import org.glassfish.hk2.api.Filter;

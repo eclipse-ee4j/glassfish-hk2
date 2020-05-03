@@ -16,9 +16,9 @@
 
 package org.glassfish.hk2.xml.test.customizer;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 
 /**
  * @author jwells

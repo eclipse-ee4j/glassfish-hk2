@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.negative.errorservice1;
 
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PreDestroy;
 
 import org.jvnet.hk2.annotations.Service;
 

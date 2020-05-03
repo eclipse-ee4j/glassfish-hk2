@@ -22,8 +22,8 @@ import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Collections;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.DynamicConfiguration;

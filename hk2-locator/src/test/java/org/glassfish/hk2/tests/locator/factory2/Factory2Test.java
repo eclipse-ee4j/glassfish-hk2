@@ -19,7 +19,7 @@ package org.glassfish.hk2.tests.locator.factory2;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.junit.Assert;
 import org.junit.Test;

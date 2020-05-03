@@ -16,7 +16,7 @@
 
 package org.jvnet.hk2.metadata.tests;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.glassfish.hk2.api.UseProxy;
 import org.jvnet.hk2.annotations.Service;

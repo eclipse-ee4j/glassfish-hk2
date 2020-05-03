@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.destroy;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 /**
  * This one uses java method name convention to

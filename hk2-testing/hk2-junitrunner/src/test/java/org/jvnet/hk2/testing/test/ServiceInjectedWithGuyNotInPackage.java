@@ -16,7 +16,7 @@
 
 package org.jvnet.hk2.testing.test;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.jvnet.hk2.annotations.Service;
 import org.jvnet.hk2.testing.test.alt.AltService;

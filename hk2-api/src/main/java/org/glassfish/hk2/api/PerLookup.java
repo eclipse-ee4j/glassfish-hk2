@@ -24,7 +24,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import javax.inject.Scope;
+import jakarta.inject.Scope;
 
 /**
  * PerLookup is the scope for objects that are created every time they are looked up.  PerLookup objects

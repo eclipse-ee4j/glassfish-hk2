@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.interception;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.aopalliance.intercept.ConstructorInterceptor;
 import org.aopalliance.intercept.ConstructorInvocation;

@@ -16,8 +16,8 @@
 
 package org.glassfish.hk2.tests.locator.parented;
 
-import javax.annotation.PreDestroy;
-import javax.inject.Singleton;
+import jakarta.annotation.PreDestroy;
+import jakarta.inject.Singleton;
 
 /**
  * @author jwells

@@ -16,8 +16,8 @@
 
 package org.glassfish.examples.operations.application;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 /**
  * This service is a singleton service but uses two Operation scoped services in order to transfer

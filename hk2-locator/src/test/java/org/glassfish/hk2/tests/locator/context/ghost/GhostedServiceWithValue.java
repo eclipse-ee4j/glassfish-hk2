@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.context.ghost;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.Self;

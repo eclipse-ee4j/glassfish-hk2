@@ -16,7 +16,7 @@
 
 package org.jvnet.hk2.guice.bridge.internal;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.glassfish.hk2.api.DynamicConfiguration;
 import org.glassfish.hk2.api.DynamicConfigurationService;

@@ -45,7 +45,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * itself.
  * <p>
  * This annotation can be placed on any method of an annotation marked with
- * {@link javax.inject.Scope} or {@link javax.inject.Qualifier}.  The "toString" of the object returned
+ * {@link jakarta.inject.Scope} or {@link jakarta.inject.Qualifier}.  The "toString" of the object returned
  * from that method will be placed in the metadata of the descriptor that is
  * created (unless the object returned is a Class, in which case the name of
  * the Class is used)

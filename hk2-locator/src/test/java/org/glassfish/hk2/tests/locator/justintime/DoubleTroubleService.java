@@ -16,8 +16,8 @@
 
 package org.glassfish.hk2.tests.locator.justintime;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 /**
  * This is just here as something that will not originally be resolvable since the JIT resolver

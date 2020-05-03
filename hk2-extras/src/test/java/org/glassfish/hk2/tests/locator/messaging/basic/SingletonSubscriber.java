@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.messaging.basic;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.glassfish.hk2.api.messaging.MessageReceiver;
 import org.glassfish.hk2.api.messaging.SubscribeTo;

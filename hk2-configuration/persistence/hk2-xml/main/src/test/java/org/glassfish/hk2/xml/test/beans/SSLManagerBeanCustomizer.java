@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.xml.test.beans;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class SSLManagerBeanCustomizer {

@@ -16,7 +16,7 @@
 
 package org.jvnet.hk2.guice.bridge.test.bidirectional;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.jvnet.hk2.annotations.Service;
 

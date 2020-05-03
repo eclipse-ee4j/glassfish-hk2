@@ -16,7 +16,7 @@
 
 package org.jvnet.testing.hk2mockito.fixture.service;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import org.jvnet.hk2.annotations.Service;
 import org.jvnet.testing.hk2mockito.fixture.BasicGreetingService;
 

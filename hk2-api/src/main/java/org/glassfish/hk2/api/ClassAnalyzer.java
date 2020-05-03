@@ -42,7 +42,7 @@ import org.jvnet.hk2.annotations.Contract;
  * Implementations of ClassAnalyzer will be instantiated as soon as
  * they are added to HK2 in order to avoid deadlocks and circular references.
  * Therefore it is recommended that implementations of ClassAnalyzer
- * make liberal use of {@link javax.inject.Provider} or {@link IterableProvider}
+ * make liberal use of {@link jakarta.inject.Provider} or {@link IterableProvider}
  * when injecting dependent services so that these services are not instantiated
  * when the ClassAnalyzer is created
  * 

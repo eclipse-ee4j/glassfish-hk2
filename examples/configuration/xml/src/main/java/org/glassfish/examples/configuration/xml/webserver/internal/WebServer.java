@@ -20,9 +20,9 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.inject.Inject;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import jakarta.inject.Inject;
 
 import org.glassfish.hk2.api.IterableProvider;
 import org.glassfish.hk2.configuration.api.Configured;

@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.typesafety;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.junit.Assert;
 

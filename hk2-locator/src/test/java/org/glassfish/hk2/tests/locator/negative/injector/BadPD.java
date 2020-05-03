@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.tests.locator.negative.injector;
 
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PreDestroy;
 
 /**
  * This class has a bad pre-destroy

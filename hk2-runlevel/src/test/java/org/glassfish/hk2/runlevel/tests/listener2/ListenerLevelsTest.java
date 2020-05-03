@@ -19,7 +19,7 @@ package org.glassfish.hk2.runlevel.tests.listener2;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.glassfish.hk2.api.MultiException;
 import org.glassfish.hk2.api.ServiceLocator;

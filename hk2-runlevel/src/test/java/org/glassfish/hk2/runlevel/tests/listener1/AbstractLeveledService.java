@@ -16,9 +16,9 @@
 
 package org.glassfish.hk2.runlevel.tests.listener1;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.inject.Inject;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import jakarta.inject.Inject;
 
 /**
  * @author jwells
