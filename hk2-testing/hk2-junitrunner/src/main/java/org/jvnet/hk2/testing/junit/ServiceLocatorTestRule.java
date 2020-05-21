@@ -1138,7 +1138,7 @@ public class ServiceLocatorTestRule<T> extends ExternalResource implements Binde
       returnValue = true;
     } else {
       final String className = c.getName();
-      returnValue = className.startsWith("java.") || className.startsWith("javax.");
+      returnValue = className.startsWith("java.") || className.startsWith("javax.") || className.startsWith("jakarta.");
     }
     return returnValue;
   }

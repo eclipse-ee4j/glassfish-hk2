@@ -16,8 +16,8 @@
 
 package org.glassfish.hk2.xml.test.validation;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlID;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlID;
 
 /**
  * @author jwells

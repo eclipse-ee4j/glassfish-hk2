@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.xml.test.readonly;
 
-import javax.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElement;
 
 import org.jvnet.hk2.annotations.Contract;
 

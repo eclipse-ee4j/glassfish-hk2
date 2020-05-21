@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.xml.test.naked;
 
-import javax.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlAttribute;
 
 import org.glassfish.hk2.xml.api.annotations.XmlIdentifier;
 

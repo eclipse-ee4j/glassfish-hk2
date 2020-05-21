@@ -34,8 +34,8 @@ import java.util.Set;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
-import javax.xml.bind.Unmarshaller.Listener;
-import javax.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.Unmarshaller.Listener;
+import jakarta.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
 import org.glassfish.hk2.api.DescriptorVisibility;
@@ -82,7 +82,7 @@ public class PBufParser implements XmlServiceParser {
     private IterableProvider<XmlService> xmlService;
 
     /* (non-Javadoc)
-     * @see org.glassfish.hk2.xml.spi.XmlServiceParser#parseRoot(org.glassfish.hk2.xml.spi.Model, java.net.URI, javax.xml.bind.Unmarshaller.Listener)
+     * @see org.glassfish.hk2.xml.spi.XmlServiceParser#parseRoot(org.glassfish.hk2.xml.spi.Model, java.net.URI, jakarta.xml.bind.Unmarshaller.Listener)
      */
     @Override
     public <T> T parseRoot(Model rootModel, URI location, Listener listener, Map<String, Object> options)
@@ -97,7 +97,7 @@ public class PBufParser implements XmlServiceParser {
     }
 
     /* (non-Javadoc)
-     * @see org.glassfish.hk2.xml.spi.XmlServiceParser#parseRoot(org.glassfish.hk2.xml.spi.Model, java.io.InputStream, javax.xml.bind.Unmarshaller.Listener)
+     * @see org.glassfish.hk2.xml.spi.XmlServiceParser#parseRoot(org.glassfish.hk2.xml.spi.Model, java.io.InputStream, jakarta.xml.bind.Unmarshaller.Listener)
      */
     @SuppressWarnings("unchecked")
     @Override

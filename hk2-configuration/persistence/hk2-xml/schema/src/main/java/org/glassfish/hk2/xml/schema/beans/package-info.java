@@ -21,5 +21,5 @@
 // Generated on: 2017.02.21 at 07:57:28 AM EST 
 //
 
-@javax.xml.bind.annotation.XmlSchema(namespace = "http://www.w3.org/2001/XMLSchema", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
+@jakarta.xml.bind.annotation.XmlSchema(namespace = "http://www.w3.org/2001/XMLSchema", elementFormDefault = jakarta.xml.bind.annotation.XmlNsForm.QUALIFIED)
 package org.glassfish.hk2.xml.schema.beans;

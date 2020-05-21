@@ -100,13 +100,12 @@
         <dependency>
             <groupId>jakarta.inject</groupId>
             <artifactId>jakarta.inject-api</artifactId>
-            <version>${jakarta-inject.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>javax.enterprise</groupId>
-           <artifactId>cdi-api</artifactId>
-           <scope>test</scope>
+            <groupId>jakarta.enterprise</groupId>
+            <artifactId>jakarta.enterprise.cdi-api</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <!-- Needed to have a bundle activator to set up a different serialization policy-->

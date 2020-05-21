@@ -18,8 +18,8 @@ package org.glassfish.hk2.xml.test.jaxb;
 
 import java.net.URL;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Unmarshaller;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.Unmarshaller;
 
 import org.glassfish.hk2.xml.test.basic.beans.Commons;
 import org.junit.Assert;

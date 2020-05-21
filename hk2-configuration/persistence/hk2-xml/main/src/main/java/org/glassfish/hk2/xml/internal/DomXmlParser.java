@@ -26,7 +26,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Provider;
 import jakarta.inject.Singleton;
-import javax.xml.bind.Unmarshaller.Listener;
+import jakarta.xml.bind.Unmarshaller.Listener;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 
@@ -53,7 +53,7 @@ public class DomXmlParser implements XmlServiceParser {
     private Provider<XmlServiceImpl> xmlService;
 
     /* (non-Javadoc)
-     * @see org.glassfish.hk2.xml.spi.XmlServiceParser#parseRoot(java.lang.Class, java.net.URI, javax.xml.bind.Unmarshaller.Listener)
+     * @see org.glassfish.hk2.xml.spi.XmlServiceParser#parseRoot(java.lang.Class, java.net.URI, jakarta.xml.bind.Unmarshaller.Listener)
      */
     @Override
     public <T> T parseRoot(Model rootModel, URI location, Listener listener, Map<String, Object> options)

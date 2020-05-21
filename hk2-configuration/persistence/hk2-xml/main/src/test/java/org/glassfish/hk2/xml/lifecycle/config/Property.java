@@ -18,7 +18,7 @@ package org.glassfish.hk2.xml.lifecycle.config;
 
 import java.beans.PropertyVetoException;
 
-import javax.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlAttribute;
 
 /**
  * @author jwells

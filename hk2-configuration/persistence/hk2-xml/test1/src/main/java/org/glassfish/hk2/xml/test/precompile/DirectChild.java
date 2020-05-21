@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.xml.test.precompile;
 
-import javax.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElement;
 
 import org.glassfish.hk2.xml.api.annotations.XmlIdentifier;
 

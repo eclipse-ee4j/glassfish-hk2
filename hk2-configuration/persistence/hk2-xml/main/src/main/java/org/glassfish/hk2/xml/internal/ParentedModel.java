@@ -18,7 +18,7 @@ package org.glassfish.hk2.xml.internal;
 
 import java.io.Serializable;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 
 import org.glassfish.hk2.utilities.general.GeneralUtilities;
 

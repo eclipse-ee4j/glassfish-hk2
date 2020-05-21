@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.xml.jaxb.internal;
 
-import javax.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElement;
 
 import org.glassfish.hk2.api.AnnotationLiteral;
 import org.glassfish.hk2.xml.internal.Utilities;
@@ -45,7 +45,7 @@ public class XmlElementImpl extends AnnotationLiteral<XmlElement> implements Xml
     }
 
     /* (non-Javadoc)
-     * @see javax.xml.bind.annotation.XmlElement#name()
+     * @see jakarta.xml.bind.annotation.XmlElement#name()
      */
     @Override
     public String name() {
@@ -53,7 +53,7 @@ public class XmlElementImpl extends AnnotationLiteral<XmlElement> implements Xml
     }
 
     /* (non-Javadoc)
-     * @see javax.xml.bind.annotation.XmlElement#nillable()
+     * @see jakarta.xml.bind.annotation.XmlElement#nillable()
      */
     @Override
     public boolean nillable() {
@@ -61,7 +61,7 @@ public class XmlElementImpl extends AnnotationLiteral<XmlElement> implements Xml
     }
 
     /* (non-Javadoc)
-     * @see javax.xml.bind.annotation.XmlElement#required()
+     * @see jakarta.xml.bind.annotation.XmlElement#required()
      */
     @Override
     public boolean required() {
@@ -69,7 +69,7 @@ public class XmlElementImpl extends AnnotationLiteral<XmlElement> implements Xml
     }
 
     /* (non-Javadoc)
-     * @see javax.xml.bind.annotation.XmlElement#namespace()
+     * @see jakarta.xml.bind.annotation.XmlElement#namespace()
      */
     @Override
     public String namespace() {
@@ -77,7 +77,7 @@ public class XmlElementImpl extends AnnotationLiteral<XmlElement> implements Xml
     }
 
     /* (non-Javadoc)
-     * @see javax.xml.bind.annotation.XmlElement#defaultValue()
+     * @see jakarta.xml.bind.annotation.XmlElement#defaultValue()
      */
     @Override
     public String defaultValue() {
@@ -85,7 +85,7 @@ public class XmlElementImpl extends AnnotationLiteral<XmlElement> implements Xml
     }
 
     /* (non-Javadoc)
-     * @see javax.xml.bind.annotation.XmlElement#type()
+     * @see jakarta.xml.bind.annotation.XmlElement#type()
      */
     @Override
     public Class type() {

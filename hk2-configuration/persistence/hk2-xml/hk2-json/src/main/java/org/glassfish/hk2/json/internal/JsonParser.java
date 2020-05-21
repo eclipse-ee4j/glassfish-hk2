@@ -30,14 +30,14 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Provider;
 import jakarta.inject.Singleton;
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
-import javax.json.JsonWriter;
-import javax.json.JsonWriterFactory;
-import javax.json.stream.JsonGenerator;
-import javax.xml.bind.Unmarshaller.Listener;
+import jakarta.json.Json;
+import jakarta.json.JsonArrayBuilder;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonObjectBuilder;
+import jakarta.json.JsonWriter;
+import jakarta.json.JsonWriterFactory;
+import jakarta.json.stream.JsonGenerator;
+import jakarta.xml.bind.Unmarshaller.Listener;
 import javax.xml.namespace.QName;
 
 import org.glassfish.hk2.api.DescriptorVisibility;
@@ -64,11 +64,11 @@ import org.glassfish.hk2.xml.spi.XmlServiceParser;
 @Named(JsonUtilities.JSON_SERVICE_NAME)
 @Visibility(DescriptorVisibility.LOCAL)
 public class JsonParser implements XmlServiceParser {
-    private void skipper(javax.json.stream.JsonParser parser) {
+    private void skipper(jakarta.json.stream.JsonParser parser) {
         if (!parser.hasNext()) return;
         
         for(;;) {
-            javax.json.stream.JsonParser.Event event = parser.next();
+            jakarta.json.stream.JsonParser.Event event = parser.next();
             switch (event) {
             case KEY_NAME:
             case VALUE_FALSE:
@@ -93,7 +93,7 @@ public class JsonParser implements XmlServiceParser {
     private Provider<XmlService> xmlService;
     
     private void parseObject(ModelImpl currentModel, BaseHK2JAXBBean target, BaseHK2JAXBBean parent, Listener listener,
-            javax.json.stream.JsonParser parser) {
+            jakarta.json.stream.JsonParser parser) {
         try {
             listener.beforeUnmarshal(target, parent);
         }
@@ -111,7 +111,7 @@ public class JsonParser implements XmlServiceParser {
         
         boolean getNextEvent = true;
         do {
-            javax.json.stream.JsonParser.Event event = parser.next();
+            jakarta.json.stream.JsonParser.Event event = parser.next();
             switch(event) {
             case END_OBJECT:
                 try {
@@ -140,7 +140,7 @@ public class JsonParser implements XmlServiceParser {
                     if (parentedModel == null) {
                         ChildDataModel childDataModel = descriptor.getChildDataModel();
                     
-                        javax.json.stream.JsonParser.Event attributeEvent = parser.next();
+                        jakarta.json.stream.JsonParser.Event attributeEvent = parser.next();
                         switch (attributeEvent) {
                         case VALUE_STRING:
                             target._setProperty(XmlService.DEFAULT_NAMESPACE, keyName, parser.getString());
@@ -169,19 +169,19 @@ public class JsonParser implements XmlServiceParser {
                     else {
                         ModelImpl childModel = parentedModel.getChildModel();
                     
-                        javax.json.stream.JsonParser.Event childTypeEvent = parser.next();
+                        jakarta.json.stream.JsonParser.Event childTypeEvent = parser.next();
                     
-                        if (javax.json.stream.JsonParser.Event.START_ARRAY.equals(childTypeEvent)) {
+                        if (jakarta.json.stream.JsonParser.Event.START_ARRAY.equals(childTypeEvent)) {
                             List<BaseHK2JAXBBean> myList = new LinkedList<BaseHK2JAXBBean>();
                         
                             for (;;) {
-                                javax.json.stream.JsonParser.Event arrayEvent = parser.next();
-                                if (javax.json.stream.JsonParser.Event.END_ARRAY.equals(arrayEvent)) {
+                                jakarta.json.stream.JsonParser.Event arrayEvent = parser.next();
+                                if (jakarta.json.stream.JsonParser.Event.END_ARRAY.equals(arrayEvent)) {
                                     // Finished loop!
                                     break;
                                 }
                             
-                                if (!javax.json.stream.JsonParser.Event.START_OBJECT.equals(arrayEvent)) {
+                                if (!jakarta.json.stream.JsonParser.Event.START_OBJECT.equals(arrayEvent)) {
                                     throw new AssertionError("Do not know how to handle this case inside an array expecting an object" + arrayEvent);
                                 }
                             
@@ -211,7 +211,7 @@ public class JsonParser implements XmlServiceParser {
                             }
                         
                         }
-                        else if (javax.json.stream.JsonParser.Event.START_OBJECT.equals(childTypeEvent)) {
+                        else if (jakarta.json.stream.JsonParser.Event.START_OBJECT.equals(childTypeEvent)) {
                             if (!ChildType.DIRECT.equals(parentedModel.getChildType())) {
                                 throw new AssertionError("The model says " + parentedModel.getChildType() + " but I got an START_OBJECT start so bombing quite badly");
                             }
@@ -238,7 +238,7 @@ public class JsonParser implements XmlServiceParser {
     }
 
     /* (non-Javadoc)
-     * @see org.glassfish.hk2.xml.spi.XmlServiceParser#parseRoot(org.glassfish.hk2.xml.spi.Model, java.net.URI, javax.xml.bind.Unmarshaller.Listener)
+     * @see org.glassfish.hk2.xml.spi.XmlServiceParser#parseRoot(org.glassfish.hk2.xml.spi.Model, java.net.URI, jakarta.xml.bind.Unmarshaller.Listener)
      */
     @Override
     public <T> T parseRoot(Model rootModel, URI location, Listener listener, Map<String, Object> options)
@@ -253,13 +253,13 @@ public class JsonParser implements XmlServiceParser {
     }
     
     /* (non-Javadoc)
-     * @see org.glassfish.hk2.xml.spi.XmlServiceParser#parseRoot(org.glassfish.hk2.xml.spi.Model, java.net.URI, javax.xml.bind.Unmarshaller.Listener)
+     * @see org.glassfish.hk2.xml.spi.XmlServiceParser#parseRoot(org.glassfish.hk2.xml.spi.Model, java.net.URI, jakarta.xml.bind.Unmarshaller.Listener)
      */
     @SuppressWarnings("unchecked")
     @Override
     public <T> T parseRoot(Model rootModel, InputStream input, Listener listener, Map<String, Object> options)
             throws Exception {
-        javax.json.stream.JsonParser parser = Json.createParser(input);
+        jakarta.json.stream.JsonParser parser = Json.createParser(input);
         
         try {
             if (!parser.hasNext()) {
@@ -271,8 +271,8 @@ public class JsonParser implements XmlServiceParser {
                 return root;
             }
             
-            javax.json.stream.JsonParser.Event event = parser.next();
-            if (!javax.json.stream.JsonParser.Event.START_OBJECT.equals(event)) {
+            jakarta.json.stream.JsonParser.Event event = parser.next();
+            if (!jakarta.json.stream.JsonParser.Event.START_OBJECT.equals(event)) {
                 throw new AssertionError("Unknown start of JSON object: " + event);
             }
             

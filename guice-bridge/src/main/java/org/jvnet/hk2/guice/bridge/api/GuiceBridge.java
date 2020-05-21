@@ -54,7 +54,7 @@ public abstract class GuiceBridge {
             Class<?> annotationCheckerClass = Class.forName("com.google.inject.internal.Annotations$AnnotationChecker");
             //Access the annotation checker value
             Object annotationChecker = annotationCheckerClass.cast(bindingAnnotations.get(null));
-            //The field, which is actually a collection containing javax.inject.Qualifier
+            //The field, which is actually a collection containing jakarta.inject.Qualifier
             Field annotationTypesField = annotationChecker.getClass().getDeclaredField("annotationTypes");
             annotationTypesField.setAccessible(true);
             //Create a new List, which contains jakarta.inject.Qualifer as well as all the old ones.

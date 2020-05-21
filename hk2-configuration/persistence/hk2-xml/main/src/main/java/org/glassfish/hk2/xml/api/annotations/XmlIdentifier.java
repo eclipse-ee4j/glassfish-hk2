@@ -32,22 +32,22 @@ import java.lang.annotation.Target;
  * annotation
  * <p>
  * This annotation is very much like the standard
- * JAXB annotation {@link javax.xml.bind.annotation.XmlID} except
+ * JAXB annotation {@link jakarta.xml.bind.annotation.XmlID} except
  * that the uniqueness of this field need only be per xpath from
  * the root, and not over the entire tree.  For example, consider
  * a Java Bean such as a PropertyBean that is used all over the tree
  * for those Beans that have a set of properties.  The PropertyBean
  * might have identical keys in two different xpaths from the root, and
- * therefore could not use {@link javax.xml.bind.annotation.XmlID},
- * since the {@link javax.xml.bind.annotation.XmlID} requires uniqueness
+ * therefore could not use {@link jakarta.xml.bind.annotation.XmlID},
+ * since the {@link jakarta.xml.bind.annotation.XmlID} requires uniqueness
  * over the entire tree, and not over just one xpath
  * <p>
- * Furthermore, whereas {@link javax.xml.bind.annotation.XmlID} can be referred
- * to with {@link javax.xml.bind.annotation.XmlIDREF} there is no corresponding
+ * Furthermore, whereas {@link jakarta.xml.bind.annotation.XmlID} can be referred
+ * to with {@link jakarta.xml.bind.annotation.XmlIDREF} there is no corresponding
  * automatic reference with this annotation.  If both
- * {@link javax.xml.bind.annotation.XmlID} and this annotation are found
+ * {@link jakarta.xml.bind.annotation.XmlID} and this annotation are found
  * on different properties of this bean then this annotation will be used
- * in preference over {@link javax.xml.bind.annotation.XmlID}
+ * in preference over {@link jakarta.xml.bind.annotation.XmlID}
  * 
  * @author jwells
  *

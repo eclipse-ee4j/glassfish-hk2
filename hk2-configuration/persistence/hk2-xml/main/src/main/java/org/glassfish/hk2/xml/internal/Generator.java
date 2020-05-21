@@ -58,11 +58,11 @@ import javassist.bytecode.annotation.MemberValue;
 import javassist.bytecode.annotation.ShortMemberValue;
 import javassist.bytecode.annotation.StringMemberValue;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElements;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElements;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlTransient;
+import jakarta.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
 import org.glassfish.hk2.api.MultiException;
@@ -109,7 +109,7 @@ public class Generator {
     
     private final static Set<String> NO_COPY_ANNOTATIONS_METHOD = new HashSet<String>(Arrays.asList(new String[] {
             // Done as a String so that jakarta.annotation need not be on compiler classpath
-            "javax.validation.Valid"
+            "jakarta.validation.Valid"
     }));
     
     /**

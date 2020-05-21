@@ -20,12 +20,12 @@ import java.lang.annotation.ElementType;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
-import javax.validation.Path;
-import javax.validation.TraversableResolver;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorContext;
-import javax.validation.ValidatorFactory;
+import jakarta.validation.Path;
+import jakarta.validation.TraversableResolver;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorContext;
+import jakarta.validation.ValidatorFactory;
 
 import org.glassfish.hk2.utilities.general.internal.MessageInterpolatorImpl;
 import org.hibernate.validator.HibernateValidator;
@@ -74,7 +74,7 @@ public class ValidatorUtilities {
      * Gets a validator that can be used to validate that is initialized with HK2
      * specific utilities such as the message interpolator
      * 
-     * @return A javax bean validator for validating constraints
+     * @return A jakarta bean validator for validating constraints
      */
     public synchronized static Validator getValidator() {
         if (validator == null) {
@@ -89,7 +89,7 @@ public class ValidatorUtilities {
         }
         
         if (validator == null) {
-            throw new IllegalStateException("Could not find a javax.validator");
+            throw new IllegalStateException("Could not find a jakarta.validator");
         }
         
         return validator;

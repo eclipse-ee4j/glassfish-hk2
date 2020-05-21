@@ -19,8 +19,8 @@ package org.glassfish.hk2.xml.lifecycle.config;
 import java.util.List;
 
 
-// import javax.validation.constraints.NotNull;
-import javax.xml.bind.annotation.XmlElement;
+// import jakarta.validation.constraints.NotNull;
+import jakarta.xml.bind.annotation.XmlElement;
 
 import org.jvnet.hk2.annotations.Contract;
 

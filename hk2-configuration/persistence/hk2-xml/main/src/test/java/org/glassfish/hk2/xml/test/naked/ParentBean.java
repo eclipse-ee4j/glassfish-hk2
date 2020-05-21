@@ -18,7 +18,7 @@ package org.glassfish.hk2.xml.test.naked;
 
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * Both children have no XmlElement annotation, and

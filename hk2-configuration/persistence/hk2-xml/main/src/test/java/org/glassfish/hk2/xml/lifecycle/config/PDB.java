@@ -16,9 +16,9 @@
 
 package org.glassfish.hk2.xml.lifecycle.config;
 
-import javax.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlAttribute;
 
-//import javax.validation.Payload;
+//import jakarta.validation.Payload;
 
 // @ReferenceConstraint(skipDuringCreation=false, payload=PDB.class)
 public interface PDB extends Named, Payload, Auditable {
