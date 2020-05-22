@@ -76,10 +76,7 @@
                 <configuration>
                     <instructions>
                         <Import-Package>
-                            javax.validation.*;resolution:=optional;version="${range;[==,${jakarta.validation.version.upperbound});${jakarta.validation.version}}
-",
-                            org.hibernate.validator.*;resolution:=optional;version="${range;[==,${hibernate-validator.version.upperbound});${hibernate-validator.version}}",
-                            *
+                            jakarta.validation.*;resolution:=optional,org.hibernate.validator.*;resolution:=optional,*
                         </Import-Package>
                     </instructions>
                     <unpackBundle>true</unpackBundle>
@@ -135,8 +132,8 @@
             <artifactId>jakarta.annotation-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.validation</groupId>
-            <artifactId>validation-api</artifactId>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.hibernate.validator</groupId>
@@ -151,8 +148,8 @@
           <artifactId>classmate</artifactId>
        </dependency>
        <dependency>
-           <groupId>javax.xml.bind</groupId>
-           <artifactId>jaxb-api</artifactId>
+           <groupId>jakarta.xml.bind</groupId>
+           <artifactId>jakarta.xml.bind-api</artifactId>
        </dependency>
 
         <!-- Test scope -->
@@ -163,8 +160,8 @@
        </dependency>
         <dependency>
             <groupId>org.glassfish</groupId>
-            <artifactId>javax.el</artifactId>
-            <version>${glassfish.javax.el.version}</version>
+            <artifactId>jakarta.el</artifactId>
+            <version>${glassfish.jakarta.el.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

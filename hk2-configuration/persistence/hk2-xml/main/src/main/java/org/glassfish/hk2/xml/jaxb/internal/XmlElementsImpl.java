@@ -18,8 +18,8 @@ package org.glassfish.hk2.xml.jaxb.internal;
 
 import java.util.Arrays;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElements;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElements;
 
 import org.glassfish.hk2.api.AnnotationLiteral;
 

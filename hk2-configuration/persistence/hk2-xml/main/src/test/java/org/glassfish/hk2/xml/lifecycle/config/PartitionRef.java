@@ -18,10 +18,10 @@ package org.glassfish.hk2.xml.lifecycle.config;
 
 import java.beans.PropertyVetoException;
 
-import javax.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlAttribute;
 
-//import javax.validation.Payload;
-//import javax.validation.constraints.NotNull;
+//import jakarta.validation.Payload;
+//import jakarta.validation.constraints.NotNull;
 
 // @ReferenceConstraint(skipDuringCreation=false, payload=PartitionRef.class)
 public interface PartitionRef extends PropertyBag, Payload, Auditable {

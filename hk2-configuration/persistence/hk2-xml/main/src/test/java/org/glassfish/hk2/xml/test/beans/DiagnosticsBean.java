@@ -16,8 +16,8 @@
 
 package org.glassfish.hk2.xml.test.beans;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlID;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlID;
 
 import org.jvnet.hk2.annotations.Contract;
 

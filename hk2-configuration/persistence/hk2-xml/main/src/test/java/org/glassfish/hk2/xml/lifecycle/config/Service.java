@@ -16,13 +16,13 @@
 
 package org.glassfish.hk2.xml.lifecycle.config;
 
-//import javax.validation.Payload;
-//import javax.validation.constraints.NotNull;
+//import jakarta.validation.Payload;
+//import jakarta.validation.constraints.NotNull;
 
 // import com.oracle.weblogic.lifecycle.config.validators.ReferenceConstraint;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlElement;
 
 import org.glassfish.hk2.xml.api.annotations.XmlIdentifier;
 

@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.xml.internal;
 
-import javax.xml.bind.annotation.XmlElementWrapper;
+import jakarta.xml.bind.annotation.XmlElementWrapper;
 
 import org.glassfish.hk2.api.AnnotationLiteral;
 

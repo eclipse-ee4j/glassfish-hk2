@@ -19,7 +19,7 @@ package org.glassfish.hk2.xml.test.basic.beans;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 
 /**
  * The adapter for the test

@@ -16,8 +16,8 @@
 
 package org.glassfish.hk2.xml.test.validation;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 import org.glassfish.hk2.xml.api.XmlRootHandle;
 
@@ -31,7 +31,7 @@ public class HasChildWithNameValidator implements ConstraintValidator<HasChildWi
     private HasChildWithName lastInitialization;
 
     /* (non-Javadoc)
-     * @see javax.validation.ConstraintValidator#initialize(java.lang.annotation.Annotation)
+     * @see jakarta.validation.ConstraintValidator#initialize(java.lang.annotation.Annotation)
      */
     @Override
     public void initialize(HasChildWithName arg0) {
@@ -39,7 +39,7 @@ public class HasChildWithNameValidator implements ConstraintValidator<HasChildWi
     }
 
     /* (non-Javadoc)
-     * @see javax.validation.ConstraintValidator#isValid(java.lang.Object, javax.validation.ConstraintValidatorContext)
+     * @see jakarta.validation.ConstraintValidator#isValid(java.lang.Object, jakarta.validation.ConstraintValidatorContext)
      */
     @Override
     public boolean isValid(String nameBeingSet, ConstraintValidatorContext arg1) {

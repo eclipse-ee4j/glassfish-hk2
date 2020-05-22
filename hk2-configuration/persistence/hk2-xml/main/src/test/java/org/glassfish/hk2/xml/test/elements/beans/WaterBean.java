@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.xml.test.elements.beans;
 
-import javax.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElement;
 
 /**
  * @author jwells

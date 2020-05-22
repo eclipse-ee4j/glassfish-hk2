@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
  * Describes the string that constitutes the plural of this element or attribute name.
  * Can also be used to supply the exact method name for the adder, remover
  * and locator methods for this element.  This annotation will ONLY be read from
- * the method that also has an {@link javax.xml.bind.annotation.XmlElement} annotation
+ * the method that also has an {@link jakarta.xml.bind.annotation.XmlElement} annotation
  * on it
  * <p>
  * The rules for determining the singular form of the element name is the following:<OL>

@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.xml.jaxb.internal;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 import org.glassfish.hk2.api.AnnotationLiteral;
 
@@ -36,7 +36,7 @@ public class XmlRootElementImpl extends AnnotationLiteral<XmlRootElement> implem
     }
 
     /* (non-Javadoc)
-     * @see javax.xml.bind.annotation.XmlRootElement#namespace()
+     * @see jakarta.xml.bind.annotation.XmlRootElement#namespace()
      */
     @Override
     public String namespace() {
@@ -44,7 +44,7 @@ public class XmlRootElementImpl extends AnnotationLiteral<XmlRootElement> implem
     }
 
     /* (non-Javadoc)
-     * @see javax.xml.bind.annotation.XmlRootElement#name()
+     * @see jakarta.xml.bind.annotation.XmlRootElement#name()
      */
     @Override
     public String name() {

@@ -18,7 +18,7 @@ package org.glassfish.hk2.json.test.skillzbeans;
 
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElement;
 
 import org.glassfish.hk2.json.test.basic.JsonParserTest;
 import org.glassfish.hk2.xml.api.annotations.Hk2XmlPreGenerate;

@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.xml.test.customizer;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 import org.glassfish.hk2.api.Customizer;
 import org.jvnet.hk2.annotations.Contract;

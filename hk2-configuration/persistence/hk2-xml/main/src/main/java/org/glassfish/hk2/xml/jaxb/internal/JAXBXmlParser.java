@@ -24,10 +24,10 @@ import java.util.Map;
 
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.Unmarshaller.Listener;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.Marshaller;
+import jakarta.xml.bind.Unmarshaller;
+import jakarta.xml.bind.Unmarshaller.Listener;
 
 import org.glassfish.hk2.api.DescriptorVisibility;
 import org.glassfish.hk2.api.Visibility;
@@ -48,7 +48,7 @@ import org.glassfish.hk2.xml.spi.XmlServiceParser;
 public class JAXBXmlParser implements XmlServiceParser {
 
     /* (non-Javadoc)
-     * @see org.glassfish.hk2.xml.spi.XmlServiceParser#parseRoot(java.lang.Class, java.net.URI, javax.xml.bind.Unmarshaller.Listener)
+     * @see org.glassfish.hk2.xml.spi.XmlServiceParser#parseRoot(java.lang.Class, java.net.URI, jakarta.xml.bind.Unmarshaller.Listener)
      */
     @SuppressWarnings("unchecked")
     @Override
@@ -66,7 +66,7 @@ public class JAXBXmlParser implements XmlServiceParser {
     }
     
     /* (non-Javadoc)
-     * @see org.glassfish.hk2.xml.spi.XmlServiceParser#parseRoot(java.lang.Class, java.net.URI, javax.xml.bind.Unmarshaller.Listener)
+     * @see org.glassfish.hk2.xml.spi.XmlServiceParser#parseRoot(java.lang.Class, java.net.URI, jakarta.xml.bind.Unmarshaller.Listener)
      */
     @SuppressWarnings("unchecked")
     @Override

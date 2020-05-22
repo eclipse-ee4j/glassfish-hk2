@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.xml.test.childrensametype;
 
-import javax.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlAttribute;
 
 /**
  * @author jwells

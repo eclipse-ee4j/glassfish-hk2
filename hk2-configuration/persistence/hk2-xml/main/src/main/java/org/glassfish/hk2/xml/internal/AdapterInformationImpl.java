@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.xml.internal;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 
 import org.glassfish.hk2.xml.internal.alt.AdapterInformation;
 import org.glassfish.hk2.xml.internal.alt.AltClass;

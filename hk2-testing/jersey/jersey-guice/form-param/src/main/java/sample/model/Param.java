@@ -16,7 +16,7 @@
 
 package sample.model;
 
-import javax.ws.rs.FormParam;
+import jakarta.ws.rs.FormParam;
 
 /**
  * Created by yoan on 2016/06/03.

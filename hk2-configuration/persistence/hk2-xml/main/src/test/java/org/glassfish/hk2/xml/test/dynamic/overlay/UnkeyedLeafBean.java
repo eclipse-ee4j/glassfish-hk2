@@ -18,7 +18,7 @@ package org.glassfish.hk2.xml.test.dynamic.overlay;
 
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElement;
 
 /**
  * Unkeyed but still has an value for use in testing

@@ -18,7 +18,7 @@ package org.glassfish.hk2.xml.test.precompile.dom;
 
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElement;
 
 /**
  * @author jwells

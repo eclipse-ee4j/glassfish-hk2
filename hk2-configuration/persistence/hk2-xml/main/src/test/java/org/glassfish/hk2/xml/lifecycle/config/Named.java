@@ -16,7 +16,7 @@
 
 package org.glassfish.hk2.xml.lifecycle.config;
 
-import javax.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlAttribute;
 
 import org.glassfish.hk2.xml.api.annotations.XmlIdentifier;
 import org.jvnet.hk2.annotations.Contract;

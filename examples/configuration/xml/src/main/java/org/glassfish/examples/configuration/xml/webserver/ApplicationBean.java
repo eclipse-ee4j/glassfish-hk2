@@ -16,8 +16,8 @@
 
 package org.glassfish.examples.configuration.xml.webserver;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 import org.jvnet.hk2.annotations.Contract;
 

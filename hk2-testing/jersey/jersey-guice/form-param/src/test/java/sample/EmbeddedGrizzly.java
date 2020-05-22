@@ -53,7 +53,7 @@ public class EmbeddedGrizzly extends ExternalResource {
 
         ServletRegistration servletRegistration = context.addServlet("ServletContainer", ServletContainer.class);
         servletRegistration.addMapping("/*");
-        servletRegistration.setInitParameter("javax.ws.rs.Application", clazz.getCanonicalName());
+        servletRegistration.setInitParameter("jakarta.ws.rs.Application", clazz.getCanonicalName());
 
         context.deploy(server);
 

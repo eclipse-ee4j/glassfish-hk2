@@ -18,12 +18,12 @@ package org.glassfish.hk2.xml.lifecycle.config;
 
 import java.beans.PropertyVetoException;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlID;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlID;
 
 import org.jvnet.hk2.annotations.Contract;
 
-//import javax.validation.constraints.NotNull;
+//import jakarta.validation.constraints.NotNull;
 
 @Contract
 public interface Partition extends PropertyBag, Auditable {

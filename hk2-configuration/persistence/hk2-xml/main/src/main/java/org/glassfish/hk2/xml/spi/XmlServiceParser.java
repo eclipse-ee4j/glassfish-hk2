@@ -22,7 +22,7 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.util.Map;
 
-import javax.xml.bind.Unmarshaller;
+import jakarta.xml.bind.Unmarshaller;
 
 import org.glassfish.hk2.xml.api.XmlRootHandle;
 import org.jvnet.hk2.annotations.Contract;
