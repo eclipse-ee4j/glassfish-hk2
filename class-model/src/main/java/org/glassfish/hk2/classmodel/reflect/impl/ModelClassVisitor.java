@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2020 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -48,7 +48,7 @@ public class ModelClassVisitor extends ClassVisitor {
     private final ModelMethodVisitor methodVisitor;
     private final ModelAnnotationVisitor annotationVisitor;
     private final ModelDefaultAnnotationVisitor defaultAnnotationVisitor;
-    private static int discarded=0;
+    private static int discarded = 0;
     private boolean isApplicationClass;
 
 
@@ -247,7 +247,16 @@ public class ModelClassVisitor extends ClassVisitor {
         }
         cm = (ExtensibleType) type;
 
-        methodVisitor.getContext().method = new MethodModelImpl(name, cm, (signature==null?desc:signature));
+        MethodModelImpl methodModel = new MethodModelImpl(name, cm, (signature == null ? desc : signature));
+        methodVisitor.getContext().method = methodModel;
+
+        org.objectweb.asm.Type[] args = org.objectweb.asm.Type.getArgumentTypes(signature == null ? desc : signature);
+        for (int index = 0; index < args.length; index++) {
+            org.objectweb.asm.Type arg = args[index];
+            TypeProxy<?> argType = typeBuilder.getHolder(arg.getClassName());
+            Parameter parameter = new ParameterImpl(index, null, argType, methodModel);
+            methodModel.parameters.add(parameter);
+        }
         return methodVisitor;
     }
 
@@ -328,6 +337,27 @@ public class ModelClassVisitor extends ClassVisitor {
             context.method.addAnnotation(am);
             annotationVisitor.getContext().annotation= am;
 
+            return annotationVisitor;
+        }
+
+        @Override
+        public AnnotationVisitor visitParameterAnnotation(
+                final int parameterIndex,
+                final String desc,
+                final boolean visible
+        ) {
+
+            AnnotationTypeImpl annotationType = (AnnotationTypeImpl) typeBuilder.getType(Opcodes.ACC_ANNOTATION, unwrap(desc), null);
+            ParameterImpl parameter = (ParameterImpl) context.method.parameters.get(parameterIndex);
+
+            AnnotationModelImpl annotationModel = new AnnotationModelImpl(parameter, annotationType);
+
+            // reverse index.
+            annotationType.getAnnotatedElements().add(parameter);
+
+            // forward index
+            parameter.addAnnotation(annotationModel);
+            annotationVisitor.getContext().annotation = annotationModel;
             return annotationVisitor;
         }
 

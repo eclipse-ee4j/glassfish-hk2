@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2020 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -15,6 +15,8 @@
  */
 
 package org.glassfish.hk2.classmodel.reflect;
+
+import java.util.List;
 
 /**
  * Model to represent a method declaration
@@ -44,4 +46,11 @@ public interface MethodModel extends Member, AnnotatedElement {
      * @return the parameter types
      */
     String[] getArgumentTypes();
+
+    /**
+     * Returns the list of parameter
+     *
+     * @return the list of parameter
+     */
+    List<Parameter> getParameters();
 }
