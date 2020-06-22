@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -13,31 +13,15 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
+
 package org.glassfish.hk2.classmodel.reflect.test.method;
 
+
 /**
- * a simple class with annotated method.
+ *
+ * @author gaurav.gupta@payara.fish
  */
-public class SimpleAnnotatedMethod {
+public @interface GradientColors {
 
-    @SomeAnnotation(
-            aLong = 10,
-            aClass = Void.class,
-            aClassArr = {Integer.class, String.class},
-            aEnum = SomeEnum.ENUM1,
-            childAnnotation = @ChildAnnotation("child_value")
-    )
-    @Color(name = "red")
-    @Color(name = "green")
-    @GradientColor({
-        @Color(name = "white"),
-        @Color(name = "black")
-    })
-    @GradientColor({
-        @Color(name = "yellow"),
-        @Color(name = "orange")
-    })
-    public void setFoo(String foo) {
-
-    }
+    GradientColor[] value();
 }

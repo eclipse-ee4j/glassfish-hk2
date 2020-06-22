@@ -23,6 +23,9 @@ import org.objectweb.asm.signature.SignatureReader;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -48,8 +51,8 @@ public class ModelClassVisitor extends ClassVisitor {
     private final ModelMethodVisitor methodVisitor;
     private final ModelAnnotationVisitor annotationVisitor;
     private final ModelDefaultAnnotationVisitor defaultAnnotationVisitor;
-    private static int discarded = 0;
-    private boolean isApplicationClass;
+    private static final int discarded = 0;
+    private final boolean isApplicationClass;
 
 
     public ModelClassVisitor(ParsingContext ctx, URI definingURI, String entryName,
@@ -211,9 +214,11 @@ public class ModelClassVisitor extends ClassVisitor {
 
         ExtensibleTypeImpl cm;
         if (!(type instanceof ExtensibleTypeImpl)) {
-            logger.severe("Field visitor invoked for field " + name +
-                "in type " + type.getName() + " which is not a ClassModel type instance but a "
-                + type.getClass().getName());
+            logger.log(
+                    Level.SEVERE,
+                    "Field visitor invoked for field {0}in type {1} which is not a ClassModel type instance but a {2}",
+                    new Object[]{name, type.getName(), type.getClass().getName()}
+            );
             return null;
         }
         cm = (ExtensibleTypeImpl) type;
@@ -240,9 +245,11 @@ public class ModelClassVisitor extends ClassVisitor {
 
         ExtensibleType cm;
         if (!(type instanceof ExtensibleType)) {
-            logger.severe("Method visitor invoked for method " + name +
-                    "in type " + type.getName() + " which is not an ExtensibleType type instance but a "
-                    + type.getClass().getName());
+            logger.log(
+                    Level.SEVERE,
+                    "Method visitor invoked for method {0} in type {1} which is not an ExtensibleType type instance but a {2}",
+                    new Object[]{name, type.getName(), type.getClass().getName()}
+            );
             return null;
         }
         cm = (ExtensibleType) type;
@@ -304,6 +311,7 @@ public class ModelClassVisitor extends ClassVisitor {
 
     private static class AnnotationVisitingContext {
         AnnotationModelImpl annotation;
+        ArrayDeque<AnnotationModelImpl> parentAnnotations = new ArrayDeque<>();
     }
 
     private class ModelMethodVisitor extends MethodVisitor {
@@ -378,27 +386,27 @@ public class ModelClassVisitor extends ClassVisitor {
     
     private class ModelDefaultAnnotationVisitor extends AnnotationVisitor {
 
-      private final MethodVisitingContext context;
-      
-      public ModelDefaultAnnotationVisitor(MethodVisitingContext visitingContext) {
-          super(Opcodes.ASM7);
-        this.context = visitingContext;
-      }
+        private final MethodVisitingContext context;
 
-      public void visit(java.lang.String desc, java.lang.Object value) {
-        AnnotationTypeImpl am = (AnnotationTypeImpl) context.method.owner;
-        am.addDefaultValue(context.method.getName(), value);
-      }
+        public ModelDefaultAnnotationVisitor(MethodVisitingContext visitingContext) {
+            super(Opcodes.ASM7);
+            this.context = visitingContext;
+        }
+
+        @Override
+        public void visit(java.lang.String desc, java.lang.Object value) {
+            AnnotationTypeImpl am = (AnnotationTypeImpl) context.method.owner;
+            am.addDefaultValue(context.method.getName(), value);
+        }
     }
 
-    
     private class ModelFieldVisitor extends FieldVisitor {
 
         private final FieldVisitingContext context;
 
         private ModelFieldVisitor(MemberVisitingContext context) {
             super(Opcodes.ASM7);
-            
+
             this.context = new FieldVisitingContext(context.modelUnAnnotatedMembers);
         }
 
@@ -410,7 +418,7 @@ public class ModelClassVisitor extends ClassVisitor {
         public AnnotationVisitor visitAnnotation(String s, boolean b) {
             FieldModelImpl field = context.field;
 
-            AnnotationTypeImpl annotationType = (AnnotationTypeImpl) typeBuilder.getType(Opcodes.ACC_ANNOTATION, unwrap(s), null );
+            AnnotationTypeImpl annotationType = (AnnotationTypeImpl) typeBuilder.getType(Opcodes.ACC_ANNOTATION, unwrap(s), null);
             AnnotationModelImpl annotationModel = new AnnotationModelImpl(field, annotationType);
 
             // reverse index.
@@ -432,7 +440,7 @@ public class ModelClassVisitor extends ClassVisitor {
                 context.field.type.addFieldRef(context.field);
 
                 // forward index
-                if ((Opcodes.ACC_STATIC & context.access)==Opcodes.ACC_STATIC) {
+                if ((Opcodes.ACC_STATIC & context.access) == Opcodes.ACC_STATIC) {
                     context.classModel.addStaticField(context.field);
                 } else {
                     context.classModel.addField(context.field);
@@ -444,36 +452,95 @@ public class ModelClassVisitor extends ClassVisitor {
     }
 
     private class ModelAnnotationVisitor extends AnnotationVisitor {
+
         private final AnnotationVisitingContext context;
 
         private ModelAnnotationVisitor() {
             super(Opcodes.ASM7);
-            
+
             this.context = new AnnotationVisitingContext();
         }
 
         AnnotationVisitingContext getContext() {
             return context;
         }
-        
+
         @Override
         public void visit(String name, Object value) {
-            if (context.annotation==null) return;
+            if (context.annotation == null) {
+                return;
+            }
             context.annotation.addValue(name, value);
         }
-        
+
         @Override
         public AnnotationVisitor visitArray(String name) {
-            if (context.annotation == null) return null;
-            context.annotation.addValue(name, null);
-            return null;
-            
+            if (context.annotation == null) {
+                return null;
+            }
+            ArrayVisitor arrayVisitor = new ArrayVisitor(annotationVisitor, context.annotation);
+            context.annotation.addValue(name, arrayVisitor.getValues());
+            return arrayVisitor;
+        }
+
+        @Override
+        public void visitEnum(String name, String desc, String value) {
+            if (context.annotation == null) {
+                return;
+            }
+
+            final Type type = (Type) typeBuilder.getType(Opcodes.ACC_ENUM, unwrap(desc), null);
+            final EnumModel enumModel = new EnumModelImpl(type, value);
+
+            context.annotation.addValue(name, enumModel);
+        }
+
+        @Override
+        public AnnotationVisitor visitAnnotation(String name, String desc) {
+            desc = unwrap(desc);
+
+            final AnnotationTypeImpl at = (AnnotationTypeImpl) typeBuilder.getType(Opcodes.ACC_ANNOTATION, desc, null);
+            final AnnotationModelImpl am = new AnnotationModelImpl(null, at);
+
+            context.annotation.addValue(name, am);
+            context.parentAnnotations.add(context.annotation);
+            context.annotation = am;
+            return annotationVisitor;
         }
 
         @Override
         public void visitEnd() {
-//            context.annotation=null;
+            if (!context.parentAnnotations.isEmpty()) {
+                context.annotation = context.parentAnnotations.pollLast();
+            }
         }
     }
-    
+
+    private class ArrayVisitor extends AnnotationVisitor {
+
+        AnnotationModelImpl annotation;
+        protected List values = new ArrayList();
+
+        public ArrayVisitor(AnnotationVisitor av, AnnotationModelImpl annotation) {
+            super(Opcodes.ASM7, av);
+            this.annotation = annotation;
+        }
+
+        @Override
+        public void visit(String name, Object value) {
+            values.add(unwrap(value));
+        }
+
+        private Object unwrap(Object value) {
+            if (org.objectweb.asm.Type.class.isInstance(value)) {
+                return org.objectweb.asm.Type.class.cast(value).getClassName();
+            }
+            return value;
+        }
+
+        public List getValues() {
+            return values;
+        }
+    }
+
 }
