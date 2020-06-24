@@ -17,8 +17,6 @@ package org.glassfish.hk2.classmodel.reflect.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.glassfish.hk2.classmodel.reflect.MethodModel;
-import org.glassfish.hk2.classmodel.reflect.Parameter;
 import org.glassfish.hk2.classmodel.reflect.Type;
 import org.glassfish.hk2.classmodel.reflect.ParameterizedType;
 
@@ -26,34 +24,19 @@ import org.glassfish.hk2.classmodel.reflect.ParameterizedType;
  *
  * @author gaurav.gupta@payara.fish
  */
-public class ParameterImpl extends AnnotatedElementImpl implements Parameter {
-
-    private final MethodModel methodModel;
+public class ParameterizedTypeImpl implements ParameterizedType {
 
     private TypeProxy<?> type;
 
     private String typeName;
 
-    private final int index;
-
     private final List<ParameterizedType> genericTypes = new ArrayList<>();
 
-    public ParameterImpl(int index, String name, TypeProxy<?> type, MethodModel methodModel) {
-        super(name);
-        this.index = index;
+    public ParameterizedTypeImpl() {
+    }
+
+    public ParameterizedTypeImpl(TypeProxy<?> type) {
         this.type = type;
-        this.methodModel = methodModel;
-    }
-
-    public ParameterImpl(int index, String name, MethodModel methodModel) {
-        super(name);
-        this.index = index;
-        this.methodModel = methodModel;
-    }
-
-    @Override
-    public MethodModel getMethod() {
-        return methodModel;
     }
 
     @Override
@@ -86,14 +69,4 @@ public class ParameterImpl extends AnnotatedElementImpl implements Parameter {
         return genericTypes;
     }
 
-    @Override
-    protected void print(StringBuffer sb) {
-        super.print(sb);
-        sb.append(", type =").append(this.getTypeName());
-    }
-
-    @Override
-    public int getIndex() {
-        return index;
-    }
 }

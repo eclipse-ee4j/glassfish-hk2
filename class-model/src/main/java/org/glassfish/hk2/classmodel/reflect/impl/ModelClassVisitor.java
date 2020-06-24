@@ -26,6 +26,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -191,7 +192,7 @@ public class ModelClassVisitor extends ClassVisitor {
             logger.log(Level.FINER, "Inspecting fields of {0}", type.getName());
             deepVisit =true;
         }
-        annotationVisitor.getContext().annotation=am;
+        annotationVisitor.setAnnotation(am);
         return annotationVisitor;
     }
 
@@ -253,17 +254,32 @@ public class ModelClassVisitor extends ClassVisitor {
             return null;
         }
         cm = (ExtensibleType) type;
+        MethodModelImpl methodModel = new MethodModelImpl(
+                name, cm, (signature == null ? desc : signature)
+        );
 
-        MethodModelImpl methodModel = new MethodModelImpl(name, cm, (signature == null ? desc : signature));
-        methodVisitor.getContext().method = methodModel;
+        SignatureReader reader = new SignatureReader(signature == null ? desc : signature);
+        MethodSignatureVisitorImpl visitor = new MethodSignatureVisitorImpl(typeBuilder, methodModel);
+        reader.accept(visitor);
 
-        org.objectweb.asm.Type[] args = org.objectweb.asm.Type.getArgumentTypes(signature == null ? desc : signature);
-        for (int index = 0; index < args.length; index++) {
-            org.objectweb.asm.Type arg = args[index];
-            TypeProxy<?> argType = typeBuilder.getHolder(arg.getClassName());
-            Parameter parameter = new ParameterImpl(index, null, argType, methodModel);
-            methodModel.parameters.add(parameter);
+        methodModel.setParameters(visitor.getParameters());
+        methodModel.setReturnType(visitor.getReturnType());
+
+        // fallback for void, primitive data types, java.lang.Object and generic wildcards types
+        ParameterizedTypeImpl returnType = (ParameterizedTypeImpl) methodModel.getReturnType();
+        if (returnType.getTypeProxy() == null) {
+            returnType.setTypeName(org.objectweb.asm.Type.getReturnType(desc).getClassName());
         }
+
+        org.objectweb.asm.Type[] types = org.objectweb.asm.Type.getArgumentTypes(desc);
+        for (int i = 0; i < methodModel.getParameters().size(); i++) {
+            ParameterImpl parameter = (ParameterImpl) methodModel.getParameter(i);
+            if (parameter.getTypeProxy() == null) {
+                parameter.setTypeName(types[i].getClassName());
+            }
+        }
+
+        methodVisitor.getContext().method = methodModel;
         return methodVisitor;
     }
 
@@ -311,7 +327,7 @@ public class ModelClassVisitor extends ClassVisitor {
 
     private static class AnnotationVisitingContext {
         AnnotationModelImpl annotation;
-        ArrayDeque<AnnotationModelImpl> parentAnnotations = new ArrayDeque<>();
+        ArrayDeque parent = new ArrayDeque();
     }
 
     private class ModelMethodVisitor extends MethodVisitor {
@@ -336,15 +352,14 @@ public class ModelClassVisitor extends ClassVisitor {
             }
           
             AnnotationTypeImpl annotationType = (AnnotationTypeImpl) typeBuilder.getType(Opcodes.ACC_ANNOTATION, unwrap(desc), null);
-            AnnotationModelImpl am = new AnnotationModelImpl(context.method, annotationType);
+            AnnotationModelImpl annotationModel = new AnnotationModelImpl(context.method, annotationType);
 
-            // reverse index.
+            // reverse index
             annotationType.getAnnotatedElements().add(context.method);
 
             // forward index
-            context.method.addAnnotation(am);
-            annotationVisitor.getContext().annotation= am;
-
+            context.method.addAnnotation(annotationModel);
+            annotationVisitor.setAnnotation(annotationModel);
             return annotationVisitor;
         }
 
@@ -356,7 +371,7 @@ public class ModelClassVisitor extends ClassVisitor {
         ) {
 
             AnnotationTypeImpl annotationType = (AnnotationTypeImpl) typeBuilder.getType(Opcodes.ACC_ANNOTATION, unwrap(desc), null);
-            ParameterImpl parameter = (ParameterImpl) context.method.parameters.get(parameterIndex);
+            ParameterImpl parameter = (ParameterImpl) context.method.getParameter(parameterIndex);
 
             AnnotationModelImpl annotationModel = new AnnotationModelImpl(parameter, annotationType);
 
@@ -365,7 +380,7 @@ public class ModelClassVisitor extends ClassVisitor {
 
             // forward index
             parameter.addAnnotation(annotationModel);
-            annotationVisitor.getContext().annotation = annotationModel;
+            annotationVisitor.setAnnotation(annotationModel);
             return annotationVisitor;
         }
 
@@ -426,7 +441,7 @@ public class ModelClassVisitor extends ClassVisitor {
 
             // forward index
             field.addAnnotation(annotationModel);
-            annotationVisitor.getContext().annotation = annotationModel;
+            annotationVisitor.setAnnotation(annotationModel);
             return annotationVisitor;
         }
 
@@ -465,34 +480,45 @@ public class ModelClassVisitor extends ClassVisitor {
             return context;
         }
 
+        void setAnnotation(AnnotationModelImpl annotation) {
+            this.context.annotation = annotation;
+            context.parent.add(annotation);
+        }
+
         @Override
         public void visit(String name, Object value) {
-            if (context.annotation == null) {
-                return;
-            }
-            context.annotation.addValue(name, value);
+            addValue(name, value);
         }
 
         @Override
         public AnnotationVisitor visitArray(String name) {
-            if (context.annotation == null) {
-                return null;
-            }
-            ArrayVisitor arrayVisitor = new ArrayVisitor(annotationVisitor, context.annotation);
-            context.annotation.addValue(name, arrayVisitor.getValues());
+            ArrayVisitor arrayVisitor = new ArrayVisitor(annotationVisitor);
+            addValue(name, arrayVisitor.getValues());
+            context.parent.add(arrayVisitor.getValues());
             return arrayVisitor;
+        }
+
+        private void addValue(String name, Object value) {
+            if (!context.parent.isEmpty()) {
+                Object parent = context.parent.peekLast();
+                if (parent instanceof AnnotationModelImpl) {
+                    ((AnnotationModelImpl) parent).addValue(name, value);
+                } else if (parent instanceof List) {
+                    ((List) parent).add(value);
+                } else if (parent instanceof Map) {
+                    ((Map) parent).put(name, value);
+                } else {
+                    throw new IllegalStateException();
+                }
+            }
         }
 
         @Override
         public void visitEnum(String name, String desc, String value) {
-            if (context.annotation == null) {
-                return;
-            }
-
             final Type type = (Type) typeBuilder.getType(Opcodes.ACC_ENUM, unwrap(desc), null);
             final EnumModel enumModel = new EnumModelImpl(type, value);
 
-            context.annotation.addValue(name, enumModel);
+            addValue(name, enumModel);
         }
 
         @Override
@@ -502,28 +528,25 @@ public class ModelClassVisitor extends ClassVisitor {
             final AnnotationTypeImpl at = (AnnotationTypeImpl) typeBuilder.getType(Opcodes.ACC_ANNOTATION, desc, null);
             final AnnotationModelImpl am = new AnnotationModelImpl(null, at);
 
-            context.annotation.addValue(name, am);
-            context.parentAnnotations.add(context.annotation);
-            context.annotation = am;
+            addValue(name, am);
+            context.parent.add(am);
             return annotationVisitor;
         }
 
         @Override
         public void visitEnd() {
-            if (!context.parentAnnotations.isEmpty()) {
-                context.annotation = context.parentAnnotations.pollLast();
+            if (!context.parent.isEmpty()) {
+                context.parent.pollLast();
             }
         }
     }
 
     private class ArrayVisitor extends AnnotationVisitor {
 
-        AnnotationModelImpl annotation;
         protected List values = new ArrayList();
 
-        public ArrayVisitor(AnnotationVisitor av, AnnotationModelImpl annotation) {
+        public ArrayVisitor(AnnotationVisitor av) {
             super(Opcodes.ASM7, av);
-            this.annotation = annotation;
         }
 
         @Override

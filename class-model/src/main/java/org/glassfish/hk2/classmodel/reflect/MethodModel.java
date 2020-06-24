@@ -39,7 +39,7 @@ public interface MethodModel extends Member, AnnotatedElement {
      * Returns the method return type
      * @return the method's return type
      */
-    String getReturnType();
+    ParameterizedType getReturnType();
 
     /**
      * Returns the parameter types as string
@@ -53,4 +53,12 @@ public interface MethodModel extends Member, AnnotatedElement {
      * @return the list of parameter
      */
     List<Parameter> getParameters();
+
+    /**
+     * Return the parameter by index
+     *
+     * @param index
+     * @return the parameter by index
+     */
+    Parameter getParameter(int index);
 }

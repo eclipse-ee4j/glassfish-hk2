@@ -21,7 +21,7 @@
  *
  * @author Jerome Dochez
  */
-public interface Parameter extends AnnotatedElement {
+public interface Parameter extends AnnotatedElement, ParameterizedType {
 
     /**
      * Parameters of a method are ordered based on the method

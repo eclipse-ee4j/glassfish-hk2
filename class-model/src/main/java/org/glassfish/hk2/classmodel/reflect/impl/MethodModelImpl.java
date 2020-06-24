@@ -18,7 +18,6 @@ package org.glassfish.hk2.classmodel.reflect.impl;
 
 import org.glassfish.hk2.classmodel.reflect.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,9 +25,10 @@ import java.util.List;
  */
 public class MethodModelImpl extends AnnotatedElementImpl implements MethodModel {
 
-    final List<Parameter> parameters = new ArrayList<Parameter>();
+    private List<Parameter> parameters;
+    private ParameterizedType returnType;
     final ExtensibleType<?> owner;
-    final String signature;
+    private final String signature;
 
     public MethodModelImpl(String name, ExtensibleType owner, String signature) {
         super(name);
@@ -52,16 +52,24 @@ public class MethodModelImpl extends AnnotatedElementImpl implements MethodModel
     }
 
     @Override
-    public String getReturnType() {
-        return org.objectweb.asm.Type.getReturnType(signature).getClassName();
+    public ParameterizedType getReturnType() {
+        return returnType;
+    }
+
+    public void setReturnType(ParameterizedType returnType) {
+        this.returnType = returnType;
     }
 
     @Override
     public String[] getArgumentTypes() {
-        org.objectweb.asm.Type[] types = org.objectweb.asm.Type.getArgumentTypes(signature);
-        String[] stringTypes = new String[types.length];
-        for (int i=0;i<types.length;i++) {
-            stringTypes[i] = types[i].getClassName();
+        String[] stringTypes;
+        if (parameters != null) {
+            stringTypes = new String[parameters.size()];
+            for (int i = 0; i < parameters.size(); i++) {
+                stringTypes[i] = parameters.get(i).getTypeName();
+            }
+        } else {
+            stringTypes = new String[0];
         }
         return stringTypes;
     }
@@ -70,4 +78,17 @@ public class MethodModelImpl extends AnnotatedElementImpl implements MethodModel
     public List<Parameter> getParameters() {
         return parameters;
     }
+
+    @Override
+    public Parameter getParameter(int index) {
+        if (parameters != null) {
+            return parameters.get(index);
+        }
+        return null;
+    }
+
+    public void setParameters(List<Parameter> parameters) {
+        this.parameters = parameters;
+    }
+
 }
