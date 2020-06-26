@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2020 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -18,7 +18,6 @@ package org.glassfish.hk2.classmodel.reflect.impl;
 
 import org.glassfish.hk2.classmodel.reflect.*;
 
-import java.net.URI;
 import java.util.*;
 
 /**
@@ -26,12 +25,13 @@ import java.util.*;
  */
 public class ClassModelImpl extends ExtensibleTypeImpl<ClassModel> implements ClassModel {
 
-    final List<FieldModel> fields = new ArrayList<FieldModel > ();
+    final List<FieldModel> fields = new ArrayList<>();
 
     public ClassModelImpl(String name, TypeProxy<Type> sink, TypeProxy parent) {
         super(name, sink, parent);
     }
     
+    @Override
     synchronized void addField(FieldModel field) {
         fields.add(field);
     }
@@ -49,5 +49,10 @@ public class ClassModelImpl extends ExtensibleTypeImpl<ClassModel> implements Cl
             sb.append(" ").append(fm.toString());
         }
         sb.append("]");
+    }
+
+    @Override
+    public String getSimpleName() {
+        return getName().substring(getName().lastIndexOf('.') + 1);
     }
 }
