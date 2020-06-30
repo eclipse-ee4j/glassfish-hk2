@@ -13,13 +13,22 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
-
 package org.glassfish.hk2.classmodel.reflect;
+
+import java.util.Collection;
 
 /**
  *
  * @author gaurav.gupta@payara.fish
  */
-public interface EnumType extends ExtensibleType<EnumType>  {
+public interface EnumType extends ExtensibleType<EnumType> {
+
+    /**
+     * Returns an unmodifiable collection of fields models that represent all
+     * the declared fields of this enum.
+     *
+     * @return collection of declared fields
+     */
+    public Collection<FieldModel> getFields();
 
 }

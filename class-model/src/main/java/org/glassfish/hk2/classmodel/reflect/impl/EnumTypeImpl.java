@@ -15,6 +15,10 @@
  */
 package org.glassfish.hk2.classmodel.reflect.impl;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import org.glassfish.hk2.classmodel.reflect.*;
 
 /**
@@ -23,8 +27,20 @@ import org.glassfish.hk2.classmodel.reflect.*;
  */
 public class EnumTypeImpl extends ExtensibleTypeImpl<EnumType> implements EnumType {
 
+    final List<FieldModel> fields = new ArrayList<>();
+
     public EnumTypeImpl(String name, TypeProxy<Type> sink, TypeProxy parent) {
         super(name, sink, parent);
+    }
+
+    @Override
+    synchronized void addField(FieldModel field) {
+        fields.add(field);
+    }
+
+    @Override
+    public Collection<FieldModel> getFields() {
+        return Collections.unmodifiableCollection(fields);
     }
 
 }
