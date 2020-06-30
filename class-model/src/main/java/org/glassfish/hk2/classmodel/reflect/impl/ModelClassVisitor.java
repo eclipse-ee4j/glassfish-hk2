@@ -226,9 +226,13 @@ public class ModelClassVisitor extends ClassVisitor {
 
         org.objectweb.asm.Type asmType = org.objectweb.asm.Type.getType(desc);
 
-        TypeProxy<?> fieldType =  typeBuilder.getHolder(asmType.getClassName());
-        if (fieldType==null) return null;
+        TypeProxy<?> fieldType = typeBuilder.getHolder(asmType.getClassName());
+        if (fieldType == null) {
+            return null;
+        }
+
         final FieldModelImpl field = typeBuilder.getFieldModel(name, fieldType, cm);
+        field.setAccess(access);
         fieldVisitor.getContext().field = field;
         fieldVisitor.getContext().typeDesc = desc;
         fieldVisitor.getContext().access = access;

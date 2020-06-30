@@ -21,6 +21,7 @@ import java.util.List;
 import org.glassfish.hk2.classmodel.reflect.ExtensibleType;
 import org.glassfish.hk2.classmodel.reflect.FieldModel;
 import org.glassfish.hk2.classmodel.reflect.ParameterizedType;
+import org.objectweb.asm.Opcodes;
 
 /**
  * Implementation of a field model
@@ -31,12 +32,18 @@ public class FieldModelImpl extends AnnotatedElementImpl implements FieldModel {
 
     final TypeProxy type;
 
+    private int access;
+
     private final List<ParameterizedType> genericTypes = new ArrayList<>();
 
     public FieldModelImpl(String name, TypeProxy type, ExtensibleType declaringType) {
         super(name);
         this.type = type;
         this.declaringType = declaringType;
+    }
+
+    public void setAccess(int access) {
+        this.access = access;
     }
 
     @Override
@@ -73,5 +80,10 @@ public class FieldModelImpl extends AnnotatedElementImpl implements FieldModel {
     @Override
     public List<ParameterizedType> getGenericTypes() {
         return genericTypes;
+    }
+
+    @Override
+    public boolean isTransient() {
+        return (Opcodes.ACC_TRANSIENT & access) == Opcodes.ACC_TRANSIENT;
     }
 }

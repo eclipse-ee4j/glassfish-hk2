@@ -50,4 +50,10 @@ public interface FieldModel extends Member, AnnotatedElement, ParameterizedType 
      * @return the field declaring class name.
      */
     String getDeclaringTypeName();
+
+    /**
+     *
+     * @return true, if field is marked transient.
+     */
+    boolean isTransient();
 }
