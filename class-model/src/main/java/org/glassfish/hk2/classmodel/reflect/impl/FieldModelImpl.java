@@ -16,16 +16,22 @@
 
 package org.glassfish.hk2.classmodel.reflect.impl;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.glassfish.hk2.classmodel.reflect.ExtensibleType;
 import org.glassfish.hk2.classmodel.reflect.FieldModel;
+import org.glassfish.hk2.classmodel.reflect.ParameterizedType;
 
 /**
  * Implementation of a field model
  */
 public class FieldModelImpl extends AnnotatedElementImpl implements FieldModel {
 
-    final TypeProxy type;
     private final ExtensibleType declaringType;
+
+    final TypeProxy type;
+
+    private final List<ParameterizedType> genericTypes = new ArrayList<>();
 
     public FieldModelImpl(String name, TypeProxy type, ExtensibleType declaringType) {
         super(name);
@@ -62,5 +68,10 @@ public class FieldModelImpl extends AnnotatedElementImpl implements FieldModel {
     protected void print(StringBuffer sb) {
         super.print(sb);
         sb.append(", type =").append(type.getName());
+    }
+
+    @Override
+    public List<ParameterizedType> getGenericTypes() {
+        return genericTypes;
     }
 }

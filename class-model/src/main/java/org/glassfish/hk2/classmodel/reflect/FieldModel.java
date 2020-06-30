@@ -21,7 +21,7 @@ package org.glassfish.hk2.classmodel.reflect;
  *
  * @author Jerome Dochez
  */
-public interface FieldModel extends Member, AnnotatedElement {
+public interface FieldModel extends Member, AnnotatedElement, ParameterizedType {
 
     /**
      * Returns the declared type of the field

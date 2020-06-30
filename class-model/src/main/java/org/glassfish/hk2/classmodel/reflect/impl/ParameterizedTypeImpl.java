@@ -41,7 +41,10 @@ public class ParameterizedTypeImpl implements ParameterizedType {
 
     @Override
     public Type getType() {
-        return type.get();
+        if (type != null) {
+            return type.get();
+        }
+        return null;
     }
 
     @Override
