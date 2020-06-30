@@ -51,8 +51,4 @@ public class ClassModelImpl extends ExtensibleTypeImpl<ClassModel> implements Cl
         sb.append("]");
     }
 
-    @Override
-    public String getSimpleName() {
-        return getName().substring(getName().lastIndexOf('.') + 1);
-    }
 }

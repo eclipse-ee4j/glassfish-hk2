@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2020 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -72,4 +72,11 @@ public interface ExtensibleType<T extends ExtensibleType> extends Type {
      * @reutrn collection of defined static fields
      */
     Collection<FieldModel> getStaticFields();
+
+    /**
+     * Returns the unqualified name of the underlying type.
+     *
+     * @return the simple name of class
+     */
+    String getSimpleName();
 }

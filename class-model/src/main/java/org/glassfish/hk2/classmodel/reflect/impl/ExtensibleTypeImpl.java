@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2020 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -38,14 +38,23 @@ public abstract class ExtensibleTypeImpl<T extends ExtensibleType> extends TypeI
         this.parent =  parent;
     }
 
+    @Override
     public T getParent() {
-        if (parent!=null) {
+        if (parent != null) {
             return (T) parent.get();
         } else {
             return null;
         }
     }
-    
+
+    @Override
+    public String getSimpleName() {
+        String simpleName = getName();
+        simpleName = simpleName.substring(simpleName.lastIndexOf('.') + 1);
+        simpleName = simpleName.substring(simpleName.lastIndexOf('$') + 1);
+        return simpleName;
+    }
+
     public synchronized TypeProxy<?> setParent(final TypeProxy<?> parent) {
         if (null == this.parent) { 
           this.parent = parent;
