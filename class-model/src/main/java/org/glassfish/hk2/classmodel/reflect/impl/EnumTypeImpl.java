@@ -13,39 +13,18 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
-
 package org.glassfish.hk2.classmodel.reflect.impl;
 
-import org.glassfish.hk2.classmodel.reflect.EnumModel;
-import org.glassfish.hk2.classmodel.reflect.Type;
+import org.glassfish.hk2.classmodel.reflect.*;
 
 /**
  *
  * @author gaurav.gupta@payara.fish
  */
-public class EnumModelImpl implements EnumModel {
-    
-    private final Type type;
-    
-    private final String value;
+public class EnumTypeImpl extends ExtensibleTypeImpl<EnumType> implements EnumType {
 
-    public EnumModelImpl(Type type, String value) {
-        this.type = type;
-        this.value = value;
+    public EnumTypeImpl(String name, TypeProxy<Type> sink, TypeProxy parent) {
+        super(name, sink, parent);
     }
 
-    @Override
-    public Type getType() {
-        return type;
-    }
-
-    @Override
-    public String getValue() {
-        return value;
-    }
-
-    @Override
-    public String toString() {
-        return value;
-    }
 }

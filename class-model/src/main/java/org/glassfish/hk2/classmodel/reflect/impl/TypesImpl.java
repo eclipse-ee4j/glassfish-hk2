@@ -58,13 +58,14 @@ public class TypesImpl implements TypeBuilder {
             final Type type = typeProxy.get();
             TypeImpl result;
             if (null == type) {
-                if ((access & Opcodes.ACC_ANNOTATION)==Opcodes.ACC_ANNOTATION) {
-                   result = new AnnotationTypeImpl(name, typeProxy);
-                } else
-                if ((access & Opcodes.ACC_INTERFACE)==Opcodes.ACC_INTERFACE) {
+                if ((access & Opcodes.ACC_ANNOTATION) == Opcodes.ACC_ANNOTATION) {
+                    result = new AnnotationTypeImpl(name, typeProxy);
+                } else if ((access & Opcodes.ACC_INTERFACE) == Opcodes.ACC_INTERFACE) {
                     result = new InterfaceModelImpl(name, typeProxy, parent);
+                } else if ((access & Opcodes.ACC_ENUM) == Opcodes.ACC_ENUM) {
+                    result = new EnumTypeImpl(name, typeProxy, parent);
                 } else {
-                    result =  new ClassModelImpl(name, typeProxy, parent);
+                    result = new ClassModelImpl(name, typeProxy, parent);
                 }
                 typeProxy.set(result);
                 return result;

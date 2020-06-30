@@ -20,7 +20,7 @@ package org.glassfish.hk2.classmodel.reflect;
  *
  * @author gaurav.gupta@payara.fish
  */
-public interface EnumModel {
+public interface EnumModel  {
 
     Type getType();
 

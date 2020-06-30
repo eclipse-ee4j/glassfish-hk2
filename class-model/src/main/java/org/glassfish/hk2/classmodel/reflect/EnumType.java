@@ -20,10 +20,6 @@ package org.glassfish.hk2.classmodel.reflect;
  *
  * @author gaurav.gupta@payara.fish
  */
-public interface EnumModel {
-
-    Type getType();
-
-    String getValue();
+public interface EnumType extends ExtensibleType<EnumType>  {
 
 }

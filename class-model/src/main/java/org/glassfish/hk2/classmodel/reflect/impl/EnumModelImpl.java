@@ -16,17 +16,16 @@
 
 package org.glassfish.hk2.classmodel.reflect.impl;
 
-import org.glassfish.hk2.classmodel.reflect.EnumModel;
-import org.glassfish.hk2.classmodel.reflect.Type;
+import org.glassfish.hk2.classmodel.reflect.*;
 
 /**
  *
  * @author gaurav.gupta@payara.fish
  */
 public class EnumModelImpl implements EnumModel {
-    
+
     private final Type type;
-    
+
     private final String value;
 
     public EnumModelImpl(Type type, String value) {
