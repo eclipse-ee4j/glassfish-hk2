@@ -48,6 +48,21 @@ public abstract class ExtensibleTypeImpl<T extends ExtensibleType> extends TypeI
     }
 
     @Override
+    public boolean isInstanceOf(String name) {
+        if (name == null) {
+            throw new IllegalArgumentException(name);
+        }
+        if (this.getParent() != null) {
+            if (name.equals(this.getParent().getName())) {
+                return true;
+            } else {
+                return ((T) this.getParent()).isInstanceOf(name);
+            }
+        }
+        return false;
+    }
+
+    @Override
     public String getSimpleName() {
         String simpleName = getName();
         simpleName = simpleName.substring(simpleName.lastIndexOf('.') + 1);

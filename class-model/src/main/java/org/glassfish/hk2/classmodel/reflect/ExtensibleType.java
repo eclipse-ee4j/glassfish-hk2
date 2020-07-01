@@ -41,6 +41,16 @@ public interface ExtensibleType<T extends ExtensibleType> extends Type {
     T getParent();
 
     /**
+     *
+     * Whether the type is an instance of the specified parent type or not.
+     *
+     * @param className
+     *
+     * @return true if the type is an instance of the given parent type.
+     */
+    boolean isInstanceOf(String className);
+
+    /**
      * Returns the child subtypes of this type. A child subtype is a
      * type which parent is this type.
      *
