@@ -19,14 +19,16 @@ import java.util.List;
 
 /**
  * Denote a Generic type that is parameterized over types
- * 
+ *
  * @author gaurav.gupta@payara.fish
  */
 public interface ParameterizedType {
 
     Type getType();
-    
+
     String getTypeName();
 
     List<ParameterizedType> getGenericTypes();
+
+    boolean isArray();
 }

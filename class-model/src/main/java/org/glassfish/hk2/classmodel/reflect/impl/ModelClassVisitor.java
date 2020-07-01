@@ -232,6 +232,7 @@ public class ModelClassVisitor extends ClassVisitor {
         }
 
         final FieldModelImpl field = typeBuilder.getFieldModel(name, fieldType, cm);
+        org.objectweb.asm.Type type = org.objectweb.asm.Type.getType(desc);
         field.setAccess(access);
         fieldVisitor.getContext().field = field;
         fieldVisitor.getContext().typeDesc = desc;
@@ -271,16 +272,13 @@ public class ModelClassVisitor extends ClassVisitor {
 
         // fallback for void, primitive data types, java.lang.Object and generic wildcards types
         ParameterizedTypeImpl returnType = (ParameterizedTypeImpl) methodModel.getReturnType();
-        if (returnType.getTypeProxy() == null) {
-            returnType.setTypeName(org.objectweb.asm.Type.getReturnType(desc).getClassName());
-        }
+        org.objectweb.asm.Type type = org.objectweb.asm.Type.getReturnType(desc);
+        returnType.setType(type);
 
         org.objectweb.asm.Type[] types = org.objectweb.asm.Type.getArgumentTypes(desc);
         for (int i = 0; i < methodModel.getParameters().size(); i++) {
             ParameterImpl parameter = (ParameterImpl) methodModel.getParameter(i);
-            if (parameter.getTypeProxy() == null) {
-                parameter.setTypeName(types[i].getClassName());
-            }
+            parameter.setType(types[i]);
         }
 
         methodVisitor.getContext().method = methodModel;
@@ -456,7 +454,7 @@ public class ModelClassVisitor extends ClassVisitor {
             if (context.modelUnAnnotatedMembers || !context.field.getAnnotations().isEmpty()) {
 
                 // reverse index.
-                context.field.type.addFieldRef(context.field);
+                context.field.getTypeProxy().addFieldRef(context.field);
 
                 // forward index
                 if ((Opcodes.ACC_STATIC & context.access) == Opcodes.ACC_STATIC) {

@@ -13,7 +13,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
-
 package org.glassfish.hk2.classmodel.reflect.impl;
 
 import java.util.ArrayList;
@@ -30,20 +29,18 @@ public class FieldModelImpl extends AnnotatedElementImpl implements FieldModel {
 
     private final ExtensibleType declaringType;
 
-    final TypeProxy type;
+    private final TypeProxy typeProxy;
 
     private int access;
 
     private final List<ParameterizedType> genericTypes = new ArrayList<>();
 
-    public FieldModelImpl(String name, TypeProxy type, ExtensibleType declaringType) {
-        super(name);
-        this.type = type;
-        this.declaringType = declaringType;
-    }
+    private org.objectweb.asm.Type type;
 
-    public void setAccess(int access) {
-        this.access = access;
+    public FieldModelImpl(String name, TypeProxy typeProxy, ExtensibleType declaringType) {
+        super(name);
+        this.typeProxy = typeProxy;
+        this.declaringType = declaringType;
     }
 
     @Override
@@ -58,23 +55,35 @@ public class FieldModelImpl extends AnnotatedElementImpl implements FieldModel {
 
     @Override
     public String getDeclaringTypeName() {
-        return type.getName();
+        return typeProxy.getName();
     }
 
     @Override
     public ExtensibleType getType() {
-        return (ExtensibleType) type.get();
+        return (ExtensibleType) typeProxy.get();
     }
 
     @Override
     public String getTypeName() {
-        return type.getName();
+        return typeProxy.getName();
+    }
+
+    public TypeProxy<?> getTypeProxy() {
+        return typeProxy;
+    }
+
+    public void setAccess(int access) {
+        this.access = access;
+    }
+
+    public void setType(org.objectweb.asm.Type type) {
+        this.type = type;
     }
 
     @Override
     protected void print(StringBuffer sb) {
         super.print(sb);
-        sb.append(", type =").append(type.getName());
+        sb.append(", type =").append(typeProxy.getName());
     }
 
     @Override
@@ -85,5 +94,11 @@ public class FieldModelImpl extends AnnotatedElementImpl implements FieldModel {
     @Override
     public boolean isTransient() {
         return (Opcodes.ACC_TRANSIENT & access) == Opcodes.ACC_TRANSIENT;
+    }
+
+    @Override
+    public boolean isArray() {
+        return type != null
+                && type.getSort() == org.objectweb.asm.Type.ARRAY;
     }
 }

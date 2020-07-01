@@ -17,8 +17,8 @@ package org.glassfish.hk2.classmodel.reflect.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.glassfish.hk2.classmodel.reflect.Type;
 import org.glassfish.hk2.classmodel.reflect.ParameterizedType;
+import org.glassfish.hk2.classmodel.reflect.Type;
 
 /**
  *
@@ -26,50 +26,57 @@ import org.glassfish.hk2.classmodel.reflect.ParameterizedType;
  */
 public class ParameterizedTypeImpl implements ParameterizedType {
 
-    private TypeProxy<?> type;
-
-    private String typeName;
+    private TypeProxy<?> typeProxy;
 
     private final List<ParameterizedType> genericTypes = new ArrayList<>();
+
+    private org.objectweb.asm.Type type;
 
     public ParameterizedTypeImpl() {
     }
 
     public ParameterizedTypeImpl(TypeProxy<?> type) {
-        this.type = type;
+        this.typeProxy = type;
     }
 
     @Override
     public Type getType() {
-        if (type != null) {
-            return type.get();
+        if (typeProxy != null) {
+            return typeProxy.get();
         }
         return null;
     }
 
     @Override
     public String getTypeName() {
-        if (type == null) {
-            return typeName;
+        if (typeProxy != null) {
+            return typeProxy.getName();
+        } else {
+            return type.getClassName();
         }
-        return type.getName();
-    }
-
-    public void setTypeName(String typeName) {
-        this.typeName = typeName;
     }
 
     public TypeProxy<?> getTypeProxy() {
-        return type;
+        return typeProxy;
     }
 
-    public void setTypeProxy(TypeProxy<?> type) {
+    public void setTypeProxy(TypeProxy<?> typeProxy) {
+        this.typeProxy = typeProxy;
+    }
+
+    public void setType(org.objectweb.asm.Type type) {
         this.type = type;
     }
 
     @Override
     public List<ParameterizedType> getGenericTypes() {
         return genericTypes;
+    }
+
+    @Override
+    public boolean isArray() {
+        return type != null
+                && type.getSort() == org.objectweb.asm.Type.ARRAY;
     }
 
 }

@@ -30,18 +30,18 @@ public class ParameterImpl extends AnnotatedElementImpl implements Parameter {
 
     private final MethodModel methodModel;
 
-    private TypeProxy<?> type;
+    private TypeProxy<?> typeProxy;
 
-    private String typeName;
+    private org.objectweb.asm.Type type;
 
     private final int index;
 
     private final List<ParameterizedType> genericTypes = new ArrayList<>();
 
-    public ParameterImpl(int index, String name, TypeProxy<?> type, MethodModel methodModel) {
+    public ParameterImpl(int index, String name, TypeProxy<?> typeProxy, MethodModel methodModel) {
         super(name);
         this.index = index;
-        this.type = type;
+        this.typeProxy = typeProxy;
         this.methodModel = methodModel;
     }
 
@@ -58,26 +58,27 @@ public class ParameterImpl extends AnnotatedElementImpl implements Parameter {
 
     @Override
     public Type getType() {
-        return type.get();
+        return typeProxy.get();
     }
 
     @Override
     public String getTypeName() {
-        if (type == null) {
-            return typeName;
+        if (typeProxy != null) {
+            return typeProxy.getName();
+        } else {
+            return type.getClassName();
         }
-        return type.getName();
-    }
-
-    public void setTypeName(String typeName) {
-        this.typeName = typeName;
     }
 
     public TypeProxy<?> getTypeProxy() {
-        return type;
+        return typeProxy;
     }
 
-    public void setTypeProxy(TypeProxy<?> type) {
+    public void setTypeProxy(TypeProxy<?> typeProxy) {
+        this.typeProxy = typeProxy;
+    }
+
+    public void setType(org.objectweb.asm.Type type) {
         this.type = type;
     }
 
@@ -95,5 +96,11 @@ public class ParameterImpl extends AnnotatedElementImpl implements Parameter {
     @Override
     public int getIndex() {
         return index;
+    }
+
+    @Override
+    public boolean isArray() {
+        return type != null
+                && type.getSort() == org.objectweb.asm.Type.ARRAY;
     }
 }
