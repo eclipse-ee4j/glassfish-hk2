@@ -50,6 +50,11 @@ public class AnnotationTypeImpl extends InterfaceModelImpl implements Annotation
       return Collections.unmodifiableMap(defValues);
     }
     
+    @Override
+    public Object getDefaultValue(String key) {
+        return defValues.get(key);
+    }
+
     Set<AnnotatedElement> getAnnotatedElements() {
         return references;
     }
