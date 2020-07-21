@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2020 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -41,6 +41,16 @@ public interface ExtensibleType<T extends ExtensibleType> extends Type {
     T getParent();
 
     /**
+     *
+     * Whether the type is an instance of the specified parent type or not.
+     *
+     * @param className
+     *
+     * @return true if the type is an instance of the given parent type.
+     */
+    boolean isInstanceOf(String className);
+
+    /**
      * Returns the child subtypes of this type. A child subtype is a
      * type which parent is this type.
      *
@@ -72,4 +82,11 @@ public interface ExtensibleType<T extends ExtensibleType> extends Type {
      * @reutrn collection of defined static fields
      */
     Collection<FieldModel> getStaticFields();
+
+    /**
+     * Returns the unqualified name of the underlying type.
+     *
+     * @return the simple name of class
+     */
+    String getSimpleName();
 }

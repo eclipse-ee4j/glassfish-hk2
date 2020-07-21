@@ -38,18 +38,20 @@ public class TypesImpl implements TypeBuilder {
         this.types = types;
     }
 
+    @Override
     public Class<? extends Type> getType(int access) {
-        if ((access & Opcodes.ACC_ANNOTATION)==Opcodes.ACC_ANNOTATION) {
-           return AnnotationType.class;
-        } else
-        if ((access & Opcodes.ACC_INTERFACE)==Opcodes.ACC_INTERFACE) {
+        if ((access & Opcodes.ACC_ANNOTATION) == Opcodes.ACC_ANNOTATION) {
+            return AnnotationType.class;
+        } else if ((access & Opcodes.ACC_INTERFACE) == Opcodes.ACC_INTERFACE) {
             return InterfaceModel.class;
+        } else if ((access & Opcodes.ACC_ENUM) == Opcodes.ACC_ENUM) {
+            return EnumType.class;
         } else {
             return ClassModel.class;
         }
-
     }
 
+    @Override
     public TypeImpl getType(int access, String name, TypeProxy parent) {
         Class<? extends Type> requestedType = getType(access);
 
@@ -58,13 +60,14 @@ public class TypesImpl implements TypeBuilder {
             final Type type = typeProxy.get();
             TypeImpl result;
             if (null == type) {
-                if ((access & Opcodes.ACC_ANNOTATION)==Opcodes.ACC_ANNOTATION) {
-                   result = new AnnotationTypeImpl(name, typeProxy);
-                } else
-                if ((access & Opcodes.ACC_INTERFACE)==Opcodes.ACC_INTERFACE) {
+                if ((access & Opcodes.ACC_ANNOTATION) == Opcodes.ACC_ANNOTATION) {
+                    result = new AnnotationTypeImpl(name, typeProxy);
+                } else if ((access & Opcodes.ACC_INTERFACE) == Opcodes.ACC_INTERFACE) {
                     result = new InterfaceModelImpl(name, typeProxy, parent);
+                } else if ((access & Opcodes.ACC_ENUM) == Opcodes.ACC_ENUM) {
+                    result = new EnumTypeImpl(name, typeProxy, parent);
                 } else {
-                    result =  new ClassModelImpl(name, typeProxy, parent);
+                    result = new ClassModelImpl(name, typeProxy, parent);
                 }
                 typeProxy.set(result);
                 return result;
@@ -79,6 +82,7 @@ public class TypesImpl implements TypeBuilder {
         }
     }
 
+    @Override
     public FieldModelImpl getFieldModel(String name, TypeProxy type, ExtensibleType declaringType) {
         return new FieldModelImpl(name, type, declaringType);
     }

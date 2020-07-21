@@ -37,12 +37,32 @@ public interface AnnotationModel {
      */
     AnnotatedElement getElement();
 
-
     /**
      * Returns an unmodifiable collection of annotation values.
      *
      * @return collection of value elements of this annotation
      */
     Map<String, Object> getValues();
+
+    /**
+     * Returns the value to which the key is mapped or specified default value if
+     * mapping not found
+     *
+     * @param key the key whose associated value is to be returned
+     * @param type value type
+     * @param defaultValue the default mapping of the key
+     * @return the annotation value.
+     */
+    <T> T getValue(String key, Class<T> type, Object defaultValue);
+
+    /**
+     * Returns the value to which the key is mapped or annotation default value if
+     * mapping not found
+     *
+     * @param key the key whose associated value is to be returned
+     * @param type value type
+     * @return the annotation value.
+     */
+    <T> T getValue(String key, Class<T> type);
 
 }

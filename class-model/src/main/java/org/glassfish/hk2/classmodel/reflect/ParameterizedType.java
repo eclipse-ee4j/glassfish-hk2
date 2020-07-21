@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2020 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -15,21 +15,20 @@
  */
 package org.glassfish.hk2.classmodel.reflect;
 
-import java.util.Collection;
+import java.util.List;
 
 /**
- * Model that represents a class
+ * Denote a Generic type that is parameterized over types
  *
- * @author Jerome Dochez
+ * @author gaurav.gupta@payara.fish
  */
-public interface ClassModel extends ExtensibleType<ClassModel> {
+public interface ParameterizedType {
 
-    /**
-     * Returns an unmodifiable collection of fields models that represent all
-     * the declared fields of this classes.
-     *
-     * @return collection of declared fields
-     */
-    public Collection<FieldModel> getFields();
+    Type getType();
 
+    String getTypeName();
+
+    List<ParameterizedType> getGenericTypes();
+
+    boolean isArray();
 }

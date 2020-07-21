@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2020 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -13,24 +13,26 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
-
 package org.glassfish.hk2.classmodel.reflect.impl;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import org.glassfish.hk2.classmodel.reflect.*;
 
-import java.util.*;
-
 /**
- * Implementation of a class model
+ *
+ * @author gaurav.gupta@payara.fish
  */
-public class ClassModelImpl extends ExtensibleTypeImpl<ClassModel> implements ClassModel {
+public class EnumTypeImpl extends ExtensibleTypeImpl<EnumType> implements EnumType {
 
     final List<FieldModel> fields = new ArrayList<>();
 
-    public ClassModelImpl(String name, TypeProxy<Type> sink, TypeProxy parent) {
+    public EnumTypeImpl(String name, TypeProxy<Type> sink, TypeProxy parent) {
         super(name, sink, parent);
     }
-    
+
     @Override
     synchronized void addField(FieldModel field) {
         fields.add(field);
@@ -39,16 +41,6 @@ public class ClassModelImpl extends ExtensibleTypeImpl<ClassModel> implements Cl
     @Override
     public Collection<FieldModel> getFields() {
         return Collections.unmodifiableCollection(fields);
-    }
-
-    @Override
-    protected void print(StringBuffer sb) {
-        super.print(sb);
-        sb.append(", fields=[");
-        for (FieldModel fm : fields) {
-            sb.append(" ").append(fm.toString());
-        }
-        sb.append("]");
     }
 
 }

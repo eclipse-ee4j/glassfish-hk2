@@ -79,6 +79,16 @@ public class AnnotationModelImpl implements AnnotationModel {
     }
 
     @Override
+    public <T> T getValue(String key, Class<T> type, Object defaultValue) {
+        return (T) values.getOrDefault(key, defaultValue);
+    }
+
+    @Override
+    public <T> T getValue(String key, Class<T> type) {
+        return (T) values.getOrDefault(key, getType().getDefaultValue(key));
+    }
+
+    @Override
     public AnnotationType getType() {
         return type;
     }

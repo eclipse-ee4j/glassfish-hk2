@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2020 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -13,23 +13,17 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
-package org.glassfish.hk2.classmodel.reflect;
 
-import java.util.Collection;
+package org.glassfish.hk2.classmodel.reflect.test.method;
+
+import java.lang.annotation.Repeatable;
 
 /**
- * Model that represents a class
  *
- * @author Jerome Dochez
+ * @author gaurav.gupta@payara.fish
  */
-public interface ClassModel extends ExtensibleType<ClassModel> {
-
-    /**
-     * Returns an unmodifiable collection of fields models that represent all
-     * the declared fields of this classes.
-     *
-     * @return collection of declared fields
-     */
-    public Collection<FieldModel> getFields();
-
+@Repeatable(GradientColors.class)
+public @interface GradientColor {
+    
+    Color[] value();
 }

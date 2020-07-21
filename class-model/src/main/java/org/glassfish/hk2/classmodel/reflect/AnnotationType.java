@@ -41,4 +41,12 @@ public interface AnnotationType extends InterfaceModel {
      */
     Map<String, Object> getDefaultValues();
 
+    /**
+     * Returns the value to which the key is mapped
+     *
+     * @param key the key whose associated value is to be returned
+     * @return the default value.
+     */
+    Object getDefaultValue(String key);
+
 }

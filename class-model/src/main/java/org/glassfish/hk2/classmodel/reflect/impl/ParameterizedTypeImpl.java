@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2020 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -17,73 +17,55 @@ package org.glassfish.hk2.classmodel.reflect.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.glassfish.hk2.classmodel.reflect.ExtensibleType;
-import org.glassfish.hk2.classmodel.reflect.FieldModel;
 import org.glassfish.hk2.classmodel.reflect.ParameterizedType;
-import org.objectweb.asm.Opcodes;
+import org.glassfish.hk2.classmodel.reflect.Type;
 
 /**
- * Implementation of a field model
+ *
+ * @author gaurav.gupta@payara.fish
  */
-public class FieldModelImpl extends AnnotatedElementImpl implements FieldModel {
+public class ParameterizedTypeImpl implements ParameterizedType {
 
-    private final ExtensibleType declaringType;
-
-    private final TypeProxy typeProxy;
-
-    private int access;
+    private TypeProxy<?> typeProxy;
 
     private final List<ParameterizedType> genericTypes = new ArrayList<>();
 
     private org.objectweb.asm.Type type;
 
-    public FieldModelImpl(String name, TypeProxy typeProxy, ExtensibleType declaringType) {
-        super(name);
-        this.typeProxy = typeProxy;
-        this.declaringType = declaringType;
+    public ParameterizedTypeImpl() {
+    }
+
+    public ParameterizedTypeImpl(TypeProxy<?> type) {
+        this.typeProxy = type;
     }
 
     @Override
-    public Type getMemberType() {
-        return Type.FIELD;
-    }
-
-    @Override
-    public ExtensibleType getDeclaringType() {
-        return declaringType;
-    }
-
-    @Override
-    public String getDeclaringTypeName() {
-        return typeProxy.getName();
-    }
-
-    @Override
-    public ExtensibleType getType() {
-        return (ExtensibleType) typeProxy.get();
+    public Type getType() {
+        if (typeProxy != null) {
+            return typeProxy.get();
+        }
+        return null;
     }
 
     @Override
     public String getTypeName() {
-        return typeProxy.getName();
+        if (typeProxy != null) {
+            return typeProxy.getName();
+        } else {
+            return type.getClassName();
+        }
     }
 
     public TypeProxy<?> getTypeProxy() {
         return typeProxy;
     }
 
-    public void setAccess(int access) {
-        this.access = access;
+    public void setTypeProxy(TypeProxy<?> typeProxy) {
+        this.typeProxy = typeProxy;
     }
 
     public void setType(org.objectweb.asm.Type type) {
         this.type = type;
-    }
-
-    @Override
-    protected void print(StringBuffer sb) {
-        super.print(sb);
-        sb.append(", type =").append(typeProxy.getName());
     }
 
     @Override
@@ -92,13 +74,9 @@ public class FieldModelImpl extends AnnotatedElementImpl implements FieldModel {
     }
 
     @Override
-    public boolean isTransient() {
-        return (Opcodes.ACC_TRANSIENT & access) == Opcodes.ACC_TRANSIENT;
-    }
-
-    @Override
     public boolean isArray() {
         return type != null
                 && type.getSort() == org.objectweb.asm.Type.ARRAY;
     }
+
 }
