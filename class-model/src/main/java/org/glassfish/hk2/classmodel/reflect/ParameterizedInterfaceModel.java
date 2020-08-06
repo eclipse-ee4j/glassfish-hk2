@@ -33,11 +33,18 @@ public interface ParameterizedInterfaceModel {
     String getName();
 
     /**
+     * Returns the simple name.
+     *
+     * @return a declaration for this type
+     */
+    String getRawInterfaceName();
+
+    /**
      * Returns the raw interface for this parameterized type
      *
      * @return the interface model instance
      */
-    InterfaceModel getRawInterface();
+    ExtensibleType getRawInterface();
 
     /**
      * Returns the type parameters in order.

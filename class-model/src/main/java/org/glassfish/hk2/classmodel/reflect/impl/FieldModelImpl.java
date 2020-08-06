@@ -33,6 +33,8 @@ public class FieldModelImpl extends AnnotatedElementImpl implements FieldModel {
 
     private int access;
 
+    private List<String> formalTypeVariable;
+
     private final List<ParameterizedType> genericTypes = new ArrayList<>();
 
     private org.objectweb.asm.Type type;
@@ -60,12 +62,19 @@ public class FieldModelImpl extends AnnotatedElementImpl implements FieldModel {
 
     @Override
     public ExtensibleType getType() {
-        return (ExtensibleType) typeProxy.get();
+        if (typeProxy != null) {
+            return (ExtensibleType) typeProxy.get();
+        }
+        return null;
     }
 
     @Override
     public String getTypeName() {
-        return typeProxy.getName();
+        if (typeProxy != null) {
+            return typeProxy.getName();
+        } else {
+            return type.getClassName();
+        }
     }
 
     public TypeProxy<?> getTypeProxy() {
@@ -78,6 +87,14 @@ public class FieldModelImpl extends AnnotatedElementImpl implements FieldModel {
 
     public void setType(org.objectweb.asm.Type type) {
         this.type = type;
+    }
+
+    public List<String> getFormalTypeVariable() {
+        return formalTypeVariable;
+    }
+
+    public void setFormalTypeVariable(List<String> formalTypeVariable) {
+        this.formalTypeVariable = formalTypeVariable;
     }
 
     @Override

@@ -21,6 +21,7 @@ import org.glassfish.hk2.classmodel.reflect.ParameterizedInterfaceModel;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import org.glassfish.hk2.classmodel.reflect.ExtensibleType;
 
 /**
  * Implementation of the {@link ParameterizedInterfaceModel}
@@ -29,10 +30,10 @@ import java.util.stream.Collectors;
  */
 class ParameterizedInterfaceModelImpl implements ParameterizedInterfaceModel {
 
-    final TypeProxy<InterfaceModel> rawInterface;
+    final TypeProxy<ExtensibleType> rawInterface;
     final List<ParameterizedInterfaceModel> parameterizedTypes = new ArrayList<>();
 
-    ParameterizedInterfaceModelImpl(TypeProxy<InterfaceModel> rawInterface) {
+    ParameterizedInterfaceModelImpl(TypeProxy<ExtensibleType> rawInterface) {
         this.rawInterface = rawInterface;
     }
 
@@ -56,13 +57,17 @@ class ParameterizedInterfaceModelImpl implements ParameterizedInterfaceModel {
         return sb.toString();
     }
 
-    public TypeProxy<InterfaceModel> getRawInterfaceProxy() {
+    public TypeProxy<? extends ExtensibleType> getRawInterfaceProxy() {
         return rawInterface;
     }
 
     @Override
-    public InterfaceModel getRawInterface() {
+    public ExtensibleType getRawInterface() {
         return rawInterface.get();
+    }
+
+    public String getRawInterfaceName() {
+        return rawInterface.getName();
     }
 
     @Override

@@ -17,25 +17,30 @@
 package org.glassfish.hk2.classmodel.reflect.impl;
 
 import org.glassfish.hk2.classmodel.reflect.*;
-import org.glassfish.hk2.classmodel.reflect.util.ParsingConfig;
-
 import java.util.*;
-import java.util.logging.Logger;
 
 /**
  * Implementation of an extensible type (Class or Interface)
  */
 public abstract class ExtensibleTypeImpl<T extends ExtensibleType> extends TypeImpl implements ExtensibleType<T> {
 
-    private TypeProxy<?> parent;
-    private final List<FieldModel> staticFields = new ArrayList<FieldModel> ();
-    private final List<TypeProxy<InterfaceModel>> implementedIntf = new ArrayList<TypeProxy<InterfaceModel>>();
-    private final List<ParameterizedInterfaceModel> implementedParameterizedIntf =
-            new ArrayList<ParameterizedInterfaceModel>();
+    protected TypeProxy<?> parent;
+    private final List<FieldModel> staticFields = new ArrayList<>();
+    private final List<TypeProxy<InterfaceModel>> implementedIntf = new ArrayList<>();
+    private final List<ParameterizedInterfaceModel> implementedParameterizedIntf = new ArrayList<>();
+    private Map<String, ParameterizedInterfaceModel> formalTypeParameters;
     
     public ExtensibleTypeImpl(String name, TypeProxy<Type> sink, TypeProxy parent) {
         super(name, sink);
         this.parent =  parent;
+    }
+
+    public Map<String, ParameterizedInterfaceModel> getFormalTypeParameters() {
+        return formalTypeParameters;
+    }
+
+    public void setFormalTypeParameters(Map<String, ParameterizedInterfaceModel> typeParameters) {
+        this.formalTypeParameters = typeParameters;
     }
 
     @Override
@@ -82,7 +87,9 @@ public abstract class ExtensibleTypeImpl<T extends ExtensibleType> extends TypeI
     }
 
     synchronized void isImplementing(ParameterizedInterfaceModelImpl pim) {
-        implementedIntf.add(pim.rawInterface);
+        if (pim.getRawInterface() instanceof InterfaceModel) {
+            implementedIntf.add((TypeProxy<InterfaceModel>) pim.getRawInterfaceProxy());
+        }
         implementedParameterizedIntf.add(pim);
     }
 
@@ -94,6 +101,16 @@ public abstract class ExtensibleTypeImpl<T extends ExtensibleType> extends TypeI
     @Override
     public Collection<ParameterizedInterfaceModel> getParameterizedInterfaces() {
         return Collections.unmodifiableCollection(implementedParameterizedIntf);
+    }
+
+    @Override
+    public ParameterizedInterfaceModel getParameterizedInterface(ExtensibleType type) {
+        for (ParameterizedInterfaceModel interfaceModel : implementedParameterizedIntf) {
+            if (interfaceModel.getRawInterface() == type) {
+                return interfaceModel;
+            }
+        }
+        return null;
     }
 
     @Override

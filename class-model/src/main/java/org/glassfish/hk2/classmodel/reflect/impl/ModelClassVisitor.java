@@ -140,6 +140,7 @@ public class ModelClassVisitor extends ClassVisitor {
                         }
                     }
                 }
+                classModel.setFormalTypeParameters(signatureVisitor.getFormalTypeParameters());
             } else {
                 if (!typeType.equals(AnnotationType.class)) {
                     for (String intf : interfaces) {
@@ -227,12 +228,16 @@ public class ModelClassVisitor extends ClassVisitor {
         org.objectweb.asm.Type asmType = org.objectweb.asm.Type.getType(desc);
 
         TypeProxy<?> fieldType = typeBuilder.getHolder(asmType.getClassName());
-        if (fieldType == null) {
-            return null;
-        }
-
         final FieldModelImpl field = typeBuilder.getFieldModel(name, fieldType, cm);
+
+        SignatureReader reader = new SignatureReader(signature == null ? desc : signature);
+        FieldSignatureVisitorImpl visitor = new FieldSignatureVisitorImpl();
+        reader.accept(visitor);
+        field.setFormalTypeVariable(visitor.getTypeVariable());
+
         org.objectweb.asm.Type type = org.objectweb.asm.Type.getType(desc);
+        field.setType(type);
+
         field.setAccess(access);
         fieldVisitor.getContext().field = field;
         fieldVisitor.getContext().typeDesc = desc;
@@ -454,7 +459,9 @@ public class ModelClassVisitor extends ClassVisitor {
             if (context.modelUnAnnotatedMembers || !context.field.getAnnotations().isEmpty()) {
 
                 // reverse index.
-                context.field.getTypeProxy().addFieldRef(context.field);
+                if (context.field.getTypeProxy() != null) {
+                    context.field.getTypeProxy().addFieldRef(context.field);
+                }
 
                 // forward index
                 if ((Opcodes.ACC_STATIC & context.access) == Opcodes.ACC_STATIC) {
