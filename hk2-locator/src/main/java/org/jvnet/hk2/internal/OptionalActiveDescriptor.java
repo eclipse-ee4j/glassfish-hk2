@@ -53,8 +53,8 @@ public class OptionalActiveDescriptor<T> extends AbstractActiveDescriptor<Option
     /*package-private*/ OptionalActiveDescriptor(Injectee injectee, ServiceLocatorImpl locator, Type requiredType) {
         super(new HashSet<Type>(),
                 PerLookup.class,
-                null,
-                new HashSet<Annotation>(),
+                ReflectionHelper.getNameFromAllQualifiers(injectee.getRequiredQualifiers(), injectee.getParent()),
+                injectee.getRequiredQualifiers(),
                 DescriptorType.CLASS,
                 DescriptorVisibility.NORMAL,
                 0,
