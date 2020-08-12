@@ -15,7 +15,6 @@
  */
 package org.glassfish.hk2.classmodel.reflect.impl;
 
-import org.glassfish.hk2.classmodel.reflect.InterfaceModel;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.signature.SignatureVisitor;
 
@@ -69,6 +68,25 @@ public class MethodSignatureVisitorImpl extends SignatureVisitor {
     }
 
     @Override
+    public void visitTypeVariable(String typeVariable) {
+        if (!parentType.isEmpty()) {
+            ParameterizedType current = parentType.peekLast();
+            if (current instanceof ParameterImpl
+                    && ((ParameterImpl) current).getTypeProxy() == null
+                    && ((ParameterImpl) current).getFormalType() == null) {
+                ((ParameterImpl) current).setFormalType(typeVariable);
+            } else if (current instanceof ParameterizedTypeImpl
+                    && ((ParameterizedTypeImpl) current).getTypeProxy() == null
+                    && ((ParameterizedTypeImpl) current).getFormalType() == null) {
+                ((ParameterizedTypeImpl) current).setFormalType(typeVariable);
+            } else {
+                ParameterizedTypeImpl parameterizedType = new ParameterizedTypeImpl(typeVariable);
+                current.getParameterizedTypes().add(parameterizedType);
+            }
+        }
+    }
+
+    @Override
     public void visitClassType(String name) {
         String className = org.objectweb.asm.Type.getObjectType(name).getClassName();
         TypeProxy typeProxy = typeBuilder.getHolder(className);
@@ -82,9 +100,9 @@ public class MethodSignatureVisitorImpl extends SignatureVisitor {
                         && ((ParameterizedTypeImpl) current).getTypeProxy() == null) {
                     ((ParameterizedTypeImpl) current).setTypeProxy(typeProxy);
                 } else {
-                    ParameterizedTypeImpl genericType = new ParameterizedTypeImpl(typeProxy);
-                    current.getGenericTypes().add(genericType);
-                    parentType.add(genericType);
+                    ParameterizedTypeImpl parameterizedType = new ParameterizedTypeImpl(typeProxy);
+                    current.getParameterizedTypes().add(parameterizedType);
+                    parentType.add(parameterizedType);
                 }
             }
         }

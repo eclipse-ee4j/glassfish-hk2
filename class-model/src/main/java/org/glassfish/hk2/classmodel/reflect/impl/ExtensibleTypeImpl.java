@@ -35,6 +35,7 @@ public abstract class ExtensibleTypeImpl<T extends ExtensibleType> extends TypeI
         this.parent =  parent;
     }
 
+    @Override
     public Map<String, ParameterizedInterfaceModel> getFormalTypeParameters() {
         return formalTypeParameters;
     }

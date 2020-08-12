@@ -90,25 +90,25 @@ public class MethodTest {
                         AnnotationModel param1AnnotationModel = param1.getAnnotations().iterator().next();
                         Assert.assertEquals("brown", param1AnnotationModel.getValues().get("name"));
                         Assert.assertEquals("java.lang.String", param1.getTypeName());
-                        Assert.assertEquals(0, param1.getGenericTypes().size());
+                        Assert.assertEquals(0, param1.getParameterizedTypes().size());
 
                         Parameter param2 = mm.getParameter(1);
                         Assert.assertEquals(0, param2.getAnnotations().size());
                         Assert.assertEquals("java.util.List", param2.getTypeName());
-                        Assert.assertEquals(1, param2.getGenericTypes().size());
-                        Assert.assertEquals("java.lang.String", param2.getGenericTypes().get(0).getTypeName());
+                        Assert.assertEquals(1, param2.getParameterizedTypes().size());
+                        Assert.assertEquals("java.lang.String", param2.getParameterizedTypes().get(0).getTypeName());
 
                         Parameter param3 = mm.getParameter(2);
                         Assert.assertEquals(0, param3.getAnnotations().size());
                         Assert.assertEquals("org.glassfish.hk2.classmodel.reflect.test.method.SampleType", param3.getTypeName());
 
-                        List<ParameterizedType> param3Generics = param3.getGenericTypes();
+                        List<ParameterizedType> param3Generics = param3.getParameterizedTypes();
                         Assert.assertEquals(3, param3Generics.size());
                         Assert.assertEquals("java.lang.Double", param3Generics.get(0).getTypeName());
                         Assert.assertEquals("java.lang.String", param3Generics.get(1).getTypeName());
                         Assert.assertEquals("org.glassfish.hk2.classmodel.reflect.test.method.SampleType", param3Generics.get(2).getTypeName());
 
-                        List<ParameterizedType> param3NestedGenericTypes = param3Generics.get(2).getGenericTypes();
+                        List<ParameterizedType> param3NestedGenericTypes = param3Generics.get(2).getParameterizedTypes();
                         Assert.assertEquals(3, param3NestedGenericTypes.size());
                         Assert.assertEquals("java.lang.Short", param3NestedGenericTypes.get(0).getTypeName());
                         Assert.assertEquals("java.lang.Float", param3NestedGenericTypes.get(1).getTypeName());
@@ -123,7 +123,7 @@ public class MethodTest {
                         // Method's return type check
                         ParameterizedType returnType = mm.getReturnType();
                         Assert.assertEquals("org.glassfish.hk2.classmodel.reflect.test.method.SampleType", returnType.getTypeName());
-                        List<ParameterizedType> returnTypeGenerics = returnType.getGenericTypes();
+                        List<ParameterizedType> returnTypeGenerics = returnType.getParameterizedTypes();
                         Assert.assertEquals(3, returnTypeGenerics.size());
                         Assert.assertEquals("java.lang.Integer", returnTypeGenerics.get(0).getTypeName());
                         Assert.assertEquals("java.lang.Character", returnTypeGenerics.get(1).getTypeName());

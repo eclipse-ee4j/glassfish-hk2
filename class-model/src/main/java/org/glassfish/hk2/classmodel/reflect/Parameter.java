@@ -32,12 +32,6 @@ public interface Parameter extends AnnotatedElement, ParameterizedType {
     public MethodModel getMethod();
 
     /**
-     * Returns the parameter type  
-     * @return parameter type
-     */
-    public Type getType();
-
-    /**
      * Returns the parameter index
      *
      * @return parameter index

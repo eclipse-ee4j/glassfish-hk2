@@ -16,8 +16,6 @@
 
 package org.glassfish.hk2.classmodel.reflect;
 
-import java.util.List;
-
 /**
  * Model that represent the field of a class
  *
@@ -59,10 +57,4 @@ public interface FieldModel extends Member, AnnotatedElement, ParameterizedType 
      */
     boolean isTransient();
 
-    /**
-     * The list of raw generic types
-     *
-     * @return
-     */
-    List<String> getFormalTypeVariable();
 }

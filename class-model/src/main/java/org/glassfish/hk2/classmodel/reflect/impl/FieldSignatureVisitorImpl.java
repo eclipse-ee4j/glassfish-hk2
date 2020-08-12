@@ -15,10 +15,11 @@
  */
 package org.glassfish.hk2.classmodel.reflect.impl;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.ArrayDeque;
+import org.glassfish.hk2.classmodel.reflect.FieldModel;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.signature.SignatureVisitor;
+import org.glassfish.hk2.classmodel.reflect.ParameterizedType;
 
 /**
  * Signature visitor to visit field and respective generic types
@@ -27,19 +28,53 @@ import org.objectweb.asm.signature.SignatureVisitor;
  */
 public class FieldSignatureVisitorImpl extends SignatureVisitor {
 
-    private final List<String> typeVariable = new ArrayList<>();
+    private final TypeBuilder typeBuilder;
+    private final ArrayDeque<ParameterizedType> parentType = new ArrayDeque<>();
 
-    public FieldSignatureVisitorImpl() {
+    public FieldSignatureVisitorImpl(TypeBuilder typeBuilder, FieldModel fieldModel) {
         super(Opcodes.ASM7);
+
+        this.typeBuilder = typeBuilder;
+        parentType.add(fieldModel);
     }
 
     @Override
     public void visitTypeVariable(String typeVariable) {
-        this.typeVariable.add(typeVariable);
+        if (!parentType.isEmpty()) {
+            ParameterizedType current = parentType.peekLast();
+            if (current instanceof FieldModelImpl
+                    && ((FieldModelImpl) current).getTypeProxy() == null
+                    && ((FieldModelImpl) current).getFormalType() == null) {
+                ((FieldModelImpl) current).setFormalType(typeVariable);
+            } else {
+                ParameterizedTypeImpl parameterizedType = new ParameterizedTypeImpl(typeVariable);
+                current.getParameterizedTypes().add(parameterizedType);
+            }
+        }
     }
 
-    public List<String> getTypeVariable() {
-        return typeVariable;
+    @Override
+    public void visitClassType(String name) {
+        String className = org.objectweb.asm.Type.getObjectType(name).getClassName();
+        TypeProxy typeProxy = typeBuilder.getHolder(className);
+        if (typeProxy != null) {
+            if (!parentType.isEmpty()) {
+                ParameterizedType current = parentType.peekLast();
+                if (current instanceof FieldModelImpl
+                        && ((FieldModelImpl) current).getTypeProxy() == null) {
+                    ((FieldModelImpl) current).setTypeProxy(typeProxy);
+                } else {
+                    ParameterizedTypeImpl parameterizedType = new ParameterizedTypeImpl(typeProxy);
+                    current.getParameterizedTypes().add(parameterizedType);
+                    parentType.add(parameterizedType);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void visitEnd() {
+        parentType.pollLast();
     }
 
 }

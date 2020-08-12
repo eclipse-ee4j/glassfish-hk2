@@ -18,17 +18,48 @@ package org.glassfish.hk2.classmodel.reflect;
 import java.util.List;
 
 /**
- * Denote a Generic type that is parameterized over types
  *
  * @author gaurav.gupta@payara.fish
  */
 public interface ParameterizedType {
 
-    Type getType();
+    /**
+     * Returns the parameter type
+     *
+     * @return parameter type
+     */
+    public Type getType();
 
+    /**
+     * Returns the parameter type name
+     *
+     * @return parameter type name
+     */
     String getTypeName();
 
-    List<ParameterizedType> getGenericTypes();
+    /**
+     * Returns the formal type name
+     *
+     * @return the formal type name
+     */
+    String getFormalType();
 
+    /**
+     * @return the true value for formal type parameters and false value for
+     * parameterized type with actual type arguments.
+     */
+    boolean isFormalType();
+
+    /**
+     *
+     * @return true if type is array
+     */
     boolean isArray();
+
+    /**
+     *
+     * @return the list of parameterized subtype
+     */
+    List<ParameterizedType> getParameterizedTypes();
+
 }

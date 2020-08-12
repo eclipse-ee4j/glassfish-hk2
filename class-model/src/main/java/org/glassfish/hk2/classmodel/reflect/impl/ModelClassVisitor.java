@@ -225,18 +225,18 @@ public class ModelClassVisitor extends ClassVisitor {
         }
         cm = (ExtensibleTypeImpl) type;
 
-        org.objectweb.asm.Type asmType = org.objectweb.asm.Type.getType(desc);
 
-        TypeProxy<?> fieldType = typeBuilder.getHolder(asmType.getClassName());
-        final FieldModelImpl field = typeBuilder.getFieldModel(name, fieldType, cm);
+        final FieldModelImpl field = typeBuilder.getFieldModel(name, null, cm);
 
         SignatureReader reader = new SignatureReader(signature == null ? desc : signature);
-        FieldSignatureVisitorImpl visitor = new FieldSignatureVisitorImpl();
+        FieldSignatureVisitorImpl visitor = new FieldSignatureVisitorImpl(typeBuilder, field);
         reader.accept(visitor);
-        field.setFormalTypeVariable(visitor.getTypeVariable());
 
-        org.objectweb.asm.Type type = org.objectweb.asm.Type.getType(desc);
-        field.setType(type);
+        org.objectweb.asm.Type asmType = org.objectweb.asm.Type.getType(desc);
+        field.setType(asmType);
+        if (field.getTypeProxy() == null) {
+            field.setTypeProxy(typeBuilder.getHolder(asmType.getClassName()));
+        }
 
         field.setAccess(access);
         fieldVisitor.getContext().field = field;

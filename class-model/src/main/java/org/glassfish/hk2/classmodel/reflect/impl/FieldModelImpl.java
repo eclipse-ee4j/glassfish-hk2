@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.glassfish.hk2.classmodel.reflect.ExtensibleType;
 import org.glassfish.hk2.classmodel.reflect.FieldModel;
-import org.glassfish.hk2.classmodel.reflect.ParameterizedType;
 import org.objectweb.asm.Opcodes;
+import org.glassfish.hk2.classmodel.reflect.ParameterizedType;
 
 /**
  * Implementation of a field model
@@ -29,15 +29,15 @@ public class FieldModelImpl extends AnnotatedElementImpl implements FieldModel {
 
     private final ExtensibleType declaringType;
 
-    private final TypeProxy typeProxy;
+    private TypeProxy typeProxy;
+
+    private org.objectweb.asm.Type type;
+
+    private String formalType;
 
     private int access;
 
-    private List<String> formalTypeVariable;
-
-    private final List<ParameterizedType> genericTypes = new ArrayList<>();
-
-    private org.objectweb.asm.Type type;
+    private final List<ParameterizedType> parameterizedTypes = new ArrayList<>();
 
     public FieldModelImpl(String name, TypeProxy typeProxy, ExtensibleType declaringType) {
         super(name);
@@ -72,9 +72,20 @@ public class FieldModelImpl extends AnnotatedElementImpl implements FieldModel {
     public String getTypeName() {
         if (typeProxy != null) {
             return typeProxy.getName();
-        } else {
+        } else if (type != null) {
             return type.getClassName();
+        } else {
+            return null;
         }
+    }
+
+    @Override
+    public String getFormalType() {
+        return formalType;
+    }
+
+    public void setFormalType(String formalType) {
+        this.formalType = formalType;
     }
 
     public TypeProxy<?> getTypeProxy() {
@@ -85,16 +96,12 @@ public class FieldModelImpl extends AnnotatedElementImpl implements FieldModel {
         this.access = access;
     }
 
+    public void setTypeProxy(TypeProxy typeProxy) {
+        this.typeProxy = typeProxy;
+    }
+
     public void setType(org.objectweb.asm.Type type) {
         this.type = type;
-    }
-
-    public List<String> getFormalTypeVariable() {
-        return formalTypeVariable;
-    }
-
-    public void setFormalTypeVariable(List<String> formalTypeVariable) {
-        this.formalTypeVariable = formalTypeVariable;
     }
 
     @Override
@@ -104,8 +111,13 @@ public class FieldModelImpl extends AnnotatedElementImpl implements FieldModel {
     }
 
     @Override
-    public List<ParameterizedType> getGenericTypes() {
-        return genericTypes;
+    public List<ParameterizedType> getParameterizedTypes() {
+        return parameterizedTypes;
+    }
+
+    @Override
+    public boolean isFormalType() {
+        return formalType != null;
     }
 
     @Override
