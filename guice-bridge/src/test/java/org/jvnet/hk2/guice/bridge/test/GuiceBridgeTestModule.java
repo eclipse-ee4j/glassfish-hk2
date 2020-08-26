@@ -34,6 +34,7 @@ public class GuiceBridgeTestModule implements HK2TestModule {
         config.addActiveDescriptor(HK2Service2Impl.class);
         config.addActiveDescriptor(HK2Service3.class);
         config.addActiveDescriptor(HK2Service4.class);
+        config.addActiveDescriptor(HK2Service5.class);
     }
 
 }
