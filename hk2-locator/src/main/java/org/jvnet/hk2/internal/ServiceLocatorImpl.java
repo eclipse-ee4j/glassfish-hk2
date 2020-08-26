@@ -16,9 +16,6 @@
 
 package org.jvnet.hk2.internal;
 
-import org.glassfish.hk2.utilities.cache.Cache;
-import org.glassfish.hk2.utilities.cache.Computable;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
@@ -48,10 +45,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
-import jakarta.inject.Named;
-import jakarta.inject.Provider;
-import jakarta.inject.Singleton;
-
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.ClassAnalyzer;
 import org.glassfish.hk2.api.Context;
@@ -65,14 +58,14 @@ import org.glassfish.hk2.api.Filter;
 import org.glassfish.hk2.api.HK2Loader;
 import org.glassfish.hk2.api.IndexedFilter;
 import org.glassfish.hk2.api.Injectee;
+import org.glassfish.hk2.api.InjectionResolver;
 import org.glassfish.hk2.api.InstanceLifecycleListener;
 import org.glassfish.hk2.api.InterceptionService;
+import org.glassfish.hk2.api.IterableProvider;
 import org.glassfish.hk2.api.JustInTimeInjectionResolver;
 import org.glassfish.hk2.api.MethodParameter;
-import org.glassfish.hk2.api.Operation;
-import org.glassfish.hk2.api.InjectionResolver;
-import org.glassfish.hk2.api.IterableProvider;
 import org.glassfish.hk2.api.MultiException;
+import org.glassfish.hk2.api.Operation;
 import org.glassfish.hk2.api.PerLookup;
 import org.glassfish.hk2.api.PostConstruct;
 import org.glassfish.hk2.api.PreDestroy;
@@ -90,8 +83,10 @@ import org.glassfish.hk2.api.messaging.Topic;
 import org.glassfish.hk2.utilities.BuilderHelper;
 import org.glassfish.hk2.utilities.InjecteeImpl;
 import org.glassfish.hk2.utilities.RethrowErrorService;
+import org.glassfish.hk2.utilities.cache.Cache;
 import org.glassfish.hk2.utilities.cache.CacheKeyFilter;
 import org.glassfish.hk2.utilities.cache.CacheUtilities;
+import org.glassfish.hk2.utilities.cache.Computable;
 import org.glassfish.hk2.utilities.cache.ComputationErrorException;
 import org.glassfish.hk2.utilities.cache.WeakCARCache;
 import org.glassfish.hk2.utilities.reflection.ClassReflectionHelper;
@@ -99,6 +94,10 @@ import org.glassfish.hk2.utilities.reflection.Logger;
 import org.glassfish.hk2.utilities.reflection.ParameterizedTypeImpl;
 import org.glassfish.hk2.utilities.reflection.ReflectionHelper;
 import org.glassfish.hk2.utilities.reflection.internal.ClassReflectionHelperImpl;
+
+import jakarta.inject.Named;
+import jakarta.inject.Provider;
+import jakarta.inject.Singleton;
 
 /**
  * @author jwells
@@ -539,7 +538,22 @@ public class ServiceLocatorImpl implements ServiceLocator {
             return new ConstantActiveDescriptor<Object>(value, this);
         }
         if (java.util.Optional.class.equals(rawType)) {
-            return new OptionalActiveDescriptor(injectee, this, ReflectionHelper.getFirstTypeArgument(requiredType));
+            InjecteeImpl optInjectee = new InjecteeImpl(injectee);
+            optInjectee.setOptional(true); // make descriptor creation optional
+            // look for internal more specific descriptor first
+            ActiveDescriptor<?> descriptor =
+                internalGetDescriptor(
+                    optInjectee,
+                    optInjectee.getRequiredType(),
+                    ReflectionHelper.getNameFromAllQualifiers(
+                        optInjectee.getRequiredQualifiers(), optInjectee.getParent()),
+                    optInjectee.getUnqualified(),
+                    false,
+                    optInjectee.getRequiredQualifiers().toArray(new Annotation[0]));
+            if (descriptor == null) {
+              descriptor = new OptionalActiveDescriptor<>(optInjectee, this);
+            }
+            return descriptor;
         }
         
         if (Topic.class.equals(rawType)) {
