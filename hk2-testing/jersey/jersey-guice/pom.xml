@@ -32,7 +32,6 @@
     <name>HK2 Jersey Guice Tests</name> 
 
     <modules>
-        <!-- To be ininstated once Jersey is updated-->
-        <!-- <module>form-param</module> -->
+        <module>form-param</module>
     </modules>
 </project>
