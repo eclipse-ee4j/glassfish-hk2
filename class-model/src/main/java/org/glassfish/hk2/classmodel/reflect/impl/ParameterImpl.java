@@ -34,9 +34,11 @@ public class ParameterImpl extends AnnotatedElementImpl implements Parameter {
 
     private org.objectweb.asm.Type type;
 
+    private String formalType;
+
     private final int index;
 
-    private final List<ParameterizedType> genericTypes = new ArrayList<>();
+    private final List<ParameterizedType> parameterizedTypes = new ArrayList<>();
 
     public ParameterImpl(int index, String name, TypeProxy<?> typeProxy, MethodModel methodModel) {
         super(name);
@@ -65,8 +67,10 @@ public class ParameterImpl extends AnnotatedElementImpl implements Parameter {
     public String getTypeName() {
         if (typeProxy != null) {
             return typeProxy.getName();
-        } else {
+        } else if (type != null) {
             return type.getClassName();
+        } else {
+            return null;
         }
     }
 
@@ -83,8 +87,22 @@ public class ParameterImpl extends AnnotatedElementImpl implements Parameter {
     }
 
     @Override
-    public List<ParameterizedType> getGenericTypes() {
-        return genericTypes;
+    public String getFormalType() {
+        return formalType;
+    }
+
+    public void setFormalType(String formalType) {
+        this.formalType = formalType;
+    }
+
+    @Override
+    public List<ParameterizedType> getParameterizedTypes() {
+        return parameterizedTypes;
+    }
+
+    @Override
+    public boolean isFormalType() {
+        return formalType != null;
     }
 
     @Override

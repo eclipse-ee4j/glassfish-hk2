@@ -17,6 +17,7 @@
 package org.glassfish.hk2.classmodel.reflect;
 
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * An extensible type is a type that can be subclassed like an interface
@@ -74,7 +75,27 @@ public interface ExtensibleType<T extends ExtensibleType> extends Type {
      */
     Collection<InterfaceModel> getInterfaces();
 
+    /**
+     *
+     * @return the list of parameterized type of superclass and implemented
+     * interface.
+     */
     Collection<ParameterizedInterfaceModel> getParameterizedInterfaces();
+
+    /**
+     *
+     * @param type the extensible type
+     * @return the parameterized type of the respective extensible type
+     */
+    ParameterizedInterfaceModel getParameterizedInterface(ExtensibleType type);
+
+    /**
+     *
+     * Represents the raw generic type and bounded parameterized type.
+     *
+     * @return the list of generic type parameter declared on the class.
+     */
+    Map<String, ParameterizedInterfaceModel> getFormalTypeParameters();
 
     /**
      * Returns an unmodifiable list of static fields defined by this type

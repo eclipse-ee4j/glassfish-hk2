@@ -87,6 +87,13 @@ public class TypesCtr implements Types {
         }
         TypeProxy<Type> typeProxy = typeStorage.get(name);
         if (typeProxy ==null) {
+            // we look first in our storage pools.
+            for (Map<String, TypeProxy<Type>> map : storage.values()) {
+                TypeProxy<Type> proxy = map.get(name);
+                if (proxy != null) {
+                    return proxy;
+                }
+            }
             // in our unknown type pool ? 
             TypeProxy<Type> tmp = unknownTypesStorage.get(name);
             // in our unknown type pool ?

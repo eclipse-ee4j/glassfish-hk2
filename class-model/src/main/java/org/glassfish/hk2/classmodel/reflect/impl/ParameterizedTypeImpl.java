@@ -17,8 +17,8 @@ package org.glassfish.hk2.classmodel.reflect.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.glassfish.hk2.classmodel.reflect.ParameterizedType;
 import org.glassfish.hk2.classmodel.reflect.Type;
+import org.glassfish.hk2.classmodel.reflect.ParameterizedType;
 
 /**
  *
@@ -28,15 +28,21 @@ public class ParameterizedTypeImpl implements ParameterizedType {
 
     private TypeProxy<?> typeProxy;
 
-    private final List<ParameterizedType> genericTypes = new ArrayList<>();
-
     private org.objectweb.asm.Type type;
+
+    private String formalType;
+
+    private final List<ParameterizedType> parameterizedTypes = new ArrayList<>();
 
     public ParameterizedTypeImpl() {
     }
 
     public ParameterizedTypeImpl(TypeProxy<?> type) {
         this.typeProxy = type;
+    }
+
+    public ParameterizedTypeImpl(String formalType) {
+        this.formalType = formalType;
     }
 
     @Override
@@ -51,8 +57,10 @@ public class ParameterizedTypeImpl implements ParameterizedType {
     public String getTypeName() {
         if (typeProxy != null) {
             return typeProxy.getName();
-        } else {
+        } else if (type != null) {
             return type.getClassName();
+        } else {
+            return null;
         }
     }
 
@@ -69,8 +77,22 @@ public class ParameterizedTypeImpl implements ParameterizedType {
     }
 
     @Override
-    public List<ParameterizedType> getGenericTypes() {
-        return genericTypes;
+    public String getFormalType() {
+        return formalType;
+    }
+
+    public void setFormalType(String formalType) {
+        this.formalType = formalType;
+    }
+
+    @Override
+    public List<ParameterizedType> getParameterizedTypes() {
+        return parameterizedTypes;
+    }
+
+    @Override
+    public boolean isFormalType() {
+        return formalType != null;
     }
 
     @Override

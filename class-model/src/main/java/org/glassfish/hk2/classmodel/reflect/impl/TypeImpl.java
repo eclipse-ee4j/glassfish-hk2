@@ -17,7 +17,6 @@
 package org.glassfish.hk2.classmodel.reflect.impl;
 
 import org.glassfish.hk2.classmodel.reflect.*;
-import org.glassfish.hk2.classmodel.reflect.util.ParsingConfig;
 
 import java.io.File;
 import java.io.IOException;

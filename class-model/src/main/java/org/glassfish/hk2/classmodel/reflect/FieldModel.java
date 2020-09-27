@@ -56,4 +56,5 @@ public interface FieldModel extends Member, AnnotatedElement, ParameterizedType 
      * @return true, if field is marked transient.
      */
     boolean isTransient();
+
 }

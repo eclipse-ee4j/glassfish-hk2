@@ -15,70 +15,37 @@
  */
 package org.glassfish.hk2.classmodel.reflect.impl;
 
+import java.util.ArrayDeque;
+import org.glassfish.hk2.classmodel.reflect.FieldModel;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.signature.SignatureVisitor;
-
-import java.util.*;
-import org.glassfish.hk2.classmodel.reflect.MethodModel;
-import org.glassfish.hk2.classmodel.reflect.Parameter;
 import org.glassfish.hk2.classmodel.reflect.ParameterizedType;
 
 /**
- * Signature visitor to visit method parameters, return type and respective
- * generic types
+ * Signature visitor to visit field and respective generic types
  *
  * @author gaurav.gupta@payara.fish
  */
-public class MethodSignatureVisitorImpl extends SignatureVisitor {
+public class FieldSignatureVisitorImpl extends SignatureVisitor {
 
     private final TypeBuilder typeBuilder;
-    private final MethodModel methodModel;
-
-    private final List<Parameter> parameters = new ArrayList<>();
-    private final ParameterizedType returnType = new ParameterizedTypeImpl();
     private final ArrayDeque<ParameterizedType> parentType = new ArrayDeque<>();
 
-    public MethodSignatureVisitorImpl(TypeBuilder typeBuilder, MethodModel methodModel) {
+    public FieldSignatureVisitorImpl(TypeBuilder typeBuilder, FieldModel fieldModel) {
         super(Opcodes.ASM7);
 
         this.typeBuilder = typeBuilder;
-        this.methodModel = methodModel;
-    }
-
-    public List<Parameter> getParameters() {
-        return parameters;
-    }
-
-    public ParameterizedType getReturnType() {
-        return returnType;
-    }
-
-    @Override
-    public SignatureVisitor visitParameterType() {
-        ParameterImpl parameter = new ParameterImpl(parameters.size(), null, methodModel);
-        parameters.add(parameter);
-        parentType.add(parameter);
-        return this;
-    }
-
-    @Override
-    public SignatureVisitor visitReturnType() {
-        parentType.add(returnType);
-        return this;
+        parentType.add(fieldModel);
     }
 
     @Override
     public void visitTypeVariable(String typeVariable) {
         if (!parentType.isEmpty()) {
             ParameterizedType current = parentType.peekLast();
-            if (current instanceof ParameterImpl
-                    && ((ParameterImpl) current).getTypeProxy() == null
-                    && ((ParameterImpl) current).getFormalType() == null) {
-                ((ParameterImpl) current).setFormalType(typeVariable);
-            } else if (current instanceof ParameterizedTypeImpl
-                    && ((ParameterizedTypeImpl) current).getTypeProxy() == null
-                    && ((ParameterizedTypeImpl) current).getFormalType() == null) {
-                ((ParameterizedTypeImpl) current).setFormalType(typeVariable);
+            if (current instanceof FieldModelImpl
+                    && ((FieldModelImpl) current).getTypeProxy() == null
+                    && ((FieldModelImpl) current).getFormalType() == null) {
+                ((FieldModelImpl) current).setFormalType(typeVariable);
             } else {
                 ParameterizedTypeImpl parameterizedType = new ParameterizedTypeImpl(typeVariable);
                 current.getParameterizedTypes().add(parameterizedType);
@@ -93,12 +60,9 @@ public class MethodSignatureVisitorImpl extends SignatureVisitor {
         if (typeProxy != null) {
             if (!parentType.isEmpty()) {
                 ParameterizedType current = parentType.peekLast();
-                if (current instanceof ParameterImpl
-                        && ((ParameterImpl) current).getTypeProxy() == null) {
-                    ((ParameterImpl) current).setTypeProxy(typeProxy);
-                } else if (current instanceof ParameterizedTypeImpl
-                        && ((ParameterizedTypeImpl) current).getTypeProxy() == null) {
-                    ((ParameterizedTypeImpl) current).setTypeProxy(typeProxy);
+                if (current instanceof FieldModelImpl
+                        && ((FieldModelImpl) current).getTypeProxy() == null) {
+                    ((FieldModelImpl) current).setTypeProxy(typeProxy);
                 } else {
                     ParameterizedTypeImpl parameterizedType = new ParameterizedTypeImpl(typeProxy);
                     current.getParameterizedTypes().add(parameterizedType);
@@ -109,12 +73,8 @@ public class MethodSignatureVisitorImpl extends SignatureVisitor {
     }
 
     @Override
-    public SignatureVisitor visitTypeArgument(char c) {
-        return this;
-    }
-
-    @Override
     public void visitEnd() {
         parentType.pollLast();
     }
+
 }
