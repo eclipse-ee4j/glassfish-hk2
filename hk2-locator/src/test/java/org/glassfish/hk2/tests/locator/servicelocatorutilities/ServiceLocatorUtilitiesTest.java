@@ -37,6 +37,7 @@ import org.glassfish.hk2.api.PerThread;
 import org.glassfish.hk2.api.ServiceHandle;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.api.ServiceLocatorFactory;
+import org.glassfish.hk2.api.ServiceLocatorState;
 import org.glassfish.hk2.tests.locator.utilities.LocatorHelper;
 import org.glassfish.hk2.utilities.AbstractActiveDescriptor;
 import org.glassfish.hk2.utilities.BuilderHelper;
@@ -945,6 +946,16 @@ public class ServiceLocatorUtilitiesTest {
         }
 
 
+    }
+    
+    @Test
+    public void testServiceLocatorState() {
+        ServiceLocator locator = uniqueCreate();
+        Assert.assertEquals(ServiceLocatorState.RUNNING, locator.getState());
+        Assert.assertFalse(locator.isShutdown());
+        locator.shutdown();
+        Assert.assertEquals(ServiceLocatorState.SHUTDOWN, locator.getState());
+        Assert.assertTrue(locator.isShutdown());
     }
 
     private static class BlueImpl extends AnnotationLiteral<Blue> implements Blue {

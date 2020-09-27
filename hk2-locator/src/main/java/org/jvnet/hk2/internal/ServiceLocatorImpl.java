@@ -857,6 +857,11 @@ public class ServiceLocatorImpl implements ServiceLocator {
             rLock.unlock();
         }
     }
+    
+    @Override
+    public boolean isShutdown() {
+        return state.equals(ServiceLocatorState.SHUTDOWN);
+    }
 
     /* (non-Javadoc)
      * @see org.glassfish.hk2.api.ServiceLocator#shutdown()

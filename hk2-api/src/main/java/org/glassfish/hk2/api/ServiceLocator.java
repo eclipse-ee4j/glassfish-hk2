@@ -527,6 +527,14 @@ public interface ServiceLocator {
     public ServiceLocatorState getState();
     
     /**
+     * Returns whether the state of this service locator is shutdown.
+     * 
+     * @return If the service locator has been shutdown.
+     * @see #getState() 
+     */
+    public boolean isShutdown();
+    
+    /**
      * This returns the value of neutralContextClassLoader.  If
      * this value is true then HK2 will ensure that the context
      * class loader on the thread is maintained whenever hk2 calls
