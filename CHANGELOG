@@ -1,3 +1,13 @@
+Changes since 2.6.1
+* Convert package usage from javax to jakarta
+* Improvements to annotation parser, including support for generics and enums
+* Add module names to manifests
+* Support for JDK11
+* Add @Provides annotation
+
+Changes since 2.6.0
+* Fix for child service locator shutdown
+
 Changes since 2.5.0:
 
 * OperationHandle and ServiceHandle extend Closable for try-with-resources
