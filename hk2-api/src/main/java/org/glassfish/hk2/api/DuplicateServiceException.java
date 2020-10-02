@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -27,6 +28,7 @@ public class DuplicateServiceException extends HK2RuntimeException {
     private static final long serialVersionUID = 7182947621027566487L;
     
     private Descriptor existingDescriptor;
+    private String serviceLocatorName;
     
     /**
      * For serialization
@@ -48,6 +50,21 @@ public class DuplicateServiceException extends HK2RuntimeException {
     }
     
     /**
+     * Called by the system to initialize the existing descriptor
+     * that matched
+     * 
+     * @param existingDescriptor The possibly null existing descriptor
+     * that matched one of the idempotent filters.
+     * @param serviceLocatorName The name of the {@link ServiceLocator}
+     * that threw the exception.
+     */
+    public DuplicateServiceException(Descriptor existingDescriptor, String serviceLocatorName) {
+        super();
+        this.existingDescriptor = existingDescriptor;
+        this.serviceLocatorName = serviceLocatorName;
+    }
+    
+    /**
      * Gets the descriptor that matched one of the idempotent
      * filters
      * 
@@ -60,8 +77,12 @@ public class DuplicateServiceException extends HK2RuntimeException {
     
     @Override
     public String toString() {
-        return "DuplicateServiceException(" + existingDescriptor +
-                "," + System.identityHashCode(this) + ")";
+        String result = "DuplicateServiceException(" + existingDescriptor ;
+        if (serviceLocatorName != null )  {
+            result += ", locator=" + serviceLocatorName;
+        }
+        result += "," + System.identityHashCode(this) + ")";
+        return result;
     }
 
 }
