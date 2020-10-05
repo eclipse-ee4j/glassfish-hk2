@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2012, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -876,28 +877,6 @@ public abstract class ServiceLocatorUtilities {
         catch (MultiException me) {
             if (!isDupException(me)) throw me;
         }
-    }
-
-    /**
-     * This method will enable the default topic distribution service.
-     * <p>
-     * The default distribution service distributes messages on the
-     * same thread as the caller of {@link org.glassfish.hk2.api.messaging.Topic#publish(Object)}
-     * and (TBD security policy).  Objects to be distributed to will be
-     * held with SoftReferences, and hence if they go out of scope they
-     * will not be distributed to.  Only services created AFTER the topic
-     * distribution service is enabled will be distributed to.
-     * <p>
-     * This method is idempotent, so that if there is already a
-     * TopicDistributionService with the default name is available this method
-     * will do nothing
-     *
-     * @param locator The service locator to enable topic distribution on.  May not be null
-     * @deprecated Use ExtrasUtilities.enableTopicDistribution.  This method WILL BE REMOVED
-     * in the next version of hk2
-     */
-    public static void enableTopicDistribution(ServiceLocator locator) {
-        throw new AssertionError("ServiceLocatorUtilities.enableTopicDistribution method has been removed, use ExtrasUtilities.enableTopicDistribution");
     }
 
     /**
