@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2012, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -125,7 +126,8 @@ public class SecurityLockdownTest extends HK2Runner {
             Assert.fail("Mallory should not be able to inject a service it has no rights to");
         }
         catch (MultiException multi) {
-            Assert.assertTrue(multi.getMessage().contains("There was no object available for injection at SystemInjecteeImpl"));
+            Assert.assertTrue(multi.getMessage(), multi.getMessage().contains("There was no object available in " + SecurityLockdownTest.class.getCanonicalName() 
+                    + " for injection at SystemInjecteeImpl"));
         }
     }
 }

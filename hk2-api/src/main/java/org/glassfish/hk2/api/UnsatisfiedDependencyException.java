@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2012, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -45,7 +46,12 @@ public class UnsatisfiedDependencyException extends HK2RuntimeException {
      */
     public UnsatisfiedDependencyException(Injectee injectee) {
         super("There was no object available for injection at " + ((injectee == null) ? "<null>" : injectee.toString()));
-        
+        this.injectionPoint = injectee;
+    }
+    
+    public UnsatisfiedDependencyException(Injectee injectee, String serviceLocatorName) {
+        super("There was no object available in "+ ((serviceLocatorName == null) ? "" : serviceLocatorName) + 
+                " for injection at " + ((injectee == null) ? "<null>" : injectee.toString()) );
         this.injectionPoint = injectee;
     }
     

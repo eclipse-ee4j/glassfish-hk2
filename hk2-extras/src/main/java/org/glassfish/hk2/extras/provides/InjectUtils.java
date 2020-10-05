@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2020 TechEmpower. All rights reserved.
+ * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -98,7 +99,7 @@ final class InjectUtils {
 
     if (activeDescriptor == null) {
       if (!injectee.isOptional())
-        throw new UnsatisfiedDependencyException(injectee);
+        throw new UnsatisfiedDependencyException(injectee, locator.getName());
 
       return null;
     }
@@ -123,7 +124,7 @@ final class InjectUtils {
 
     if (activeDescriptor == null) {
       if (!injectee.isOptional())
-        throw new UnsatisfiedDependencyException(injectee);
+        throw new UnsatisfiedDependencyException(injectee, locator.getName());
 
       return null;
     }

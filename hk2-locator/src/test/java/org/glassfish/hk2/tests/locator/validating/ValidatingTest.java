@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2012, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -40,7 +41,7 @@ import org.junit.Test;
  *
  */
 public class ValidatingTest {
-    private final String EXCEPTION_STRING = "There was no object available for injection at";
+    private final String EXCEPTION_STRING = "There was no object available in " + TEST_NAME + " for injection at";
 
     private final static String TEST_NAME = "ValidatingTest";
     private final static ServiceLocator locator = LocatorHelper.create(TEST_NAME, new ValidatingModule());
