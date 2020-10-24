@@ -16,16 +16,21 @@
 
 package org.jvnet.hk2.guice.bridge.test;
 
+import java.util.Optional;
 
 import org.glassfish.hk2.api.ServiceLocator;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.jvnet.hk2.guice.bridge.api.GuiceIntoHK2Bridge;
 import org.jvnet.hk2.guice.bridge.api.HK2IntoGuiceBridge;
 import org.jvnet.hk2.guice.bridge.test.utilities.Utilities;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.TypeLiteral;
 
 /**
  * Tests for Guice bridge
@@ -36,7 +41,18 @@ public class GuiceBridgeTest {
     /* package */ static final String ALICE = "Alice";
     /* package */ static final String HATTER = "Hatter";
 
-    private static final ServiceLocator testLocator = Utilities.createLocator("GuiceBridgeTest", new GuiceBridgeTestModule());
+  private ServiceLocator testLocator;
+
+  @Before
+  public void setup() {
+    testLocator = Utilities.createLocator("GuiceBridgeTest", new GuiceBridgeTestModule());
+  }
+
+  @After
+  public void cleanup() {
+    testLocator.shutdown();
+    testLocator = null;
+  }
 
     /**
      * Tests a service from Guice being injected into an HK2 service
@@ -67,19 +83,77 @@ public class GuiceBridgeTest {
         hk2Service4.verifyGuiceService();
     }
 
-    /**
-     * Tests a service from hk2 being injected into a Guice service
-     */
-    @Test
-    public void testHk2ServiceInGuiceService() {
-        Injector injector = Guice.createInjector(
-                new HK2IntoGuiceBridge(testLocator),
-                new HK2BridgeModule());
-        Assert.assertNotNull(injector);
+  /** Tests GuiceService into HK2Service as {@link Optional} */
+  @Test
+  public void testGuiceServiceInHk2ServiceAsOptionalWithPrecendence() {
+    Injector injector =
+        Guice.createInjector(
+            new AbstractModule() {
+              @Override
+              protected void configure() {
+                bind(GuiceService5.class).toInstance(() -> "atomic");
+                bind(new TypeLiteral<Optional<GuiceService5>>() {})
+                    .toInstance(Optional.<GuiceService5>of(() -> "specific"));
+              }
+            });
+    GuiceIntoHK2Bridge guiceBridge = testLocator.getService(GuiceIntoHK2Bridge.class);
+    guiceBridge.bridgeGuiceInjector(injector);
 
-        GuiceService2 guiceService2 = injector.getInstance(GuiceService2.class);
-        Assert.assertNotNull(guiceService2);
+    HK2Service5 service = testLocator.getService(HK2Service5.class);
+    Assert.assertNotNull(service);
+    Assert.assertNotNull(service.optionalGuiceService);
+    Assert.assertTrue(service.optionalGuiceService.isPresent());
+    Assert.assertEquals("specific", service.optionalGuiceService.get().getName());
+  }
 
-        guiceService2.verifyHK2Service();
-    }
+  /** Tests GuiceService into HK2Service as {@link Optional} */
+  @Test
+  public void testGuiceServiceInHk2ServiceAsOptionalAtomic() {
+    Injector injector =
+        Guice.createInjector(
+            new AbstractModule() {
+              @Override
+              protected void configure() {
+                bind(GuiceService5.class).toInstance(() -> "atomic");
+              }
+            });
+    GuiceIntoHK2Bridge guiceBridge = testLocator.getService(GuiceIntoHK2Bridge.class);
+    guiceBridge.bridgeGuiceInjector(injector);
+
+    HK2Service5 service = testLocator.getService(HK2Service5.class);
+    Assert.assertNotNull(service);
+    Assert.assertNotNull(service.optionalGuiceService);
+    Assert.assertTrue(service.optionalGuiceService.isPresent());
+    Assert.assertEquals("atomic", service.optionalGuiceService.get().getName());
+  }
+
+  /** Tests GuiceService into HK2Service as {@link Optional} */
+  @Test
+  public void testGuiceServiceInHk2ServiceAsOptionalNotBound() {
+    Injector injector =
+        Guice.createInjector(
+            new AbstractModule() {
+              @Override
+              protected void configure() {}
+            });
+    GuiceIntoHK2Bridge guiceBridge = testLocator.getService(GuiceIntoHK2Bridge.class);
+    guiceBridge.bridgeGuiceInjector(injector);
+
+    HK2Service5 service = testLocator.getService(HK2Service5.class);
+    Assert.assertNotNull(service);
+    Assert.assertNotNull(service.optionalGuiceService);
+  }
+
+  /** Tests a service from hk2 being injected into a Guice service */
+  @Test
+  public void testHk2ServiceInGuiceService() {
+    Injector injector =
+        Guice.createInjector(new HK2IntoGuiceBridge(testLocator), new HK2BridgeModule());
+    Assert.assertNotNull(injector);
+
+    GuiceService2 guiceService2 = injector.getInstance(GuiceService2.class);
+    Assert.assertNotNull(guiceService2);
+
+    guiceService2.verifyHK2Service();
+  }
 }
