@@ -75,25 +75,20 @@ public class TypesCtr implements Types {
     }
 
     public <T extends Type> TypeProxy<Type> getHolder(String name, Class<T> type) {
-        if (name.equals("java.lang.Object")) return null;
+        if (name.equals("java.lang.Object")) {
+            return null;
+        }
         ConcurrentMap<String, TypeProxy<Type>> typeStorage = storage.get(type);
-        if (typeStorage==null) {
+        if (typeStorage == null) {
             typeStorage = new ConcurrentHashMap<String, TypeProxy<Type>>();
             ConcurrentMap<String, TypeProxy<Type>> old = storage.putIfAbsent(type, typeStorage);
-            if (old!=null) {
+            if (old != null) {
                 // some other thread got to set that type storage before us, let's use it
-                typeStorage=old;
+                typeStorage = old;
             }
         }
         TypeProxy<Type> typeProxy = typeStorage.get(name);
-        if (typeProxy ==null) {
-            // we look first in our storage pools.
-            for (Map<String, TypeProxy<Type>> map : storage.values()) {
-                TypeProxy<Type> proxy = map.get(name);
-                if (proxy != null) {
-                    return proxy;
-                }
-            }
+        if (typeProxy == null) {
             // in our unknown type pool ? 
             TypeProxy<Type> tmp = unknownTypesStorage.get(name);
             // in our unknown type pool ?
