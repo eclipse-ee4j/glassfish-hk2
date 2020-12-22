@@ -281,6 +281,17 @@ public class ModelClassVisitor extends ClassVisitor {
         org.objectweb.asm.Type type = org.objectweb.asm.Type.getReturnType(desc);
         returnType.setType(type);
 
+        final List<ParameterizedType> exceptionTypes = new ArrayList<>();
+        if (exceptions != null) {
+            for (int i = 0; i < exceptions.length; i++) {
+                final String exception = exceptions[i];
+                final ParameterizedTypeImpl exceptionType = new ParameterizedTypeImpl(exception);
+                exceptionType.setType(org.objectweb.asm.Type.getObjectType(exception));
+                exceptionTypes.add(exceptionType);
+            }
+        }
+        methodModel.setExceptionTypes(exceptionTypes);
+
         org.objectweb.asm.Type[] types = org.objectweb.asm.Type.getArgumentTypes(desc);
         for (int i = 0; i < methodModel.getParameters().size(); i++) {
             ParameterImpl parameter = (ParameterImpl) methodModel.getParameter(i);
