@@ -113,7 +113,7 @@ public class ClasspathDescriptorFileFinder implements DescriptorFileFinder, Desc
         this(resourceBase, cl, DEFAULT_NAME);
     }
     private ClasspathDescriptorFileFinder (String resourceBase, ClassLoader cl, String... names) {
-        this.resourceBase = resourceBase.endsWith(File.separator) ? resourceBase : resourceBase + File.separatorChar;
+        this.resourceBase = resourceBase.endsWith("/") ? resourceBase : resourceBase + "/";
         this.classLoader = cl;
         this.names = names;
     }
