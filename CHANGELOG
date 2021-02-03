@@ -1,3 +1,7 @@
+Changes since 3.0.1
+
+* Support for JDK15
+
 Changes since 2.6.1
 * Convert package usage from javax to jakarta
 * Improvements to annotation parser, including support for generics and enums
