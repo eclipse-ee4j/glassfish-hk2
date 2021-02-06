@@ -20,6 +20,8 @@ package org.glassfish.hk2.classmodel.reflect.test.parameterized;
  * Parameterized interface
  */
 public interface RouteBuilder<T extends Pattern> {
-
+    
+    void passPattern(T pattern);
     T pattern();
+    
 }

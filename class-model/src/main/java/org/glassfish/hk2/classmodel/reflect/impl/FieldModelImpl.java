@@ -57,7 +57,10 @@ public class FieldModelImpl extends AnnotatedElementImpl implements FieldModel {
 
     @Override
     public String getDeclaringTypeName() {
-        return typeProxy.getName();
+        if (typeProxy != null) {
+            return typeProxy.getName();
+        }
+        return null;
     }
 
     @Override
