@@ -151,7 +151,7 @@
         <jtype.version>0.1.3</jtype.version>
         <javassist.version>3.22.0-GA</javassist.version>
         <junit.version>4.13.1</junit.version>
-        <asm.version>7.3.1</asm.version>
+        <asm.version>9.1</asm.version>
         <woodstox.version>4.1.2</woodstox.version>
         <stax-api.version>1.0-2</stax-api.version>
         <aopalliance.version>1.0</aopalliance.version>
