@@ -334,7 +334,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.0.2-SNAPSHOT</version>
+                    <version>3.2.0</version>
                     <configuration>
                         <additionalOptions>
                             <additionalOption>${javadoc.options}</additionalOption>
@@ -445,7 +445,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
-                    <version>3.0.2-SNAPSHOT</version>
+                    <version>3.2.0</version>
                     <configuration>
                       <includePom>true</includePom>
                     </configuration>
