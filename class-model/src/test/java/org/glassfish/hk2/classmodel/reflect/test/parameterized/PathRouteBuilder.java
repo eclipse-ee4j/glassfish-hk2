@@ -29,4 +29,8 @@ public class PathRouteBuilder implements RouteBuilder<PathPattern> {
     public PathPattern pattern() {
         return path;
     }
+
+    @Override
+    public void passPattern(PathPattern pattern) {
+    }
 }

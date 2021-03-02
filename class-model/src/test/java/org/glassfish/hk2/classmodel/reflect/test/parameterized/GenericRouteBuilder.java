@@ -30,4 +30,8 @@ public class GenericRouteBuilder<T extends Pattern> implements RouteBuilder<T> {
     public T pattern() {
         return path;
     }
+
+    @Override
+    public void passPattern(T pattern) {
+    }
 }

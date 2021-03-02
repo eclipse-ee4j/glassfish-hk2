@@ -60,7 +60,11 @@ public class ParameterImpl extends AnnotatedElementImpl implements Parameter {
 
     @Override
     public Type getType() {
-        return typeProxy.get();
+        if (typeProxy != null) {
+          return typeProxy.get();
+        } else {
+            return null;
+        }
     }
 
     @Override

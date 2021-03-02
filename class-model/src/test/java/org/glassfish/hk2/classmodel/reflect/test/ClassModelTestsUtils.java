@@ -18,7 +18,6 @@ package org.glassfish.hk2.classmodel.reflect.test;
 
 import org.glassfish.hk2.classmodel.reflect.Parser;
 import org.glassfish.hk2.classmodel.reflect.ParsingContext;
-import org.glassfish.hk2.classmodel.reflect.Type;
 import org.glassfish.hk2.classmodel.reflect.Types;
 import org.glassfish.hk2.classmodel.reflect.util.ParsingConfig;
 import org.junit.Assert;
