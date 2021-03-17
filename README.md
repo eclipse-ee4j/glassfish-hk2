@@ -25,5 +25,6 @@ Commit back, when you are happy with the results.
 
 ## Things to do
 
++ Add JavaDocs
 + Update the docs for the current version of HK2
-+ 
+
