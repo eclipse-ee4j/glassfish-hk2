@@ -16,3 +16,14 @@
 
 # Welcome to Eclipse GlassFish HK2 website repository
 
+## Build
+
+There is no build. All content are markdown and in the ./docs folder. (Docs folder is used in case someone
+later on, wants to create a more elaborate site generation scheme). For now edit the pages as needed.
+Commit back, when you are happy with the results.
+
+
+## Things to do
+
++ Update the docs for the current version of HK2
++ 
