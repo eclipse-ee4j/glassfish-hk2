@@ -1,0 +1,17 @@
+remote_theme: eclipsefdn/jekyll-theme-eclipsefdn
+
+title: GlassFish HK2 - Dependency Injection Kernel
+description: A light-weight and dynamic dependency injection framework
+
+# sidebar links url
+links:
+  download: https://repo1.maven.org/maven2/org/glassfish/hk2/
+  source: https://github.com/eclipse-ee4j/glassfish-hk2
+  mailinglist: https://accounts.eclipse.org/mailing-list/glassfish-dev
+  #javadocs:
+  #docs:
+  #faq:
+  #hide_issuetracker: true #set explicitly to 'true' if you don't want to have the issue tracker link displayed
+
+gems:
+  - jekyll-sitemap
