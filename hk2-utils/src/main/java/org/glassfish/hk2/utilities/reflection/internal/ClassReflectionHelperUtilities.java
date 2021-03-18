@@ -148,6 +148,11 @@ public class ClassReflectionHelperUtilities {
         return retVal;
     }
     
+    /**
+     * Returns methods of a class, including those in superclasses and interfaces.
+     * @param clazz Class to get methods of
+     * @return 
+     */
     static Set<MethodWrapper> getAllMethodWrappers(Class<?> clazz) {
         if (clazz == null) return Collections.emptySet();
         if (Object.class.equals(clazz)) return OBJECT_METHODS;

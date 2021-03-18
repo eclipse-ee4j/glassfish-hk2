@@ -17,6 +17,7 @@
 package org.glassfish.hk2.utilities.reflection.internal;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 import org.glassfish.hk2.utilities.reflection.MethodWrapper;
 import org.glassfish.hk2.utilities.reflection.Pretty;
@@ -42,11 +43,21 @@ public class MethodWrapperImpl implements MethodWrapper {
         
         hashCode ^= method.getName().hashCode();
         hashCode ^= method.getReturnType().hashCode();
+        int modifiers = method.getModifiers();
+        if (Modifier.isPrivate(modifiers)) {
+           hashCode ^= method.getDeclaringClass().hashCode();
+        } else if (isPackagePrivate(modifiers)) {
+           hashCode ^= method.getDeclaringClass().getPackage().hashCode();
+        }
         for (Class<?> param : method.getParameterTypes()) {
             hashCode ^= param.hashCode();
         }
         
         this.hashCode = hashCode;
+    }
+    
+    private boolean isPackagePrivate(int modifiers) {
+        return !Modifier.isPublic(modifiers) && !Modifier.isProtected(modifiers) && !Modifier.isPrivate(modifiers);
     }
 
     /* (non-Javadoc)
