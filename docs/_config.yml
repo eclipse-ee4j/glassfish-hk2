@@ -15,3 +15,5 @@ links:
 
 gems:
   - jekyll-sitemap
+
+theme: jekyll-theme-minimal
