@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2012, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2021 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -16,6 +17,7 @@
 
 package org.glassfish.hk2.tests.locator.negative.method;
 
+import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.MultiException;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.tests.locator.utilities.LocatorHelper;
@@ -37,12 +39,14 @@ public class NegativeMethodTest {
     @Test
     public void testStaticMethod() {
         try {
-            locator.reifyDescriptor(locator.getBestDescriptor(BuilderHelper.createContractFilter(
+            ActiveDescriptor descriptor = locator.reifyDescriptor(locator.getBestDescriptor(BuilderHelper.createContractFilter(
                     StaticMethodService.class.getName())));
-            Assert.fail("static method should cause failure");
+            StaticMethodService methodService = locator.getService(StaticMethodService.class);
         }
         catch (MultiException me) {
-            Assert.assertTrue(me.getMessage().contains("is static, abstract or has a parameter that is an annotation"));
+            me.printStackTrace();
+            Assert.fail(me.getMessage());
+           // Assert.assertTrue(me.getMessage(), me.getMessage().contains("is static, abstract or has a parameter that is an annotation"));
         }
     }
     

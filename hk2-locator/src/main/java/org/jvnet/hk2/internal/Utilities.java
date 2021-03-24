@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2012, 2018 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2020 Payara Services Ltd.
+ * Copyright (c) 2020, 2021 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -1419,6 +1419,9 @@ public class Utilities {
                                 " is static, abstract or has a parameter that is an annotation"));
                 continue;
             }
+            if (Modifier.isStatic(method.getModifiers())) {
+                continue;
+            }
 
             retVal.add(method);
         }
@@ -1485,6 +1488,9 @@ public class Utilities {
                         Pretty.field(field) + " may not be static, final or have an Annotation type"));
                 continue;
             }
+            if (Modifier.isStatic(field.getModifiers())) {
+                continue;
+            }
 
             retVal.add(field);
         }
@@ -1518,7 +1524,7 @@ public class Utilities {
     }
 
   private static boolean isProperMethod(Method member) {
-        if (ReflectionHelper.isStatic(member)) return false;
+        //if (ReflectionHelper.isStatic(member)) return false;
         if (isAbstract(member)) return false;
         for (Class<?> paramClazz : member.getParameterTypes()) {
             if (paramClazz.isAnnotation()) {
@@ -1530,7 +1536,7 @@ public class Utilities {
     }
 
     private static boolean isProperField(Field field) {
-        if (ReflectionHelper.isStatic(field)) return false;
+        //if (ReflectionHelper.isStatic(field)) return false;
         if (isFinal(field)) return false;
         Class<?> type = field.getType();
         return !type.isAnnotation();
