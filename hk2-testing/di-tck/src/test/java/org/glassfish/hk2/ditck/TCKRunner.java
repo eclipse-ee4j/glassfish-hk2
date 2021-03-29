@@ -16,9 +16,11 @@
 package org.glassfish.hk2.ditck;
 
 import jakarta.inject.Singleton;
+import java.lang.annotation.Annotation;
 import org.atinject.tck.Tck;
 import org.atinject.tck.auto.*;
 import org.atinject.tck.auto.accessories.*;
+import org.glassfish.hk2.api.AnnotationLiteral;
 import org.glassfish.hk2.api.DynamicConfiguration;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.utilities.BuilderHelper;
@@ -37,7 +39,7 @@ public class TCKRunner {
         
         dynamicConfig.bind(BuilderHelper.link(FuelTank.class).build());
         dynamicConfig.bind(BuilderHelper.link(Seat.class).in(Singleton.class).build());
-        dynamicConfig.bind(BuilderHelper.link(DriversSeat.class).to(Seat.class).qualifiedBy(Drivers.class.getName()).build());
+        dynamicConfig.bind(BuilderHelper.activeLink(DriversSeat.class).to(Seat.class).qualifiedBy(new DriverAnnotation()).build());
         dynamicConfig.bind(BuilderHelper.link(Seatbelt.class).build());
         dynamicConfig.bind(BuilderHelper.link(V8Engine.class).to(GasEngine.class).to(Engine.class).build());
         dynamicConfig.bind(BuilderHelper.link(Cupholder.class).in(Singleton.class).build());
@@ -48,6 +50,10 @@ public class TCKRunner {
         dynamicConfig.commit();
         Car tckCar = locator.getService(Car.class);
         return Tck.testsFor(tckCar, false, true);
+    }
+    
+    static class DriverAnnotation extends AnnotationLiteral<Drivers> implements Drivers {
+        
     }
 
 }
