@@ -1,5 +1,6 @@
 [//]: # " "
 [//]: # " Copyright (c) 2013, 2021 Oracle and/or its affiliates. All rights reserved. "
+[//]: # " Copyright (c) 2021 Payara Services Ltd. "
 [//]: # " "
 [//]: # " This program and the accompanying materials are made available under the "
 [//]: # " terms of the Eclipse Public License v. 2.0, which is available at "
@@ -21,7 +22,7 @@
 
 ## Compatibility
 
-This page describes the HK2 2.0 API, which was originally based on JSR-330 standard annotations.
+This page describes the HK2 3.0 API, which was originally based on Jakarta Dependency Injection (DI)  standard annotations.
 Also, Habitat has been replaced with a new interface called [ServiceLocator][servicelocator].
 
 ## Introduction
@@ -52,7 +53,7 @@ Once you have created a [ServiceLocator][servicelocator] with the
 [ServiceLocatorFactory][servicelocatorfactory] it will contain at least three services:
  
 - Itself (see [ServiceLocator][servicelocator])
-- The default JSR-330 resolver (see [InjectionResolver][injectionresolver])
+- The default Jakarta DI resolver (see [InjectionResolver][injectionresolver])
 - A service for configuring further services (see [DynamicConfigurationService][dynamicconfigurationservice])
 
 ## Adding in your own services

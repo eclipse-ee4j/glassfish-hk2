@@ -1,5 +1,6 @@
 [//]: # " "
 [//]: # " Copyright (c) 2013, 2021 Oracle and/or its affiliates. All rights reserved. "
+[//]: # " Copyright (c) 2021 Payara Services Ltd. "
 [//]: # " "
 [//]: # " This program and the accompanying materials are made available under the "
 [//]: # " terms of the Eclipse Public License v. 2.0, which is available at "
@@ -22,9 +23,10 @@
 
 ## Compatibility
 
-This page describes the features of the GlassFish HK2 2.0 API.  The Habitat API
-from version 1.x of HK2 has been replaced with a new interface called
-[ServiceLocator][servicelocator]. More information can be found [here][apioverview].
+This page describes the features of the GlassFish HK2 3.0 API.  The Habitat API
+from version 1.x of HK2 has been replaced with an interface called
+[ServiceLocator][servicelocator]. The references to javax.x in 2.x of HK2 have been replaced with jakarta.*.
+More information can be found [here][apioverview].
 
 ## Features of GlassFish HK2
 
@@ -242,9 +244,9 @@ The mind boggles at all the ways [HK2Loader][hk2loader] can be implemented.
 
 ## Custom Injection Resolvers
 
-By default the system provides JSR-330 standard injection.
-That means honoring [@Inject][javaxinject] and all other parts of the JSR-330 specification.
-However, it is sometimes the case that a user would like to customize the JSR-330 resolution in some manner,
+By default the system provides Jakarta Dependency Injection (DI) standard injection.
+That means honoring [@Inject][javaxinject] and all other parts of the Jakarta DI specification.
+However, it is sometimes the case that a user would like to customize the Jakarta DI resolution in some manner,
 or provide their own injection points based on a different annotation.
 
 In order to do so, the user implements [InjectionResolver][injectionresolver].
@@ -255,7 +257,7 @@ Annotations to be used as injection points can optionally be annotated
 with [InjectionPointIndicator][injectionpointindicator].  This annotation
 allows automatic analysis of classes using the custom [InjectionResolver][injectionresolver].
 
-This [example][custom-resolver-example] adds a custom injection resolver that customizes the default JSR-330 injection resolver.
+This [example][custom-resolver-example] adds a custom injection resolver that customizes the default Jakarta DI injection resolver.
 
 ### Just in Time Injection Resolver
 
@@ -314,11 +316,11 @@ the set of [ActiveDescriptors][activedescriptor] in a [ServiceLocator][servicelo
 
 GlassFish HK2 often needs to look at a java class in order to find things about that class such as its set
 of constructors, methods or fields.  The choices GlassFish HK2 makes is usually determined by specifications
-such as JSR-330 or JSR-299.  However, in some cases different specifications make different choices,
-or the user of the GlassFish HK2 system may have some other scheme it would like to use in order to
+such as Jakarta DI or Jakarta Contexts and Dependency Injection (CDI).  However, in some cases different specifications
+make different choices, or the user of the GlassFish HK2 system may have some other scheme it would like to use in order to
 select the parts of class which GlassFish HK2 should manipulate.  For example, the JAX-RS specification
 requires the system to choose the constructor with the largest number of parameters (by default)
-while the JSR-299 specification requires the system to choose the zero-argument constructor
+while the Jakarta CDI specification requires the system to choose the zero-argument constructor
 or else fail.
 
 The GlassFish HK2 system allows the user to register named implementation of the [ClassAnalyzer][classanalyzer]
@@ -327,7 +329,7 @@ Individual GlassFish HK2 [Descriptors][descriptor] can set the name of the [Clas
 that should be used to analyze the implementation class.
 
 GlassFish HK2 always adds an implementation of [ClassAnalyzer][classanalyzer] with the name "default" that implements
-the JSR-299 style of selection.
+the Jakarta CDI style of selection.
 
 ## Run Level Services
 
