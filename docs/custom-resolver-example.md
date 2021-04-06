@@ -1,5 +1,6 @@
 [//]: # " "
 [//]: # " Copyright (c) 2013, 2021 Oracle and/or its affiliates. All rights reserved. "
+[//]: # " Copyright (c) 2021 Payara Services Ltd. "
 [//]: # " "
 [//]: # " This program and the accompanying materials are made available under the "
 [//]: # " terms of the Eclipse Public License v. 2.0, which is available at "
@@ -24,7 +25,7 @@
 This directory contains an example that illustrates how to write a custom injection resolver.
 
 A custom injector allow users to define their own injection annotation, or to customize in some way the system
-injection resolver that does the JSR-330 standard resolution.  In this example, we will define our own
+injection resolver that does the Jakarta DI standard resolution.  In this example, we will define our own
 injection resolver which customizes the JSR-300 standard one, but supplies the ability to get more information
 out of annotations on the parameter of a method.
 
@@ -57,7 +58,7 @@ public @interface HttpParameter {
 }
 ```
 
-The logger parameter of the receiveRequest method is just another service.  This service will come from the normal JSR-330
+The logger parameter of the receiveRequest method is just another service.  This service will come from the normal Jakarta DI
 resolver, but the other parameters will be determined from the HttpParameter annotation.  The determination of
 what the values should take comes from an object called the HttpRequest, which does nothing but store strings in certain indexes.
 The HttpRequest object itself is in the RequestScope context, which means its values will change depending on what request
@@ -106,7 +107,7 @@ Implementations of [InjectionResolver][injectionresolver] may not use the custom
 annotations that they themselves are defining to inject things into themselves.
 
 Implementations of [InjectionResolver][injectionresolver] that want
-to customize the default JSR-330 system provided injector can do so by injecting the default JSR-330 system provided
+to customize the default JSR-330 system provided injector can do so by injecting the default Jakarta DI system provided
 injector.  The AlternateInjectionResolver does just that:
 
 ```java
@@ -116,7 +117,7 @@ public class AlternateInjectResolver implements InjectionResolver<AlternateInjec
 }
 ```
 
-The system JSR-330 injection resolver is put into the registry with a specific name so that other injection resolvers
+The system Jakarta DI injection resolver is put into the registry with a specific name so that other injection resolvers
 can easily inject it using the @Named annotation.
 
 Now we need to write the resolve method from [InjectionResolver][injectionresolver].
@@ -186,7 +187,7 @@ before returning the object.  Here is how that code works:
 That is it for the implementation of our custom injection resolver!  Every time the HttpEventReceiver
 class is instantiated its receiveRequest method will be called with the values from the current
 HttpRequest.  The custom injection resolver was used to find the proper values in the HttpRequest and
-to convert them to the proper types.  The logger would come from the default JSR-330 resolver, since
+to convert them to the proper types.  The logger would come from the default Jakarta DI resolver, since
 it is not annotated with the HttpParameter annotation.
 
 ### The RequestScope Context
@@ -405,7 +406,7 @@ After having this utility method, the test itself is very simple, and just ensur
  with a fake HttpServer example, that takes requests from a fake network and passes values to services based on fields in the
  HttpRequest.  We have seen how the custom resolver can use data from annotations to further discover the values that should be
  given to the parameter.  We have seen how the proxiable request context is used to ensure that the underlying request can
- change from request to request.  We have shown how a custom resolver can customize the default JSR-330 provider.
+ change from request to request.  We have shown how a custom resolver can customize the default Jakarta DI provider.
 
 [context]: apidocs/org/glassfish/hk2/api/Context.html
 [injectionresolver]: apidocs/org/glassfish/hk2/api/InjectionResolver.html

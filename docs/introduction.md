@@ -1,5 +1,6 @@
 [//]: # " "
 [//]: # " Copyright (c) 2013, 2021 Oracle and/or its affiliates. All rights reserved. "
+[//]: # " Copyright (c) 2021 Payara Services Ltd. "
 [//]: # " "
 [//]: # " This program and the accompanying materials are made available under the "
 [//]: # " terms of the Eclipse Public License v. 2.0, which is available at "
@@ -19,15 +20,15 @@
 
 # Introduction to GlassFish HK2
 
-This page describes the GlassFish HK2 2.0 API, which is based on JSR-330 standard annotations.
+This page describes the GlassFish HK2 3.0 API, which is based on Jakarta Dependency Injection (DI) standard annotations.
 Also, Habitat has been replaced with a new interface called [ServiceLocator][servicelocator].
 
 GlassFish HK2 is a declarative framework for services using annotations like [Contract][contract] and [Service][service].
-This page is intended to show simple usages of GlassFish HK2 mainly using the standard JSR-330 API.
+This page is intended to show simple usages of GlassFish HK2 mainly using the standard Jakarta DI API.
 
 For information about using the GlassFish HK2 programmatic API see [this page][api-overview].
 For information about GlassFish HK2 extensibility options see [this page][extensibility]
-For information about JSR-330 see [this site][jsr330].
+For information about Jakarta DI see [this site][jakartadi].
 
 This page assumes that you are using the GlassFish HK2 provided ability to automatically find and
 register services in an GlassFish HK2 registry.  For more information on how to control what services
@@ -121,7 +122,7 @@ It is an exercise left up to the reader to implement the Red and Yellow annotati
 ## Basic Injection
 
 Lets make our example a little more interesting by injecting a book into Foo.  This is done using the
-JSR-330 standard [Inject][inject] annotation:
+Jakarta DI standard [Inject][inject] annotation:
  
 ```java
 @Service
@@ -355,7 +356,7 @@ instance of [IterableProvider][iterableprovider].
  
 ## Conclusion
 
-The majority of usages of GlassFish HK2 should use standard JSR-330 annotations along with
+The majority of usages of GlassFish HK2 should use standard Jakarta DI annotations along with
 [@Service][service] and [@Contract][contract].
 In some cases code will also use [IterableProvider][iterableprovider] as outlined above.
 In even rarer cases the code may need extremely specialized control over GlassFish HK2 by using the
@@ -369,6 +370,7 @@ can be used in your own applications.
 [contract]: apidocs/org/jvnet/hk2/annotations/Contract.html
 [service]: apidocs/org/jvnet/hk2/annotations/Service.html
 [jsr330]: http://www.jcp.org/en/jsr/detail?id=330
+[jakartadi]: https://jakarta.ee/specifications/dependency-injection/
 [api-overview]: ./api-overview.html
 [extensibility]: ./extensibility.html
 [inject]: https://jakarta.ee/specifications/platform/8/apidocs/javax/inject/Inject.html
