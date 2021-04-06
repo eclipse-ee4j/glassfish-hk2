@@ -27,6 +27,6 @@ import org.glassfish.hk2.api.ServiceLocator;
  */
 public class StaticFieldService {
     @Inject
-    static ServiceLocator locator;
+    public static ServiceLocator locator;
 
 }

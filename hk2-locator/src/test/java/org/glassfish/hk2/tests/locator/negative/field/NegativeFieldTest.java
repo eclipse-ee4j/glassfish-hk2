@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2012, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2021 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -36,14 +37,10 @@ public class NegativeFieldTest {
      */
     @Test
     public void testStaticField() {
-        try {
             locator.reifyDescriptor(locator.getBestDescriptor(BuilderHelper.createContractFilter(
                     StaticFieldService.class.getName())));
-            Assert.fail("static field should cause failure");
-        }
-        catch (MultiException me) {
-            Assert.assertTrue(me.getMessage().contains(" may not be static, final or have an Annotation type"));
-        }
+            StaticFieldService fieldService = locator.getService(StaticFieldService.class);
+            Assert.assertNull(fieldService.locator);
     }
     
     /**
