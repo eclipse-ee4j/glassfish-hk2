@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2021 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -16,7 +16,6 @@
 
 package org.glassfish.hk2.xml.internal;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -29,6 +28,7 @@ import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.LoaderClassPath;
 import javassist.NotFoundException;
+import javassist.bytecode.ClassFile;
 
 import org.glassfish.hk2.api.MultiException;
 import org.glassfish.hk2.utilities.cache.Computable;
@@ -65,7 +65,7 @@ public class JAUtilities {
         }
             
     });
-    
+
     public final static String GET = "get";
     public final static String SET = "set";
     public final static String IS = "is";
@@ -238,8 +238,12 @@ public class JAUtilities {
                   CtClass generated = Generator.generate(new ClassAltClassImpl(key, classReflectionHelper),
                         jaUtilities.getBaseClass(),
                         jaUtilities.getClassPool());
-                  
-                  proxyClass = generated.toClass(key.getClassLoader(), key.getProtectionDomain());
+
+                  if (ClassFile.MAJOR_VERSION > ClassFile.JAVA_8) {
+                      proxyClass = generated.toClass(key);
+                  } else {
+                      proxyClass = generated.toClass(key.getClassLoader(), key.getProtectionDomain());
+                  }
                 }
                 catch (RuntimeException re) {
                     throw new RuntimeException("Could not compile proxy for class " + iFaceName, re);
