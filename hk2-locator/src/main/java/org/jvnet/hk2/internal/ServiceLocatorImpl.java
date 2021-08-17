@@ -40,6 +40,7 @@ import java.util.StringTokenizer;
 import java.util.TreeSet;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -166,8 +167,8 @@ public class ServiceLocatorImpl implements ServiceLocator {
             new WeakHashMap<ServiceLocatorImpl, ServiceLocatorImpl>(); // Must be Weak for throw away children
 
     private final Object classAnalyzerLock = new Object();
-    private final HashMap<String, ClassAnalyzer> classAnalyzers =
-            new HashMap<String, ClassAnalyzer>();
+    private final ConcurrentMap<String, ClassAnalyzer> classAnalyzers =
+            new ConcurrentHashMap<String, ClassAnalyzer>();
     private String defaultClassAnalyzer = ClassAnalyzer.DEFAULT_IMPLEMENTATION_NAME;
     private volatile Unqualified defaultUnqualified = null;
 
