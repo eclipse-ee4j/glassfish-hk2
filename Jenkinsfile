@@ -46,7 +46,6 @@ spec:
   - name: jnlp
     image: jenkins/jnlp-slave:alpine
     imagePullPolicy: IfNotPresent
-    volumeMounts:
     env:
       - name: JAVA_TOOL_OPTIONS
         value: -Xmx1G
