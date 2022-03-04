@@ -30,7 +30,7 @@ public abstract class AbstractAnnotationVisitorImpl extends AnnotationVisitor {
      * Gives the version implemented to the superclass
      */
     public AbstractAnnotationVisitorImpl() {
-        super(Opcodes.ASM7);
+        super(Opcodes.ASM9);
     }
     
     /* (non-Javadoc)
