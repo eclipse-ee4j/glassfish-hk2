@@ -39,7 +39,6 @@
         <module>hk2-runlevel-extras</module>
         <module>hk2-locator-no-proxies</module>
         <module>hk2-locator-no-proxies2</module>
-        <module>di-tck</module>
         <module>interceptor-events</module>
         <module>hk2-mockito</module>
         <module>collections</module>
