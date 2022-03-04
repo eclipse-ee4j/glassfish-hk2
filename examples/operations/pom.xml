@@ -63,6 +63,7 @@
             <plugin>
                 <groupId>org.glassfish.hk2</groupId>
                 <artifactId>config-generator</artifactId>
+                <version>2.5.0-b53</version>
                 <executions>
                     <execution>
                         <id>generate-injectors</id>
