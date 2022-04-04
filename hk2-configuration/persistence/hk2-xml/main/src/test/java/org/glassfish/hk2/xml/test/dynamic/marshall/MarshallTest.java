@@ -16,7 +16,6 @@
 
 package org.glassfish.hk2.xml.test.dynamic.marshall;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

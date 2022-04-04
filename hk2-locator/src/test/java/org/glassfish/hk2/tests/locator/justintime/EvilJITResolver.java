@@ -18,13 +18,10 @@ package org.glassfish.hk2.tests.locator.justintime;
 
 import java.lang.reflect.Type;
 
-import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 import org.glassfish.hk2.api.Injectee;
 import org.glassfish.hk2.api.JustInTimeInjectionResolver;
-
-import org.glassfish.hk2.utilities.BuilderHelper;
 
 @Singleton
 public class EvilJITResolver implements JustInTimeInjectionResolver {

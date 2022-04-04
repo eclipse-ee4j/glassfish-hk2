@@ -17,7 +17,6 @@
 package org.glassfish.hk2.tests.locator.descriptornamed;
 
 import org.glassfish.hk2.api.ServiceLocator;
-import org.glassfish.hk2.tests.locator.customresolver.CustomResolverModule;
 import org.glassfish.hk2.tests.locator.utilities.LocatorHelper;
 import org.junit.Assert;
 import org.junit.Test;

@@ -18,10 +18,8 @@ package org.glassfish.hk2.configuration.tests.threaded;
 
 import java.util.List;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.inject.Inject;
 
-import org.glassfish.hk2.api.IterableProvider;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.configuration.api.Configured;
 import org.glassfish.hk2.configuration.api.ConfiguredBy;

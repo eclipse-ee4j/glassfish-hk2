@@ -20,7 +20,6 @@ import org.junit.Assert;
 
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.api.ServiceLocatorState;
-import org.glassfish.hk2.tests.locator.qualifiers.QualifierModule;
 import org.glassfish.hk2.tests.locator.utilities.LocatorHelper;
 import org.junit.Test;
 

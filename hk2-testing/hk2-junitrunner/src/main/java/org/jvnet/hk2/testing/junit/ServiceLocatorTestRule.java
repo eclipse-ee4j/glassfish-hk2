@@ -26,10 +26,6 @@ import java.io.InputStreamReader;
 import java.io.PrintStream; // for javadoc only
 
 import java.lang.annotation.Annotation;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
 
 import java.lang.reflect.AnnotatedElement;
 
@@ -51,7 +47,6 @@ import java.util.zip.ZipFile;
 
 import jakarta.inject.Singleton;
 
-import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.Descriptor;
 import org.glassfish.hk2.api.DynamicConfiguration;
 import org.glassfish.hk2.api.DynamicConfigurationService;
@@ -63,8 +58,6 @@ import org.glassfish.hk2.api.ServiceLocatorState;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.Opcodes;
 
 import org.glassfish.hk2.utilities.AbstractActiveDescriptor;
 import org.glassfish.hk2.utilities.Binder;
@@ -73,7 +66,6 @@ import org.glassfish.hk2.utilities.DescriptorImpl;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 
 import org.junit.ClassRule; // for javadoc only
-import org.junit.Test;
 
 import org.junit.rules.ExternalResource;
 
@@ -91,7 +83,6 @@ import org.jvnet.hk2.testing.junit.internal.ClassVisitorImpl;
 import org.jvnet.hk2.testing.junit.internal.ErrorServiceImpl;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
 
 /**

@@ -17,7 +17,6 @@
 package org.glassfish.hk2.bootstrap;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 

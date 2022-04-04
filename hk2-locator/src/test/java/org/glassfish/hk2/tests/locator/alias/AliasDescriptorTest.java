@@ -25,7 +25,6 @@ import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.api.ServiceLocatorFactory;
 import org.glassfish.hk2.utilities.AliasDescriptor;
 import org.glassfish.hk2.utilities.BuilderHelper;
-import org.glassfish.hk2.utilities.NamedImpl;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 import org.junit.Assert;
 import org.junit.Test;

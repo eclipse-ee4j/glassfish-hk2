@@ -16,7 +16,6 @@
 
 package org.glassfish.hk2.runlevel.tests.cancel;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.inject.Inject;
 

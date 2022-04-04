@@ -23,7 +23,6 @@ import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.configuration.hub.api.Hub;
 import org.glassfish.hk2.xml.api.XmlRootHandle;
 import org.glassfish.hk2.xml.api.XmlService;
-import org.glassfish.hk2.xml.spi.XmlServiceParser;
 import org.glassfish.hk2.xml.test.beans.DomainBean;
 import org.glassfish.hk2.xml.test.dynamic.merge.MergeTest;
 import org.glassfish.hk2.xml.test.utilities.Utilities;

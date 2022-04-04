@@ -18,7 +18,6 @@ package org.glassfish.hk2.xml.test.beans;
 
 import java.util.List;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlIDREF;
 

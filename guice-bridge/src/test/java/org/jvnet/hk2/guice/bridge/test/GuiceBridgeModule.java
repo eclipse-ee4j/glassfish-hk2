@@ -20,12 +20,6 @@ package org.jvnet.hk2.guice.bridge.test;
 import org.glassfish.hk2.utilities.NamedImpl;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.internal.Annotations;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.util.List;
-import jakarta.inject.Qualifier;
-import java.util.ArrayList;
 import org.jvnet.hk2.guice.bridge.api.GuiceBridge;
 
 /**

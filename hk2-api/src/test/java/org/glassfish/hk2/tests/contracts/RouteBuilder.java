@@ -16,8 +16,6 @@
 
 package org.glassfish.hk2.tests.contracts;
 
-import org.jvnet.hk2.annotations.Contract;
-
 /**
  * Created by IntelliJ IDEA.
  * User: dochez

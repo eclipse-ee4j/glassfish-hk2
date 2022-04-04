@@ -19,14 +19,9 @@ package org.glassfish.hk2.classmodel.reflect.test.ordering;
 import org.glassfish.hk2.classmodel.reflect.Parser;
 import org.glassfish.hk2.classmodel.reflect.ParsingContext;
 import org.glassfish.hk2.classmodel.reflect.Type;
-import org.glassfish.hk2.classmodel.reflect.util.InputStreamArchiveAdapter;
 import org.junit.Ignore;
 
 import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
 import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;

@@ -16,10 +16,8 @@
 
 package org.glassfish.hk2.runlevel.tests.listener1;
 
-import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
-import org.glassfish.hk2.api.IterableProvider;
 import org.glassfish.hk2.runlevel.ChangeableRunLevelFuture;
 import org.glassfish.hk2.runlevel.ErrorInformation;
 import org.glassfish.hk2.runlevel.ProgressStartedListener;

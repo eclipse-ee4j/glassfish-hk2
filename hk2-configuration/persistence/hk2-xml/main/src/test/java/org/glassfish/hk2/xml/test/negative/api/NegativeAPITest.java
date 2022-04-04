@@ -25,7 +25,6 @@ import java.net.URL;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 
-import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.Filter;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.utilities.BuilderHelper;

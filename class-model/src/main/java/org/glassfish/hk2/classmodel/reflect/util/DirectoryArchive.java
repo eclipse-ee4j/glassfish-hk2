@@ -21,7 +21,6 @@ import org.glassfish.hk2.classmodel.reflect.Parser;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.net.URI;
-import java.nio.channels.FileChannel;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.logging.Level;

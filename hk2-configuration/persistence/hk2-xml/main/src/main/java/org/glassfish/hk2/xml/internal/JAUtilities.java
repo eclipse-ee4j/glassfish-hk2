@@ -16,7 +16,6 @@
 
 package org.glassfish.hk2.xml.internal;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedAction;

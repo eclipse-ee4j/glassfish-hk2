@@ -18,7 +18,6 @@ package org.glassfish.hk2.utilities.reflection;
 
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Type;
-import java.util.Arrays;
 
 import org.glassfish.hk2.utilities.general.GeneralUtilities;
 

@@ -18,7 +18,6 @@ package org.glassfish.hk2.pbuf.test.basic;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
