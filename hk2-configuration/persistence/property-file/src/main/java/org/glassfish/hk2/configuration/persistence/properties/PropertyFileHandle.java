@@ -16,7 +16,6 @@
 
 package org.glassfish.hk2.configuration.persistence.properties;
 
-import java.io.IOException;
 import java.util.Properties;
 
 /**

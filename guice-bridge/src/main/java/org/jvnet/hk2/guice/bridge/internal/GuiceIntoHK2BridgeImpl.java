@@ -18,8 +18,6 @@ package org.jvnet.hk2.guice.bridge.internal;
 
 import jakarta.inject.Inject;
 
-import org.glassfish.hk2.api.DynamicConfiguration;
-import org.glassfish.hk2.api.DynamicConfigurationService;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 import org.jvnet.hk2.annotations.Service;

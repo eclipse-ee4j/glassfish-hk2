@@ -60,8 +60,6 @@ import org.glassfish.hk2.utilities.general.GeneralUtilities;
 import org.glassfish.hk2.xml.internal.Generator;
 import org.glassfish.hk2.xml.internal.Utilities;
 
-import com.google.protobuf.Method;
-
 /**
  * @author jwells
  *

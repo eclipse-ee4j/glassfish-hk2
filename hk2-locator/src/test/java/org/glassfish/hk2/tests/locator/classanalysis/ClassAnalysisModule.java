@@ -23,7 +23,6 @@ import org.glassfish.hk2.api.DynamicConfiguration;
 import org.glassfish.hk2.api.PerLookup;
 import org.glassfish.hk2.tests.locator.utilities.TestModule;
 import org.glassfish.hk2.utilities.BuilderHelper;
-import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 
 /**
  * @author jwells

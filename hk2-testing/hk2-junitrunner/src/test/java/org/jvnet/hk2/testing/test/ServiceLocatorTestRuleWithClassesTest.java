@@ -17,25 +17,17 @@
 package org.jvnet.hk2.testing.test;
 
 import jakarta.inject.Inject;
-import jakarta.inject.Named;
 
 import org.glassfish.hk2.api.ServiceLocator;
 
-import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
-
 import org.junit.Rule;
 import org.junit.Test;
-
-import org.junit.rules.TestRule;
-
-import org.junit.runner.Description;
 
 import org.jvnet.hk2.testing.junit.ServiceLocatorTestRule;
 import org.jvnet.hk2.testing.junit.ServiceLocatorTestRule.ServiceLocatorIsolation;
 
 import org.jvnet.hk2.testing.junit.annotations.Classes;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @Classes({

@@ -18,7 +18,6 @@ package org.glassfish.hk2.tests.locator.provider;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Provider;
-import jakarta.inject.Singleton;
 
 /**
  * @author jwells

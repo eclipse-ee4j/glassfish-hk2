@@ -19,11 +19,9 @@ package org.glassfish.hk2.tests.operation.basic;
 import jakarta.inject.Inject;
 
 import org.glassfish.hk2.api.ProxyCtl;
-import org.glassfish.hk2.api.ServiceLocator;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 @BasicOperationScope
 public class Frobnicator {

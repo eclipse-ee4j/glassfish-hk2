@@ -16,7 +16,6 @@
 package org.glassfish.hk2.ditck;
 
 import jakarta.inject.Singleton;
-import java.lang.annotation.Annotation;
 import org.atinject.tck.Tck;
 import org.atinject.tck.auto.*;
 import org.atinject.tck.auto.accessories.*;

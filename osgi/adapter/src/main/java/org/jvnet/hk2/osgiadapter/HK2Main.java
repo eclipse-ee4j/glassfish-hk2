@@ -32,7 +32,6 @@ import org.glassfish.hk2.api.DynamicConfigurationService;
 import org.glassfish.hk2.api.PopulatorPostProcessor;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.utilities.AbstractActiveDescriptor;
-import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.BuilderHelper;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;

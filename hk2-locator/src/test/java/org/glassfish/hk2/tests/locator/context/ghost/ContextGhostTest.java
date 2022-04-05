@@ -18,12 +18,10 @@ package org.glassfish.hk2.tests.locator.context.ghost;
 
 import java.lang.annotation.Annotation;
 
-import jakarta.inject.Singleton;
 
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.AnnotationLiteral;
 import org.glassfish.hk2.api.Descriptor;
-import org.glassfish.hk2.api.PerLookup;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.tests.locator.utilities.LocatorHelper;
 import org.glassfish.hk2.utilities.BuilderHelper;

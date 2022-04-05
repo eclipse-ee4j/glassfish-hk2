@@ -29,8 +29,6 @@ import jakarta.inject.Singleton;
 
 import org.glassfish.hk2.api.ClassAnalyzer;
 import org.glassfish.hk2.api.MultiException;
-import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
-import org.glassfish.hk2.utilities.reflection.Logger;
 
 /**
  * Implementation of the ClassAnalyzer that prefers the

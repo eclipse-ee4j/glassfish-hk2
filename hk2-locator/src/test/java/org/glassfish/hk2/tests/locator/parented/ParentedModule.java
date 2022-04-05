@@ -16,8 +16,6 @@
 
 package org.glassfish.hk2.tests.locator.parented;
 
-import jakarta.inject.Singleton;
-
 import org.glassfish.hk2.api.DynamicConfiguration;
 import org.glassfish.hk2.api.PerLookup;
 import org.glassfish.hk2.tests.locator.utilities.TestModule;

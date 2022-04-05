@@ -17,7 +17,6 @@
 package org.glassfish.hk2.runlevel.tests.sync;
 
 import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import jakarta.inject.Inject;
 
 import org.glassfish.hk2.runlevel.RunLevel;

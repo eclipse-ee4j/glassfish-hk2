@@ -32,7 +32,6 @@ import org.glassfish.hk2.api.FactoryDescriptors;
 import org.glassfish.hk2.api.Immediate;
 import org.glassfish.hk2.api.ImmediateController;
 import org.glassfish.hk2.api.ImmediateController.ImmediateServiceState;
-import org.glassfish.hk2.api.ServiceHandle;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.tests.locator.utilities.LocatorHelper;
 import org.glassfish.hk2.utilities.BuilderHelper;

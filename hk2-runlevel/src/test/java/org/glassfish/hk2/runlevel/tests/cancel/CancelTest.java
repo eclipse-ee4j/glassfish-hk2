@@ -26,7 +26,6 @@ import org.glassfish.hk2.runlevel.RunLevelController.ThreadingPolicy;
 import org.glassfish.hk2.runlevel.RunLevelFuture;
 import org.glassfish.hk2.runlevel.tests.utilities.Utilities;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**

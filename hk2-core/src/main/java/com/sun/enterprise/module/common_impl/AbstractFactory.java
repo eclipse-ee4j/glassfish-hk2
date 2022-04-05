@@ -18,7 +18,6 @@ package com.sun.enterprise.module.common_impl;
 
 import com.sun.enterprise.module.ModuleDefinition;
 import com.sun.enterprise.module.ModulesRegistry;
-import com.sun.enterprise.module.HK2Module;
 
 /**
  * @author Sanjeeb.Sahoo@Sun.COM

@@ -16,20 +16,15 @@
 
 package org.glassfish.hk2.tests.locator.arrays;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
 import jakarta.inject.Singleton;
 
-import org.glassfish.hk2.api.Descriptor;
 import org.glassfish.hk2.api.DynamicConfiguration;
-import org.glassfish.hk2.api.FactoryDescriptors;
 import org.glassfish.hk2.api.PerLookup;
 import org.glassfish.hk2.tests.locator.utilities.TestModule;
 import org.glassfish.hk2.utilities.BuilderHelper;
-import org.jvnet.hk2.internal.Utilities;
 
 /**
  * @author jwells

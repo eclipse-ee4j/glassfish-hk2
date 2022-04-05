@@ -17,11 +17,7 @@
 package org.glassfish.hk2.api;
 
 import java.io.Closeable;
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This service handle can be used to get a specific instance

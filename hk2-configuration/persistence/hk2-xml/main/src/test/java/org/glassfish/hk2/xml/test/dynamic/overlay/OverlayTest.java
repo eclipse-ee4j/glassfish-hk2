@@ -17,7 +17,6 @@
 package org.glassfish.hk2.xml.test.dynamic.overlay;
 
 import java.net.URL;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +25,6 @@ import org.glassfish.hk2.configuration.hub.api.Change;
 import org.glassfish.hk2.configuration.hub.api.Hub;
 import org.glassfish.hk2.configuration.hub.api.Instance;
 import org.glassfish.hk2.configuration.hub.api.Change.ChangeCategory;
-import org.glassfish.hk2.configuration.hub.api.Type;
 import org.glassfish.hk2.xml.api.XmlHk2ConfigurationBean;
 import org.glassfish.hk2.xml.api.XmlRootHandle;
 import org.glassfish.hk2.xml.api.XmlService;

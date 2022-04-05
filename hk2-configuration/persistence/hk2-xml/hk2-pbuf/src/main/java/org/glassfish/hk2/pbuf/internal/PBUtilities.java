@@ -16,7 +16,6 @@
 
 package org.glassfish.hk2.pbuf.internal;
 
-import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
@@ -25,8 +24,6 @@ import org.glassfish.hk2.pbuf.api.annotations.OneOf;
 import org.glassfish.hk2.utilities.reflection.ClassReflectionHelper;
 import org.glassfish.hk2.utilities.reflection.MethodWrapper;
 import org.glassfish.hk2.utilities.reflection.internal.ClassReflectionHelperImpl;
-
-import com.google.protobuf.CodedInputStream;
 
 /**
  * @author jwells
