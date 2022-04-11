@@ -139,7 +139,7 @@
         <mvn.version>3.0.3</mvn.version>
 
         <jakarta.annotation.version>2.0.0</jakarta.annotation.version>
-        <jakarta.json.version>2.0.0</jakarta.json.version>
+        <jakarta.json.version>2.1.0</jakarta.json.version>
         <glassfish.json.version>2.0.0</glassfish.json.version>
         <jaxb-api.version>3.0.0</jaxb-api.version>
         <jaxb-runtime.version>3.0.0</jaxb-runtime.version>
