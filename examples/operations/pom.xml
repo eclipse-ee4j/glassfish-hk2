@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.glassfish.hk2</groupId>
         <artifactId>examples</artifactId>
-        <version>3.0.2-SNAPSHOT</version>
+        <version>3.0.4-SNAPSHOT</version>
     </parent>
     <artifactId>operations-example</artifactId>
     <name>Operations Example</name>
@@ -63,6 +63,7 @@
             <plugin>
                 <groupId>org.glassfish.hk2</groupId>
                 <artifactId>config-generator</artifactId>
+                <version>2.5.0-b53</version>
                 <executions>
                     <execution>
                         <id>generate-injectors</id>
