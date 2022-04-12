@@ -17,7 +17,6 @@
 package org.glassfish.hk2.classmodel.reflect.impl;
 
 import org.glassfish.hk2.classmodel.reflect.*;
-import org.glassfish.hk2.classmodel.reflect.util.ParsingConfig;
 import org.objectweb.asm.Opcodes;
 
 import java.net.URI;

@@ -16,7 +16,6 @@
 
 package org.glassfish.hk2.utilities;
 
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;

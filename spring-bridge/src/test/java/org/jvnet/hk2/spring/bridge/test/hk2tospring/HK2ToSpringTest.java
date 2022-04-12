@@ -18,13 +18,10 @@ package org.jvnet.hk2.spring.bridge.test.hk2tospring;
 
 import org.glassfish.hk2.api.ServiceLocator;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.jvnet.hk2.spring.bridge.api.SpringScopeImpl;
 import org.jvnet.hk2.spring.bridge.test.utilities.LocatorAndContext;
 import org.jvnet.hk2.spring.bridge.test.utilities.Utilities;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ConfigurableApplicationContext;
 
 /**
  * @author jwells

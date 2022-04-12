@@ -26,7 +26,6 @@ import org.glassfish.hk2.aopEvents.PackageEventSubscriberService;
 import org.glassfish.hk2.aopEvents.PrivateEventSubscriberService;
 import org.glassfish.hk2.aopEvents.ProtectedEventSubscriberService;
 import org.glassfish.hk2.extras.ExtrasUtilities;
-import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

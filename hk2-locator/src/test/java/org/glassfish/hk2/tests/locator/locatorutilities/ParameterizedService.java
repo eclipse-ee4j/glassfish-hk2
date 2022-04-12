@@ -16,8 +16,6 @@
 
 package org.glassfish.hk2.tests.locator.locatorutilities;
 
-import jakarta.inject.Singleton;
-
 import org.jvnet.hk2.annotations.Contract;
 
 /**

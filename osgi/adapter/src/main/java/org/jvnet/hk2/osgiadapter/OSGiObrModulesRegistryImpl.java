@@ -18,7 +18,6 @@
 package org.jvnet.hk2.osgiadapter;
 
 import com.sun.enterprise.module.*;
-import com.sun.enterprise.module.Repository;
 import org.osgi.framework.*;
 
 import java.net.URI;

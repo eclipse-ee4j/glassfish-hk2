@@ -17,8 +17,6 @@
 package org.jvnet.hk2.guice.bridge.test.bidirectional;
 
 import org.glassfish.hk2.api.DynamicConfiguration;
-import org.jvnet.hk2.guice.bridge.internal.GuiceIntoHK2BridgeImpl;
-import org.jvnet.hk2.guice.bridge.internal.GuiceScopeContext;
 import org.jvnet.hk2.testing.junit.HK2TestModule;
 
 /**

@@ -17,7 +17,6 @@
 package com.sun.enterprise.module.common_impl;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URL;

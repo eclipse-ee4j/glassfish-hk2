@@ -24,7 +24,6 @@
 
 package org.glassfish.hk2.xml.schema.beans;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.xml.bind.annotation.XmlAccessType;

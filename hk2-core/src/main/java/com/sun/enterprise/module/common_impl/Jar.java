@@ -20,15 +20,10 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URL;
-import java.util.Enumeration;
-import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-import java.util.logging.Level;
 import java.util.zip.ZipException;
 
-import com.sun.enterprise.module.InhabitantsDescriptor;
 import com.sun.enterprise.module.ModuleMetadata;
 
 /**

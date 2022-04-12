@@ -31,7 +31,6 @@ import org.glassfish.hk2.runlevel.RunLevelController;
 import org.glassfish.hk2.runlevel.RunLevelFuture;
 import org.glassfish.hk2.runlevel.tests.utilities.Utilities;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.jvnet.hk2.annotations.Service;
 

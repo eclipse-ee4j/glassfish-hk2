@@ -16,8 +16,6 @@
 
 package org.jvnet.hk2.guice.bridge.test;
 
-import jakarta.inject.Inject;
-
 import org.junit.Assert;
 import org.jvnet.hk2.guice.bridge.api.HK2Inject;
 
