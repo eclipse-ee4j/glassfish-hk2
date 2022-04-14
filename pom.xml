@@ -446,7 +446,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
-                    <version>3.2.0</version>
+                    <version>3.2.1</version>
                     <configuration>
                       <includePom>true</includePom>
                     </configuration>
@@ -788,7 +788,7 @@
             <dependency>
                 <groupId>org.easymock</groupId>
                 <artifactId>easymock</artifactId>
-                <version>3.5</version>
+                <version>4.3</version>
             </dependency>
             <dependency>
                 <groupId>jakarta.validation</groupId>
