@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2019 Payara Services Ltd.
  * Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2022 Contributors to Eclipse Foundation. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -21,7 +22,7 @@ import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.api.ServiceLocatorState;
 import org.glassfish.hk2.tests.locator.utilities.LocatorHelper;
 import org.junit.Test;
-import org.testng.Assert;
+import org.junit.Assert;
 
 /**
  *

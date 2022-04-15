@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2022 Contributors to Eclipse Foundation. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -100,7 +101,7 @@ public class BindingTest {
       expect(dcs.createDynamicConfiguration()).andReturn(dc);
 
       // expect a descriptor to be bound, capture it so the fields can be checked later
-      Capture<Descriptor> capturedDescriptor = new Capture<Descriptor>();
+      Capture<Descriptor> capturedDescriptor = EasyMock.newCapture();
 
       expect(dc.bind(capture(capturedDescriptor), eq(false))).andReturn(null);
 

@@ -787,7 +787,7 @@
             <dependency>
                 <groupId>org.easymock</groupId>
                 <artifactId>easymock</artifactId>
-                <version>3.5</version>
+                <version>4.3</version>
             </dependency>
             <dependency>
                 <groupId>jakarta.validation</groupId>
