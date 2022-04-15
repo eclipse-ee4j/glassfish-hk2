@@ -885,7 +885,7 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
                             <!-- <argLine>-enableassertions</argLine> -->
-                            <argLine>${surefireArgLineExtra}</argLine>
+                            <argLine>@{surefireArgLineExtra}</argLine>
                             <systemProperties>
                                 <property>
                                     <name>java.util.logging.config.file</name>
