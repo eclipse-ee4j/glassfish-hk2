@@ -724,7 +724,7 @@
             <dependency>
                 <groupId>org.ops4j.pax.logging</groupId>
                 <artifactId>pax-logging-service</artifactId>
-                <version>1.7.2</version>
+                <version>1.11.2</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
