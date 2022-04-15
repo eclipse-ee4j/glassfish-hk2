@@ -41,7 +41,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <argLine>-Dbuild.dir=${project.build.directory} ${surefireArgLineExtra}</argLine>
+                    <argLine>-Dbuild.dir=${project.build.directory} @{surefireArgLineExtra}</argLine>
                     <excludes>
                         <exclude>**/gendir/*</exclude>
                     </excludes>

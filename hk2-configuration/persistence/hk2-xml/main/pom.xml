@@ -99,7 +99,7 @@
                     <!-- Turns on debug logging, sets the english language as a default -->
                     <argLine>
                       -Dorg.jvnet.hk2.logger.debugToStdout=false
-                      -Dorg.jvnet.hk2.properties.xmlservice.jaxb.getsandsets=false ${surefireArgLineExtra}
+                      -Dorg.jvnet.hk2.properties.xmlservice.jaxb.getsandsets=false @{surefireArgLineExtra}
                       -Duser.language=en
                     </argLine>
                 </configuration>

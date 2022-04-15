@@ -35,8 +35,13 @@ pipeline {
         maven 'apache-maven-latest'
       }
       steps {
-        sh 'mvn clean install'
+        sh 'mvn clean install -P jacoco'
         junit testResults: '**/target/surefire-reports/*.xml', allowEmptyResults: true
+        jacoco execPattern: '**/**.exec',
+               classPattern: '**/classes',
+               sourcePattern: '**/src/main/java',
+               sourceInclusionPattern: '**/*.java'
+
       }
     }
   }
