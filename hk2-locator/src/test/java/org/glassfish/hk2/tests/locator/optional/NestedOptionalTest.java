@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 Contributors to the Eclipse Foundation.
+ * Copyright (c) 2020, 2022 Contributors to the Eclipse Foundation.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -20,7 +20,7 @@ import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.testng.Assert;
+import org.junit.Assert;
 
 /** @author Balthasar Schüss */
 public class NestedOptionalTest {
