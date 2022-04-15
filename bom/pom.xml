@@ -36,7 +36,7 @@
     
     <properties>
         <asm.version>9.3</asm.version>
-        <jakarta-inject.version>2.0.0</jakarta-inject.version>
+        <jakarta-inject.version>2.0.1</jakarta-inject.version>
     </properties>
 
     <dependencyManagement>
