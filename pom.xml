@@ -159,7 +159,7 @@
         <testng.version>7.1.0</testng.version>
         <assertj.version>3.22.0</assertj.version>
         <pax-exam-version>4.13.1</pax-exam-version>
-        <jakarta-inject.version>2.0.0</jakarta-inject.version>
+        <jakarta-inject.version>2.0.1</jakarta-inject.version>
         <slf4j.version>1.7.36</slf4j.version>
         <org.jboss.logging.version>3.4.3.Final</org.jboss.logging.version>
         <jersey.version>3.0.4</jersey.version>
