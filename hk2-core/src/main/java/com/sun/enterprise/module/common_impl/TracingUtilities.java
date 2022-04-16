@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2007, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2022 Contributors to Eclipse Foundation. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -69,7 +70,6 @@ public class TracingUtilities {
             w = new FileWriter(out);
             w.append("\n");
             w.append("Module ["+ bundleId + "] " + state + " " + bundleName+"\n");
-            String prefix="-";
             StackTraceElement[] stack = Thread.currentThread().getStackTrace();
 
             w.append("\n");
@@ -77,8 +77,6 @@ public class TracingUtilities {
             w.append("Inhabitants / stack combination\n");
             w.append("-----------------------------------\n");
 
-            String currentBundleName = bundleName;
-            
             for (int i=0;i<stack.length;i++) {
                  {
                     // now let's find out the first non hk2 class asking for this...
