@@ -512,6 +512,10 @@
                     <artifactId>depends-maven-plugin</artifactId>
                     <version>1.4.0</version>
                 </plugin>
+                <plugin>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>2.4</version>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
