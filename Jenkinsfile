@@ -36,6 +36,7 @@ pipeline {
       }
       steps {
         sh 'mvn clean install -P jacoco'
+        sh 'mvn clean install -P jacoco -f hk2-testing/di-tck'
         junit testResults: '**/target/surefire-reports/*.xml', allowEmptyResults: true
         jacoco execPattern: '**/**.exec',
                classPattern: '**/classes',
