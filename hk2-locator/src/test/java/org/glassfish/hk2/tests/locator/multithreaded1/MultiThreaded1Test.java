@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2022 Contributors to Eclipse Foundation. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -104,7 +105,7 @@ public class MultiThreaded1Test {
         }
         
         for (int lcv = 0; lcv < NUM_THREADS; lcv++) {
-            runners[lcv].isDone(20 * 1000);
+            runners[lcv].isDone(120 * 1000);
         }
         
     }
@@ -133,7 +134,7 @@ public class MultiThreaded1Test {
         }
         
         for (int lcv = 0; lcv < NUM_THREADS; lcv++) {
-            runners[lcv].isDone(60 * 1000);
+            runners[lcv].isDone(120 * 1000);
         }
         
     }
