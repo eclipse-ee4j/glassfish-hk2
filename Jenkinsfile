@@ -45,5 +45,15 @@ pipeline {
 
       }
     }
+    stage('build with JDK17') {
+      agent any
+      tools {
+        jdk 'temurin-jdk17-latest'
+        maven 'apache-maven-latest'
+      }
+      steps {
+        sh 'mvn clean install'
+      }
+    }
   }
 }
