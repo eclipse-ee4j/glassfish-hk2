@@ -138,7 +138,7 @@
         <jdk.version>1.8.0</jdk.version>
         <mvn.version>3.0.3</mvn.version>
 
-        <jakarta.annotation.version>2.0.0</jakarta.annotation.version>
+        <jakarta.annotation.version>2.1.0</jakarta.annotation.version>
         <jakarta.json.version>2.1.0</jakarta.json.version>
         <parsson.version>1.1.0</parsson.version>
         <jaxb-api.version>4.0.0</jaxb-api.version>
