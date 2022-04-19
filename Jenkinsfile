@@ -28,31 +28,34 @@ pipeline {
     timeout(time: 20, unit: 'MINUTES')
   }
   stages {
-    stage('build') {
-      agent any
-      tools {
-        jdk 'temurin-jdk11-latest'
-        maven 'apache-maven-latest'
-      }
-      steps {
-        sh 'mvn clean install -P jacoco'
-        sh 'mvn clean install -P jacoco -f hk2-testing/di-tck'
-        junit testResults: '**/target/surefire-reports/*.xml', allowEmptyResults: true
-        jacoco execPattern: '**/**.exec',
-               classPattern: '**/classes',
-               sourcePattern: '**/src/main/java',
-               sourceInclusionPattern: '**/*.java'
-
-      }
-    }
-    stage('build with JDK17') {
-      agent any
-      tools {
-        jdk 'temurin-jdk17-latest'
-        maven 'apache-maven-latest'
-      }
-      steps {
-        sh 'mvn clean install'
+    stage('build and test') {
+      parallel {
+        stage('build with JDK11') {
+          agent any
+          tools {
+            jdk 'temurin-jdk11-latest'
+            maven 'apache-maven-latest'
+          }
+          steps {
+            sh 'mvn clean install -P jacoco'
+            sh 'mvn clean install -P jacoco -f hk2-testing/di-tck'
+            junit testResults: '**/target/surefire-reports/*.xml', allowEmptyResults: true
+            jacoco execPattern: '**/**.exec',
+                   classPattern: '**/classes',
+                   sourcePattern: '**/src/main/java',
+                   sourceInclusionPattern: '**/*.java'
+          }
+        }
+        stage('build with JDK17') {
+          agent any
+          tools {
+            jdk 'temurin-jdk17-latest'
+            maven 'apache-maven-latest'
+          }
+          steps {
+            sh 'mvn clean install'
+          }
+        }
       }
     }
   }
