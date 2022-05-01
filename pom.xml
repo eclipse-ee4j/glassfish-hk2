@@ -135,7 +135,7 @@
     </pluginRepositories>
 
     <properties>
-        <jdk.version>1.8.0</jdk.version>
+        <jdk.version>11</jdk.version>
         <mvn.version>3.0.3</mvn.version>
 
         <jakarta.annotation.version>2.1.0</jakarta.annotation.version>
