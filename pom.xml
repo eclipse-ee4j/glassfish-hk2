@@ -160,7 +160,7 @@
         <assertj.version>3.23.1</assertj.version>
         <pax-exam-version>4.13.1</pax-exam-version>
         <jakarta-inject.version>2.0.1</jakarta-inject.version>
-        <slf4j.version>1.7.36</slf4j.version>
+        <slf4j.version>2.0.0</slf4j.version>
         <org.jboss.logging.version>3.5.0.Final</org.jboss.logging.version>
         <jersey.version>3.1.0-M6</jersey.version>
         <grizzly.version>4.0.0</grizzly.version>
