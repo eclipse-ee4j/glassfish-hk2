@@ -142,7 +142,7 @@
         <jakarta.json.version>2.1.1</jakarta.json.version>
         <parsson.version>1.1.1</parsson.version>
         <jaxb-api.version>4.0.0</jaxb-api.version>
-        <jaxb-runtime.version>3.0.2</jaxb-runtime.version>
+        <jaxb-runtime.version>4.0.1</jaxb-runtime.version>
         <java.net.username>${user.name}</java.net.username>
         <jakarta.enterprise.cdi-api.version>3.0.0</jakarta.enterprise.cdi-api.version>
         <hibernate-validator.version>7.0.5.Final</hibernate-validator.version>
