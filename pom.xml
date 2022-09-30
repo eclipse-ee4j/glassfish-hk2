@@ -145,7 +145,7 @@
         <jaxb-runtime.version>3.0.2</jaxb-runtime.version>
         <java.net.username>${user.name}</java.net.username>
         <jakarta.enterprise.cdi-api.version>3.0.0</jakarta.enterprise.cdi-api.version>
-        <hibernate-validator.version>7.0.5.Final</hibernate-validator.version>
+        <hibernate-validator.version>8.0.0.Final</hibernate-validator.version>
         <jakarta.validation.version>3.0.2</jakarta.validation.version>
         <glassfish.jakarta.el.version>4.0.2</glassfish.jakarta.el.version>
         <jakarta.el.version>5.0.1</jakarta.el.version>
