@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2023 Contributors to the Eclipse Foundation. All rights reserved.
  * Copyright (c) 2013, 2018 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -23,6 +24,7 @@ import java.io.File;
  * 
  * @goal generate-inhabitants
  * @phase process-classes 
+ * @threadSafe true
  * @requiresDependencyResolution test
  */
 public class InhabitantsGeneratorMojo extends AbstractInhabitantsGeneratorMojo {
