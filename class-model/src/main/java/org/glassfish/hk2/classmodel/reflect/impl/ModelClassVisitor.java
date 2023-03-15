@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2010, 2020 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2023 Contributors to the Eclipse Foundation.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -58,7 +59,7 @@ public class ModelClassVisitor extends ClassVisitor {
 
     public ModelClassVisitor(ParsingContext ctx, URI definingURI, String entryName,
                              boolean isApplicationClass) {
-        super(Opcodes.ASM7);
+        super(Opcodes.ASM9);
         
         this.ctx = ctx;
         this.definingURI = definingURI;
@@ -342,7 +343,7 @@ public class ModelClassVisitor extends ClassVisitor {
         private final MethodVisitingContext context;
 
         private ModelMethodVisitor(MemberVisitingContext context) {
-            super(Opcodes.ASM7);
+            super(Opcodes.ASM9);
             
             this.context = new MethodVisitingContext(context.modelUnAnnotatedMembers);
         }
@@ -411,7 +412,7 @@ public class ModelClassVisitor extends ClassVisitor {
         private final MethodVisitingContext context;
 
         public ModelDefaultAnnotationVisitor(MethodVisitingContext visitingContext) {
-            super(Opcodes.ASM7);
+            super(Opcodes.ASM9);
             this.context = visitingContext;
         }
 
@@ -427,7 +428,7 @@ public class ModelClassVisitor extends ClassVisitor {
         private final FieldVisitingContext context;
 
         private ModelFieldVisitor(MemberVisitingContext context) {
-            super(Opcodes.ASM7);
+            super(Opcodes.ASM9);
 
             this.context = new FieldVisitingContext(context.modelUnAnnotatedMembers);
         }
@@ -480,7 +481,7 @@ public class ModelClassVisitor extends ClassVisitor {
         private final AnnotationVisitingContext context;
 
         private ModelAnnotationVisitor() {
-            super(Opcodes.ASM7);
+            super(Opcodes.ASM9);
 
             this.context = new AnnotationVisitingContext();
         }
@@ -555,7 +556,7 @@ public class ModelClassVisitor extends ClassVisitor {
         protected List values = new ArrayList();
 
         public ArrayVisitor(AnnotationVisitor av) {
-            super(Opcodes.ASM7, av);
+            super(Opcodes.ASM9, av);
         }
 
         @Override

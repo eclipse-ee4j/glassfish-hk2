@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2012, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2023 Contributors to the Eclipse Foundation.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -47,7 +48,7 @@ public class ClassVisitorImpl extends ClassVisitor {
      * @param excludes The set of implementations to NOT add to the locator
      */
     public ClassVisitorImpl(ServiceLocator locator, boolean verbose, Set<String> excludes) {
-        super(Opcodes.ASM7);
+        super(Opcodes.ASM9);
         
         this.locator = locator;
         this.verbose = verbose;

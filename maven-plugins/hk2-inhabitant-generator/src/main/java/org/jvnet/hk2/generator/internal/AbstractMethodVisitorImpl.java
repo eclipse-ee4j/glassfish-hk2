@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2012, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2023 Contributors to the Eclipse Foundation.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -168,10 +169,10 @@ public abstract class AbstractMethodVisitorImpl extends MethodVisitor {
     }
 
     /* (non-Javadoc)
-     * @see org.objectweb.asm.MethodVisitor#visitMethodInsn(int, java.lang.String, java.lang.String, java.lang.String)
+     * @see org.objectweb.asm.MethodVisitor#visitMethodInsn(int, java.lang.String, java.lang.String, java.lang.String, boolean)
      */
     @Override
-    public void visitMethodInsn(int arg0, String arg1, String arg2, String arg3) {
+    public void visitMethodInsn(int arg0, String arg1, String arg2, String arg3, boolean arg4) {
 
     }
 

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2020 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2023 Contributors to the Eclipse Foundation.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -39,7 +40,7 @@ public class MethodSignatureVisitorImpl extends SignatureVisitor {
     private final ArrayDeque<ParameterizedType> parentType = new ArrayDeque<>();
 
     public MethodSignatureVisitorImpl(TypeBuilder typeBuilder, MethodModel methodModel) {
-        super(Opcodes.ASM7);
+        super(Opcodes.ASM9);
 
         this.typeBuilder = typeBuilder;
         this.methodModel = methodModel;
