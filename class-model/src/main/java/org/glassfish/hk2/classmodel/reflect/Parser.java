@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2023 Contributors to the Eclipse Foundation
  * Copyright (c) 2010, 2018 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -16,25 +17,38 @@
 
 package org.glassfish.hk2.classmodel.reflect;
 
-import org.glassfish.hk2.classmodel.reflect.impl.TypeProxy;
-import org.glassfish.hk2.classmodel.reflect.impl.TypesCtr;
-import org.glassfish.hk2.classmodel.reflect.util.DirectoryArchive;
-import org.glassfish.hk2.classmodel.reflect.util.JarArchive;
-import org.glassfish.hk2.classmodel.reflect.util.ResourceLocator;
-import org.objectweb.asm.ClassReader;
-
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EmptyStackException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.glassfish.hk2.classmodel.reflect.impl.TypeProxy;
+import org.glassfish.hk2.classmodel.reflect.impl.TypesCtr;
+import org.glassfish.hk2.classmodel.reflect.util.DirectoryArchive;
+import org.glassfish.hk2.classmodel.reflect.util.JarArchive;
+import org.glassfish.hk2.classmodel.reflect.util.ResourceLocator;
+import org.objectweb.asm.ClassReader;
 
 /**
  * Parse jar files or directories and create the model for any classes found.
@@ -44,11 +58,11 @@ import java.util.logging.Logger;
 public class Parser implements Closeable {
 
     public static final String DEFAULT_WAIT_SYSPROP = "hk2.parser.timeout";
-      
+
     private final ParsingContext context;
     private final Map<String, Types> processedURI = Collections.synchronizedMap(new HashMap<String, Types>());
 
-    private final Stack<Future<Result>> futures = new Stack<Future<Result>>();
+    private final Stack<Future<Result>> futures = new Stack<>();
     private final ExecutorService executorService;
     private final boolean ownES;
 
@@ -56,20 +70,20 @@ public class Parser implements Closeable {
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     private final int DEFAULT_TIMEOUT = Integer.getInteger(DEFAULT_WAIT_SYSPROP, 100);
-    
-    
+
+
     public Parser(ParsingContext context) {
         this.context = context;
         executorService = (context.executorService==null?createExecutorService():context.executorService);
         ownES = context.executorService==null;
     }
-    
+
     public Exception[] awaitTermination() throws InterruptedException {
         return awaitTermination(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
     }
 
     public Exception[] awaitTermination(int timeOut, TimeUnit unit) throws InterruptedException {
-        List<Exception> exceptions = new ArrayList<Exception>();
+        List<Exception> exceptions = new ArrayList<>();
         final Logger logger = context.logger;
         while(futures.size()>0) {
             if (context.logger.isLoggable(Level.FINE)) {
@@ -111,8 +125,7 @@ public class Parser implements Closeable {
             // now we need to visit all the types that got referenced but not visited
             final ResourceLocator locator = context.getLocator();
             if (locator!=null) {
-                context.logger.info("visiting unvisited references");
-              
+                context.logger.fine("Visiting unvisited references ...");
                 context.types.onNotVisitedEntries(new TypesCtr.ProxyTask() {
                     @Override
                     public void on(TypeProxy<?> proxy) {
@@ -136,23 +149,22 @@ public class Parser implements Closeable {
                                 File file = getFilePath(url.getPath(), resourceName);
                                 URI definingURI = getDefiningURI(file);
                                 if (logger.isLoggable(Level.FINE)) {
-                                    logger.fine("file=" + file + "; definingURI=" + definingURI);
+                                    logger.fine("Visiting file=" + file + "; definingURI=" + definingURI);
                                 }
                                 cr.accept(context.getClassVisitor(definingURI, resourceName), ClassReader.SKIP_DEBUG);
                             } catch (Throwable e) {
                                 logger.log(Level.SEVERE, "Exception while visiting {0}", name);
                             }
-
-
                         } catch (IOException e) {
                             e.printStackTrace();
                         } finally {
-                            if (is != null)
+                            if (is != null) {
                                 try {
                                     is.close();
                                 } catch (IOException e) {
                                     logger.log(Level.SEVERE, "Exception while closing " + resourceName + " stream", e);
                                 }
+                            }
                         }
                     }
                 });
@@ -173,7 +185,7 @@ public class Parser implements Closeable {
         throw new RuntimeException(e);
       }
     }
-    
+
     private static File getFilePath(String path, String resourceName) {
       path = path.substring(0, path.length() - resourceName.length());
       if (path.endsWith("!/")) {
@@ -185,7 +197,7 @@ public class Parser implements Closeable {
       File file = new File(path);
       return file;
     }
-    
+
     @Override
     public void close() {
       // if we own the executor service, time to shut it down.
@@ -193,11 +205,11 @@ public class Parser implements Closeable {
           executorService.shutdown();
       }
     }
-    
+
     public void parse(final File source, final Runnable doneHook) throws IOException {
         // todo : use protocol to lookup implementation
         final ArchiveAdapter adapter = createArchiveAdapter(source, doneHook);
-        
+
         final Runnable cleanUpAndNotify = new Runnable() {
           @Override
           public void run() {
@@ -301,7 +313,7 @@ public class Parser implements Closeable {
     private synchronized Types getResult(URI uri) {
         return processedURI.get(uri.getSchemeSpecificPart());
     }
-                               
+
     private synchronized void saveResult(URI uri, Types types) {
         this.processedURI.put(uri.getPath(), types);
     }
@@ -376,7 +388,7 @@ public class Parser implements Closeable {
 //        Runtime runtime = Runtime.getRuntime();
 //        int nbOfProcessors = runtime.availableProcessors();
         int nbOfProcessors = 1;
-        
+
         return Executors.newFixedThreadPool(nbOfProcessors, new ThreadFactory() {
             @Override
             public Thread newThread(Runnable r) {
@@ -387,7 +399,7 @@ public class Parser implements Closeable {
             }
         });
     }
-    
+
 
     public static class Result {
         public final String name;
