@@ -136,7 +136,7 @@
 
     <properties>
         <jdk.version>11</jdk.version>
-        <mvn.version>3.2.5</mvn.version>
+        <mvn.version>3.9.1</mvn.version>
 
         <jakarta.annotation.version>2.1.1</jakarta.annotation.version>
         <jakarta.json.version>2.1.1</jakarta.json.version>
