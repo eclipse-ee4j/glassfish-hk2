@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2023 Contributors to the Eclipse Foundation
  * Copyright (c) 2007, 2018 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -16,11 +17,11 @@
 
 package com.sun.enterprise.module.maven;
 
-import org.glassfish.hk2.maven.Version;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
+import org.glassfish.hk2.maven.Version;
 
 /**
  * Converts the project version into the OSGi format and
@@ -39,12 +40,12 @@ public class OsgiVersionMojo extends AbstractMojo {
     /**
      * The maven project.
      *
-     * @parameter expression="${project}"
+     * @parameter property="project"
      * @required
      * @readonly
      */
     protected MavenProject project;
-    
+
     /**
      * Flag used to determine what components of the version will be used
      * in OSGi version.

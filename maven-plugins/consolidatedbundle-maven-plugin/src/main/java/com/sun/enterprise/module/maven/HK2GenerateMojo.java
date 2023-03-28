@@ -17,11 +17,6 @@
 
 package com.sun.enterprise.module.maven;
 
-import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.project.MavenProject;
-import org.apache.maven.artifact.Artifact;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -30,6 +25,11 @@ import java.io.OutputStream;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.project.MavenProject;
 
 /**
  * Generates a consolidated OSGI bundle with a consolidated HK2 header
@@ -53,21 +53,21 @@ public class HK2GenerateMojo extends AbstractMojo {
     /**
      * Directory where the manifest will be written
      *
-     * @parameter expression="${manifestLocation}"
-     * default-value="${project.build.outputDirectory}"
+     * @parameter property="manifestLocation" default-value="${project.build.outputDirectory}"
      */
     protected File manifestLocation;
     /**
      * The maven project.
      *
-     * @parameter expression="${project}"
+     * @parameter property="project"
      * @required
      * @readonly
      */
     protected MavenProject project;
 
-    @SuppressWarnings("unchecked")
+    @Override
     public void execute() throws MojoExecutionException {
+        @SuppressWarnings("unchecked")
         Set<Artifact> dependencyArtifacts = project.getDependencyArtifacts();
         if (dependencyArtifacts == null) {
             return;

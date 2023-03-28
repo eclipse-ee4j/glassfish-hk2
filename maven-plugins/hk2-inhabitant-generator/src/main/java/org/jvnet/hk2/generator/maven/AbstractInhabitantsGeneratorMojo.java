@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2023 Contributors to the Eclipse Foundation
  * Copyright (c) 2012, 2018 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -34,49 +35,49 @@ import org.jvnet.hk2.generator.HabitatGenerator;
  */
 public abstract class AbstractInhabitantsGeneratorMojo extends AbstractMojo {
     private final static String WAR_PACKAGING = "war";
-    
+
     private final static String WEB_INF = "WEB-INF";
     private final static String CLASSES = "classes";
-    
+
     /**
-     * @parameter expression="${project.build.directory}"
+     * @parameter property="project.build.directory"
      */
     private File targetDirectory;
-    
+
     /**
      * The maven project.
      *
-     * @parameter expression="${project}" @required @readonly
+     * @parameter property="project" @required @readonly
      */
     protected MavenProject project;
-    
+
     /**
      * @parameter
      */
     private boolean verbose;
-    
+
     /**
      * @parameter default-value=true
      */
-    private boolean includeDate = true;
-    
+    private final boolean includeDate = true;
+
     /**
      * @parameter
      */
     private String locator;
-    
+
     /**
-     * @parameter expression="${supportedProjectTypes}" default-value="jar,ejb,war"
+     * @parameter property="supportedProjectTypes" default-value="jar,ejb,war"
      */
     private String supportedProjectTypes;
-    
+
     protected abstract boolean getNoSwap();
     protected abstract File getOutputDirectory();
-    
+
     protected boolean isWar() {
        return WAR_PACKAGING.equals(project.getPackaging());
     }
-    
+
     /**
      * This method will compile the inhabitants file based on
      * the classes just compiled
@@ -91,7 +92,7 @@ public abstract class AbstractInhabitantsGeneratorMojo extends AbstractMojo {
             }
             return;
         }
-        
+
         if (!getOutputDirectory().exists()) {
             if (!getOutputDirectory().mkdirs()) {
                 getLog().info("Could not create output directory " +
@@ -99,81 +100,81 @@ public abstract class AbstractInhabitantsGeneratorMojo extends AbstractMojo {
                 return;
             }
         }
-        
+
         if (!getOutputDirectory().exists()) {
             getLog().info("Exiting hk2-inhabitant-generator because could not find output directory " +
                   getOutputDirectory().getAbsolutePath());
             return;
         }
-        
+
         if (verbose) {
             getLog().info("");
             getLog().info("hk2-inhabitant-generator generating into location " + getOutputDirectory().getAbsolutePath());
             getLog().info("");
         }
-        
-        LinkedList<String> arguments = new LinkedList<String>();
-        
+
+        LinkedList<String> arguments = new LinkedList<>();
+
         arguments.add(HabitatGenerator.FILE_ARG);
         arguments.add(getOutputDirectory().getAbsolutePath());
-        
+
         if (verbose) {
             arguments.add(HabitatGenerator.VERBOSE_ARG);
         }
-        
+
         if (locator != null) {
             arguments.add(HabitatGenerator.LOCATOR_ARG);
             arguments.add(locator);
         }
-        
+
         arguments.add(HabitatGenerator.SEARCHPATH_ARG);
         arguments.add(getBuildClasspath());
-        
+
         if (getNoSwap()) {
             arguments.add(HabitatGenerator.NOSWAP_ARG);
         }
-        
+
         if (!includeDate) {
             arguments.add(HabitatGenerator.NO_DATE_ARG);
         }
-        
+
         if (isWar()) {
             // For WAR files, the hk2-locator files goes under WEB-INF/classes/hk2-locator, not META-INF/hk2-locator
-            
+
             File outDir = new File(targetDirectory, project.getBuild().getFinalName());
             outDir = new File(outDir, WEB_INF);
             outDir = new File(outDir, CLASSES);
             outDir = new File(outDir, HabitatGenerator.HK2_LOCATOR);
-            
+
             arguments.add(HabitatGenerator.DIRECTORY_ARG);
             arguments.add(outDir.getAbsolutePath());
         }
-        
+
         String argv[] = arguments.toArray(new String[arguments.size()]);
-        
+
         int result = HabitatGenerator.embeddedMain(argv);
         if (result != 0) {
             throw new MojoFailureException("Could not generate inhabitants file for " + getOutputDirectory());
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     private String getBuildClasspath() {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append(project.getBuild().getOutputDirectory());
         sb.append(File.pathSeparator);
-        
+
         if (!getOutputDirectory().getAbsolutePath().equals(
                 project.getBuild().getOutputDirectory())) {
-            
+
             sb.append(getOutputDirectory().getAbsolutePath());
             sb.append(File.pathSeparator);
         }
 
-        List<Artifact> artList = new ArrayList<Artifact>(project.getArtifacts());
+        List<Artifact> artList = new ArrayList<>(project.getArtifacts());
         Iterator<Artifact> i = artList.iterator();
-        
+
         if (i.hasNext()) {
             sb.append(i.next().getFile().getPath());
 
@@ -182,7 +183,7 @@ public abstract class AbstractInhabitantsGeneratorMojo extends AbstractMojo {
                 sb.append(i.next().getFile().getPath());
             }
         }
-        
+
         String classpath = sb.toString();
         if(verbose){
             getLog().info("");
@@ -192,5 +193,5 @@ public abstract class AbstractInhabitantsGeneratorMojo extends AbstractMojo {
             getLog().info("");
         }
         return classpath;
-    }      
+    }
 }

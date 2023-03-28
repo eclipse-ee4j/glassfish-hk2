@@ -29,7 +29,7 @@
 
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
-        <maven.site.skip>true</maven.site.skip>    
+        <maven.site.skip>true</maven.site.skip>
         <manifest.location></manifest.location> <!-- to make nullifiy the property -->
     </properties>
 
@@ -53,9 +53,6 @@
                         </goals>
                         <configuration>
                             <outputDirectory>${project.build.directory}/staging/apidocs</outputDirectory>
-                            <additionalOptions>
-                                <additionalOption>${javadoc.options}</additionalOption>
-                            </additionalOptions>
                             <sourcepath>
                                 ${basedir}/../hk2-api/src/main/java;
                                 ${basedir}/../hk2-locator/src/main/java;

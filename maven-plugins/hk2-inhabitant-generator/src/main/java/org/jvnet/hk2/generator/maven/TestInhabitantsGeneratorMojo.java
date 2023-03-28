@@ -21,19 +21,19 @@ import java.io.File;
 
 /**
  * Generates inhabitant
- * 
+ *
  * @goal generate-test-inhabitants
  * @phase test-compile
  * @threadSafe true
  * @requiresDependencyResolution test
  */
 public class TestInhabitantsGeneratorMojo extends AbstractInhabitantsGeneratorMojo {
-    
+
     /**
-     * @parameter expression="${project.build.testOutputDirectory}"
+     * @parameter property="project.build.testOutputDirectory"
      */
     private File outputDirectory;
-    
+
     /**
      * @parameter default-value="false"
      */

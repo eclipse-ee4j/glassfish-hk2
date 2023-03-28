@@ -31,7 +31,7 @@
     <description>A utility for running HK2 tests</description>
 
     <properties>
-        <links>http://junit.org/javadoc/latest/</links>
+        <links>https://junit.org/junit4/javadoc/latest/</links>
     </properties>
 
     <build>
