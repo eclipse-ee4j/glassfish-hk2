@@ -21,19 +21,19 @@ import java.io.File;
 
 /**
  * Generates inhabitant
- * 
+ *
  * @goal generate-inhabitants
- * @phase process-classes 
+ * @phase process-classes
  * @threadSafe true
  * @requiresDependencyResolution test
  */
 public class InhabitantsGeneratorMojo extends AbstractInhabitantsGeneratorMojo {
-    
+
     /**
-     * @parameter expression="${project.build.outputDirectory}"
+     * @parameter property="project.build.outputDirectory"
      */
     private File outputDirectory;
-    
+
     /**
      * @parameter default-value="true"
      */
