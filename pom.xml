@@ -332,8 +332,8 @@
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>3.5.0</version>
                     <configuration>
-						<quiet>true</quiet>
-						<doclint>none</doclint>
+                        <quiet>true</quiet>
+                        <doclint>none</doclint>
                         <failOnError>false</failOnError>
                     </configuration>
                 </plugin>
