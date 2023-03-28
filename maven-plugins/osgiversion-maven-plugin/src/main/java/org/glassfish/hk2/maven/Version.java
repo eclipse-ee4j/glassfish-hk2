@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2023 Contributors to the Eclipse Foundation
  * Copyright (c) 2013, 2018 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -23,7 +24,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.maven.shared.osgi.DefaultMaven2OsgiConverter;
 import org.apache.maven.shared.osgi.Maven2OsgiConverter;
-import org.codehaus.plexus.util.StringUtils;
 
 /**
  *
@@ -36,8 +36,8 @@ public class Version {
         minor,
         micro,
         qualifier
-    };
-    
+    }
+
     private static final int DIGITS_INDEX = 1;
     public static final Pattern STANDARD_PATTERN = Pattern.compile(
             "^((?:\\d+\\.)*\\d+)" // digit(s) and '.' repeated - followed by digit (version digits 1.22.0, etc)
@@ -75,11 +75,9 @@ public class Version {
     private List<String> parseDigits(String vStr) {
         Matcher m = STANDARD_PATTERN.matcher(vStr);
         if (m.matches()) {
-            return Arrays.asList(StringUtils.split(
-                    m.group(DIGITS_INDEX),
-                    "."));
+            return Arrays.asList(m.group(DIGITS_INDEX).split("\\."));
         }
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     public int getMajorVersion() {
@@ -93,7 +91,7 @@ public class Version {
     public int getIncrementalVersion() {
         return incremental;
     }
-    
+
     public String getQualifier(){
         return qualifier;
     }
@@ -101,7 +99,7 @@ public class Version {
     private static String formatString4Osgi(String s){
         return s.replaceAll("-", "_").replaceAll("\\.", "_");
     }
-    
+
     public String convertToOsgi(COMPONENT comToDrop) {
         Maven2OsgiConverter converter = new DefaultMaven2OsgiConverter();
 
@@ -126,13 +124,13 @@ public class Version {
                 }
             }
         }
-        
+
         // init version major.minor.micro
         String version = String.format("%s.%s.%s",
                 getMajorVersion(),
                 getMinorVersion(),
                 getIncrementalVersion());
-        
+
         // if there is a qualifier, add it
         if(!getQualifier().isEmpty()){
             version = String.format("%s.%s",

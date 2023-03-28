@@ -552,16 +552,30 @@
                 <groupId>org.apache.maven</groupId>
                 <artifactId>maven-plugin-api</artifactId>
                 <version>3.9.1</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-core</artifactId>
+                <version>3.9.1</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.sun.codemodel</groupId>
                 <artifactId>codemodel</artifactId>
                 <version>2.6</version>
             </dependency>
+            <!-- FIXME: This dependency is obsoleted and abandoned!!! -->
             <dependency>
                 <groupId>org.apache.maven.shared</groupId>
                 <artifactId>maven-osgi</artifactId>
                 <version>0.2.0</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>*</groupId>
+                        <artifactId>*</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>args4j</groupId>
@@ -618,6 +632,12 @@
                 <groupId>org.osgi</groupId>
                 <artifactId>osgi.cmpn</artifactId>
                 <version>7.0.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>osgi.annotation</artifactId>
+                <version>8.1.0</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>jakarta.enterprise</groupId>
