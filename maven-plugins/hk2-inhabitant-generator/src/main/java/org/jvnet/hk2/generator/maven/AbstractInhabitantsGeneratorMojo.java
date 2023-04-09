@@ -57,9 +57,9 @@ public abstract class AbstractInhabitantsGeneratorMojo extends AbstractMojo {
     private boolean verbose;
 
     /**
-     * @parameter default-value=true
+     * @parameter default-value="true"
      */
-    private final boolean includeDate = true;
+    private boolean includeDate;
 
     /**
      * @parameter
