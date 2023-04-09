@@ -37,6 +37,7 @@
     <properties>
         <asm.version>9.5</asm.version>
         <jakarta-inject.version>2.0.1</jakarta-inject.version>
+        <project.build.outputTimestamp>2023-04-09T08:38:05Z</project.build.outputTimestamp>
     </properties>
 
     <dependencyManagement>

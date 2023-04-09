@@ -137,6 +137,7 @@
     <properties>
         <jdk.version>11</jdk.version>
         <mvn.version>3.2.5</mvn.version>
+        <project.build.outputTimestamp>2023-04-09T08:38:05Z</project.build.outputTimestamp>
 
         <jakarta.annotation.version>2.1.1</jakarta.annotation.version>
         <jakarta.json.version>2.1.1</jakarta.json.version>
@@ -389,6 +390,9 @@
                     <groupId>org.glassfish.hk2</groupId>
                     <artifactId>hk2-inhabitant-generator</artifactId>
                     <version>${project.version}</version>
+                    <configuration>
+                        <includeDate>false</includeDate>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
