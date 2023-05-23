@@ -140,7 +140,7 @@
         <project.build.outputTimestamp>2023-04-09T08:38:05Z</project.build.outputTimestamp>
 
         <jakarta.annotation.version>2.1.1</jakarta.annotation.version>
-        <jakarta.json.version>2.1.1</jakarta.json.version>
+        <jakarta.json.version>2.1.2</jakarta.json.version>
         <parsson.version>1.1.1</parsson.version>
         <jaxb-api.version>4.0.0</jaxb-api.version>
         <jaxb-runtime.version>4.0.2</jaxb-runtime.version>
