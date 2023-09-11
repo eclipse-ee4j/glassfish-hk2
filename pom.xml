@@ -140,7 +140,7 @@
     </issueManagement>
 
     <properties>
-        <jdk.version>11</jdk.version>
+        <jdk.version>17</jdk.version>
         <mvn.version>3.2.5</mvn.version>
         <project.build.outputTimestamp>2023-04-09T08:38:05Z</project.build.outputTimestamp>
 
