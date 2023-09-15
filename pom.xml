@@ -168,7 +168,7 @@
         <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
         <jakarta.ws.rs.version>3.1.0</jakarta.ws.rs.version>
         <classmate.version>1.5.1</classmate.version>
-        <springcontext.version>6.0.11</springcontext.version>
+        <springcontext.version>6.0.12</springcontext.version>
         <guice.version>5.1.0</guice.version>
         <protobuf.version>3.24.3</protobuf.version>
 
