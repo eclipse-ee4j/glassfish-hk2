@@ -18,8 +18,9 @@
 
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>org.glassfish.hk2</groupId>
         <artifactId>osgi-adapter-tests-parent</artifactId>
@@ -28,8 +29,16 @@
 
     <artifactId>no-hk2-bundle</artifactId>
     <packaging>jar</packaging>
+
     <name>A bundle with no hk2 dependencies</name>
     <description>${project.name}</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>jakarta.inject</groupId>
+            <artifactId>jakarta.inject-api</artifactId>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>
@@ -52,12 +61,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <dependencies>
-        <dependency>
-            <groupId>jakarta.inject</groupId>
-            <artifactId>jakarta.inject-api</artifactId>
-        </dependency>
-    </dependencies>
 </project>
-
