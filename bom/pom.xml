@@ -18,14 +18,16 @@
 
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>org.eclipse.ee4j</groupId>
         <artifactId>project</artifactId>
         <version>1.0.8</version>
         <relativePath />
     </parent>
+
     <groupId>org.glassfish.hk2</groupId>
     <artifactId>hk2-bom</artifactId>
     <version>3.0.5-SNAPSHOT</version>
@@ -33,7 +35,11 @@
 
     <name>HK2 Bom Pom</name>
     <description>Bom Pom for importing HK2 managed dependencies</description>
-    
+
+    <scm>
+        <tag>HEAD</tag>
+    </scm>
+
     <properties>
         <asm.version>9.6</asm.version>
         <jakarta-inject.version>2.0.1</jakarta-inject.version>
@@ -194,10 +200,6 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
-    <scm>
-        <tag>HEAD</tag>
-    </scm>
 
     <build>
         <pluginManagement>

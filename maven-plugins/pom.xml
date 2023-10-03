@@ -17,19 +17,17 @@
 
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>org.glassfish.hk2</groupId>
         <artifactId>hk2-parent</artifactId>
         <version>3.0.5-SNAPSHOT</version>
     </parent>
+
     <artifactId>maven-plugins</artifactId>
     <packaging>pom</packaging>
-
-    <properties>
-        <manifest.location></manifest.location> <!-- to make nullifiy the property -->
-    </properties>
 
     <modules>
         <module>consolidatedbundle-maven-plugin</module>
@@ -43,6 +41,10 @@
         <url>https://github.com/eclipse-ee4j/glassfish-hk2</url>
         <tag>HEAD</tag>
     </scm>
+
+    <properties>
+        <manifest.location></manifest.location> <!-- to make nullifiy the property -->
+    </properties>
 
     <build>
         <defaultGoal>install</defaultGoal>
