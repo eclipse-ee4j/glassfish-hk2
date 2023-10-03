@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.glassfish.hk2</groupId>
         <artifactId>configuration-examples</artifactId>
-        <version>3.0.4-SNAPSHOT</version>
+        <version>3.0.5-SNAPSHOT</version>
     </parent>
 
     <artifactId>xml-configuration-example</artifactId>
