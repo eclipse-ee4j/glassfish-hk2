@@ -51,7 +51,8 @@ import com.sun.enterprise.module.common_impl.LogHelper;
  * @author Sanjeeb.Sahoo@Sun.COM
  */
 public class OSGiModuleDefinition implements ModuleDefinition, Serializable {
-
+    private static final long serialVersionUID = 2622853607700859151L;
+    
     private String name;
     private String bundleName;
     private URI location;
@@ -389,7 +390,8 @@ public class OSGiModuleDefinition implements ModuleDefinition, Serializable {
     }
 
     private static class SerializableManifest extends Manifest implements Serializable {
-
+        private static final long serialVersionUID = -3807768397772201563L;
+        
         private SerializableManifest()
         {
         }

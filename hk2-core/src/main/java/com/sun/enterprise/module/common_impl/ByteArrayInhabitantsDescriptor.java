@@ -30,7 +30,8 @@ import com.sun.enterprise.module.InhabitantsDescriptor;
  * @author Jerome Dochez
  */
 public class ByteArrayInhabitantsDescriptor implements InhabitantsDescriptor, Serializable {
-
+    private static final long serialVersionUID = -8608625418273737284L;
+    	
     public final String systemId;
     private final byte[] data;
 
