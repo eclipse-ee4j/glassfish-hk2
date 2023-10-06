@@ -40,7 +40,8 @@ import java.util.*;
  * @author Kohsuke Kawaguchi
  */
 public final class ModuleMetadata implements Serializable {
-
+    private static long serialVersionUID = 7136851720280194479L;
+    
     /**
      * META-INF/hk2-locator/* cache
      */
@@ -63,6 +64,8 @@ public final class ModuleMetadata implements Serializable {
     }
 
     public static final class Entry implements Serializable {
+        private static long serialVersionUID = 5761635763438873618L;
+        
         public final List<String> providerNames = new ArrayList<String>();
         public final List<URL> resources = new ArrayList<URL>();
 
