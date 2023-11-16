@@ -175,7 +175,7 @@
         <classmate.version>1.6.0</classmate.version>
         <springcontext.version>6.0.13</springcontext.version>
         <guice.version>7.0.0</guice.version>
-        <protobuf.version>3.25.0</protobuf.version>
+        <protobuf.version>3.25.1</protobuf.version>
 
         <legal.doc.source>${maven.multiModuleProjectDirectory}/</legal.doc.source>
 
