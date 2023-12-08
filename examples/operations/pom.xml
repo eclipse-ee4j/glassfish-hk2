@@ -24,7 +24,7 @@
     <parent>
         <groupId>org.glassfish.hk2</groupId>
         <artifactId>examples</artifactId>
-        <version>3.0.5-SNAPSHOT</version>
+        <version>4.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>operations-example</artifactId>

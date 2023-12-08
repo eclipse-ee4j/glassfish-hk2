@@ -47,6 +47,7 @@ public abstract class AbstractOSGiModulesRegistryImpl extends AbstractModulesReg
      * OSGi BundleContext - used to install/uninstall, start/stop bundles
      */
     BundleContext bctx;
+
     protected PackageAdmin pa;
     private Map<ModuleChangeListener, BundleListener> moduleChangeListeners = new HashMap<>();
     private Map<ModuleLifecycleListener, BundleListener> moduleLifecycleListeners = new HashMap<>();
@@ -56,6 +57,13 @@ public abstract class AbstractOSGiModulesRegistryImpl extends AbstractModulesReg
         this.bctx = bctx;
         ServiceReference ref = bctx.getServiceReference(PackageAdmin.class.getName());
         pa = PackageAdmin.class.cast(bctx.getService(ref));
+    }
+
+    /**
+     * @return the BundleContext
+     */
+    public BundleContext getBundleContext() {
+        return bctx;
     }
 
     @Override
@@ -106,7 +114,7 @@ public abstract class AbstractOSGiModulesRegistryImpl extends AbstractModulesReg
 
             DynamicConfiguration dcs = createDynamicConfiguration(serviceLocator);
             for (Descriptor descriptor : descriptors) {
-                
+
                 DescriptorImpl di = (descriptor instanceof DescriptorImpl) ? (DescriptorImpl) descriptor : new DescriptorImpl(descriptor) ;
 
                 // set the hk2loader
@@ -283,6 +291,7 @@ public abstract class AbstractOSGiModulesRegistryImpl extends AbstractModulesReg
 
     public void addModuleChangeListener(final ModuleChangeListener listener, final OSGiModuleImpl module) {
         BundleListener bundleListener = new BundleListener() {
+            @Override
             public void bundleChanged(BundleEvent event) {
                 if ((event.getBundle() == module.getBundle()) &&
                         ((event.getType() & BundleEvent.UPDATED) == BundleEvent.UPDATED)) {
@@ -307,6 +316,7 @@ public abstract class AbstractOSGiModulesRegistryImpl extends AbstractModulesReg
     public void register(final ModuleLifecycleListener listener) {
         // This is purposefully made an asynchronous bundle listener
         BundleListener bundleListener = new BundleListener() {
+            @Override
             public void bundleChanged(BundleEvent event) {
                 switch (event.getType()) {
                     case BundleEvent.INSTALLED:
@@ -342,47 +352,47 @@ public abstract class AbstractOSGiModulesRegistryImpl extends AbstractModulesReg
     /*package*/ HK2Module getModule(Bundle bundle) {
         return modules.get(new OSGiModuleId(bundle));
     }
-    
+
     @Override
     public void remove(HK2Module module) {
         super.remove(module);
-        
+
         if (!(module instanceof OSGiModuleImpl)) {
             return;
         }
-        
+
         OSGiModuleImpl oModule = (OSGiModuleImpl) module;
         Bundle bundle = oModule.getBundle();
-        
+
         String bsn = bundle.getSymbolicName();
         String version = bundle.getVersion().toString();
-        
+
         Set<ServiceLocator> locators = getAllServiceLocators();
-        
+
         for (ServiceLocator locator : locators) {
             if (!ServiceLocatorState.RUNNING.equals(locator.getState())) continue;
-            
+
             ServiceLocatorUtilities.removeFilter(locator, new RemoveFilter(bsn, version));
         }
     }
-    
+
     private static class RemoveFilter implements Filter {
         private final String bsn;
         private final String version;
-        
+
         private RemoveFilter(String bsn, String version) {
             this.bsn = bsn;
             this.version = version;
         }
-        
+
         private static String getMetadataValue(Descriptor d, String key) {
             Map<String, List<String>> metadata = d.getMetadata();
-            
+
             List<String> values = metadata.get(key);
             if (values == null || values.size() <= 0) {
                 return null;
             }
-            
+
             return values.get(0);
         }
 
@@ -390,12 +400,12 @@ public abstract class AbstractOSGiModulesRegistryImpl extends AbstractModulesReg
         public boolean matches(Descriptor d) {
             String dBSN = getMetadataValue(d, OsgiPopulatorPostProcessor.BUNDLE_SYMBOLIC_NAME);
             if (dBSN == null || !dBSN.equals(bsn)) return false;
-            
+
             String dVersion = getMetadataValue(d, OsgiPopulatorPostProcessor.BUNDLE_VERSION);
             if (dVersion == null) return false;
-            
+
             return dVersion.equals(version);
         }
-        
+
     }
 }
