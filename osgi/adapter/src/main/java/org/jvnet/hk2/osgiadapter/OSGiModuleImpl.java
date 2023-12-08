@@ -17,6 +17,9 @@
 
 package org.jvnet.hk2.osgiadapter;
 
+import static org.jvnet.hk2.osgiadapter.FelixPrettyPrinter.addBundleInfo;
+import static org.jvnet.hk2.osgiadapter.FelixPrettyPrinter.prettyPrintExceptionMessage;
+import static org.jvnet.hk2.osgiadapter.FelixPrettyPrinter.prettyPrintFelixMessage;
 import static org.jvnet.hk2.osgiadapter.Logger.logger;
 
 import java.io.*;
@@ -172,6 +175,7 @@ public class OSGiModuleImpl implements HK2Module {
             if (sm != null) {
                 try {
                     AccessController.doPrivileged(new PrivilegedExceptionAction(){
+                        @Override
                         public Object run() throws BundleException
                         {
                             startBundle();
@@ -190,7 +194,9 @@ public class OSGiModuleImpl implements HK2Module {
                         "start", "Started bundle {0}", bundle);
             }
         } catch (BundleException e) {
-            throw new ResolveError("Failed to start "+this,e);
+            throw new ResolveError(
+                "Failed to start " + this + prettyPrintFelixMessage(registry.getBundleContext(), e.getMessage()),
+                e);
         }
 
         // TODO(Sahoo): Remove this when hk2-apt generates equivalent BundleActivator
@@ -281,6 +287,7 @@ public class OSGiModuleImpl implements HK2Module {
         return true;
     }
 
+    @Override
     public void detach() {
         if (bundle.getState() != Bundle.ACTIVE) {
             if (logger.isLoggable(Level.FINER)) {
@@ -383,7 +390,7 @@ public class OSGiModuleImpl implements HK2Module {
 
     /**
      * Parses all the inhabitants descriptors of the given name in this module.
-     * @return 
+     * @return
      */
     List<ActiveDescriptor> parseInhabitants(String name, ServiceLocator serviceLocator, List<PopulatorPostProcessor> populatorPostProcessors) throws IOException, BootException {
 
@@ -397,7 +404,7 @@ public class OSGiModuleImpl implements HK2Module {
             dff = new URLDescriptorFileFinder(entry);
         }
 
-        
+
         if (dff != null) {
 
         	final OSGiModuleImpl module = this;
@@ -409,7 +416,7 @@ public class OSGiModuleImpl implements HK2Module {
             }
     	    this.activeDescriptors = HK2Populator.populate(serviceLocator, dff, allPostProcessors);
         }
-        
+
         return this.activeDescriptors;
     }
 
@@ -418,6 +425,7 @@ public class OSGiModuleImpl implements HK2Module {
      */
     private ClassLoader getParentLoader() {
         return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
+            @Override
             public ClassLoader run() {
                 return Bundle.class.getClassLoader();
             }
@@ -440,15 +448,16 @@ public class OSGiModuleImpl implements HK2Module {
         return new ClassLoader(getParentLoader()) {
 
             @Override
-            protected synchronized Class<?> loadClass(final String name, boolean resolve) throws ClassNotFoundException {        	
+            protected synchronized Class<?> loadClass(final String name, boolean resolve) throws ClassNotFoundException {
                 try {
                     //doprivileged needed for running with SecurityManager
                     return AccessController.doPrivileged(new PrivilegedExceptionAction<Class>() {
+                        @Override
                         public Class run() throws ClassNotFoundException {
-                        	
+
                         	Class c = bundle.loadClass(name);
-                         
-                            return c;                         
+
+                            return c;
                         }
                     });
                 } catch (PrivilegedActionException e) {
@@ -460,7 +469,7 @@ public class OSGiModuleImpl implements HK2Module {
             @Override
             public URL getResource(String name) {
                 URL result = bundle.getResource(name);
-                               
+
                 if (result != null) return result;
                 return null;
             }
@@ -569,11 +578,11 @@ public class OSGiModuleImpl implements HK2Module {
                     "] is already associated with bundle [" + this.bundle + "]");
         } else {
             this.bundle = bundle;
-            
+
             logger.logp(Level.INFO, "OSGiModuleImpl", "setBundle", "module [{0}] is now associated with bundle [{1}]",
                     new Object[]{this, bundle});
         }
     }
-    
+
 }
 
