@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -19,6 +19,7 @@ package org.glassfish.hk2.classmodel.reflect.impl;
 import org.glassfish.hk2.classmodel.reflect.*;
 
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Proxy for types, used in place until the type can be properly instantiated.
@@ -35,6 +36,8 @@ public class TypeProxy<T extends Type> {
     private final List<Member> fieldRefs = new ArrayList<Member>();
     private final List<Type> subTypeRefs = new ArrayList<Type>();
     private final List<ClassModel> implementations = new ArrayList<ClassModel>();
+    // Referenced also by TypesImpl
+    final ReentrantLock lock = new ReentrantLock();
 
 
     /**
@@ -76,24 +79,39 @@ public class TypeProxy<T extends Type> {
         public void valueSet(T value);
     }
 
-    public synchronized void addFieldRef(FieldModel field) {
-        fieldRefs.add(field);
+    public void addFieldRef(FieldModel field) {
+        try {
+            lock.lock();
+            fieldRefs.add(field);
+        } finally {
+            lock.unlock();
+        }
     }
 
     public List<Member> getRefs() {
         return Collections.unmodifiableList(fieldRefs);
     }
 
-    public synchronized void addSubTypeRef(Type subType) {
-        subTypeRefs.add(subType);
+    public void addSubTypeRef(Type subType) {
+        try {
+            lock.lock();
+            subTypeRefs.add(subType);
+        } finally {
+            lock.unlock();
+        }
     }
 
     public List<Type> getSubTypeRefs() {
         return Collections.unmodifiableList(subTypeRefs);
     }
 
-    public synchronized void addImplementation(ClassModel classModel) {
-        implementations.add(classModel);
+    public void addImplementation(ClassModel classModel) {
+        try {
+            lock.lock();
+            implementations.add(classModel);
+        } finally {
+            lock.unlock();
+        }
     }
 
     public List<ClassModel> getImplementations() {

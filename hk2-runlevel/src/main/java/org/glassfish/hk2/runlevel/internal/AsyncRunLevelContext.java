@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -29,6 +29,7 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -69,6 +70,7 @@ public class AsyncRunLevelContext {
     
     private static final ThreadFactory THREAD_FACTORY = new RunLevelThreadFactory();
     
+    private final ReentrantLock lock = new ReentrantLock();
     private final org.glassfish.hk2.utilities.reflection.Logger hk2Logger = org.glassfish.hk2.utilities.reflection.Logger.getLogger();
     
     private int currentLevel = RunLevel.RUNLEVEL_VAL_INITIAL;
@@ -159,7 +161,8 @@ public class AsyncRunLevelContext {
         Integer localModeOverride;
         long tid = -1L;
         
-        synchronized (this) {
+        try {
+            lock.lock();
             localModeOverride = modeOverride;
             
             retVal = (U) backingMap.get(activeDescriptor);
@@ -265,6 +268,8 @@ public class AsyncRunLevelContext {
                     localCurrentLevel = currentTask.getProposedLevel();
                 }
             }
+        } finally {
+            lock.unlock();
         }
         
         Throwable error = null;
@@ -308,7 +313,8 @@ public class AsyncRunLevelContext {
             throw new RuntimeException(th);
         }
         finally {
-            synchronized (this) {
+            try {
+                lock.lock();
                 boolean hardCancelled = hardCancelledDescriptors.remove(activeDescriptor);
                 
                 if (retVal != null) {
@@ -353,6 +359,8 @@ public class AsyncRunLevelContext {
                     hk2Logger.debug("AsyncRunLevelController other threads notified for " +
                         oneLineDescriptor + " in thread " + tid);
                 }
+            } finally {
+                lock.unlock();
             }
         }
     }
@@ -364,14 +372,20 @@ public class AsyncRunLevelContext {
      * @return true if already created, false otherwise
      */
     public boolean containsKey(ActiveDescriptor<?> descriptor) {
-        synchronized (this) {
+        try {
+            lock.lock();
             return backingMap.containsKey(descriptor);
+        } finally {
+            lock.unlock();
         }
     }
     
     /* package */ boolean wouldBlockRightNow(ActiveDescriptor<?> desc) {
-        synchronized (this) {
+        try {
+            lock.lock();
             return creatingDescriptors.containsKey(desc);
+        } finally {
+            lock.unlock();
         }
     }
     
@@ -395,9 +409,12 @@ public class AsyncRunLevelContext {
     @SuppressWarnings("unchecked")
     public void destroyOne(ActiveDescriptor<?> descriptor) {
         Object retVal = null;
-        synchronized (this) {
+        try {
+            lock.lock();
             retVal = backingMap.remove(descriptor);
             if (retVal == null) return;
+        } finally {
+            lock.unlock();
         }
             
         ((ActiveDescriptor<Object>) descriptor).dispose(retVal);
@@ -426,41 +443,77 @@ public class AsyncRunLevelContext {
     }
 
     
-    /* package */ synchronized int getCurrentLevel() {
-        return currentLevel;
-    }
-    
-    /* package */ synchronized void levelCancelled() {
-        wasCancelled = true;
-    }
-    
-    /* package */ synchronized void setCurrentLevel(int currentLevel) {
-        this.currentLevel = currentLevel;
-    }
-    
-    /* package */ synchronized void setPolicy(RunLevelController.ThreadingPolicy policy) {
-        this.policy = policy;
-    }
-    
-    /* package */ synchronized void setExecutor(Executor executor) {
-        if (executor == null) {
-            this.executor = DEFAULT_EXECUTOR;
-        }
-        else {
-            this.executor = executor;
+    /* package */ int getCurrentLevel() {
+        try {
+            lock.lock();
+            return currentLevel;
+        } finally {
+            lock.unlock();
         }
     }
     
-    /* package */ synchronized Executor getExecutor() {
-        return executor;
+    /* package */ void levelCancelled() {
+        try {
+            lock.lock();
+            wasCancelled = true;
+        } finally {
+            lock.unlock();
+        }
     }
     
-    /* package */ synchronized RunLevelController.ThreadingPolicy getPolicy() {
-        return policy;
+    /* package */ void setCurrentLevel(int currentLevel) {
+        try {
+            lock.lock();
+            this.currentLevel = currentLevel;
+        } finally {
+            lock.unlock();
+        }
+    }
+    
+    /* package */ void setPolicy(RunLevelController.ThreadingPolicy policy) {
+        try {
+            lock.lock();
+            this.policy = policy;
+        } finally {
+            lock.unlock();
+        }
+    }
+    
+    /* package */ void setExecutor(Executor executor) {
+        try {
+            lock.lock();
+            if (executor == null) {
+                this.executor = DEFAULT_EXECUTOR;
+            }
+            else {
+                this.executor = executor;
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+    
+    /* package */ Executor getExecutor() {
+        try {
+            lock.lock();
+            return executor;
+        } finally {
+            lock.unlock();
+        }
+    }
+    
+    /* package */ RunLevelController.ThreadingPolicy getPolicy() {
+        try {
+            lock.lock();
+            return policy;
+        } finally {
+            lock.unlock();
+        }
     }
     
     /* package */ List<ActiveDescriptor<?>> getOrderedListOfServicesAtLevel(int level) {
-        synchronized (this) {
+        try {
+            lock.lock();
             LinkedList<ActiveDescriptor<?>> retVal = new LinkedList<ActiveDescriptor<?>>();
             
             while (!orderedCreationList.isEmpty()) {
@@ -474,6 +527,8 @@ public class AsyncRunLevelContext {
             }
             
             return retVal;
+        } finally {
+            lock.unlock();
         }
         
     }
@@ -487,7 +542,8 @@ public class AsyncRunLevelContext {
      */
     public RunLevelFuture proceedTo(int level) throws CurrentlyRunningException {
         CurrentTaskFutureWrapper localTask;
-        synchronized (this) {
+        try {
+            lock.lock();
             boolean fullyThreaded = policy.equals(RunLevelController.ThreadingPolicy.FULLY_THREADED);
             
             if (currentTask != null) {
@@ -504,6 +560,8 @@ public class AsyncRunLevelContext {
                     timer));
             
             localTask = currentTask;
+        } finally {
+            lock.unlock();
         }
         
         // Do outside the lock so that when not fully threaded we do not hold the
@@ -513,8 +571,13 @@ public class AsyncRunLevelContext {
         return localTask;
     }
     
-    /* package */ synchronized void jobDone() {
-        currentTask = null;
+    /* package */ void jobDone() {
+        try {
+            lock.lock();
+            currentTask = null;
+        } finally {
+            lock.unlock();
+        }
     }
     
     /**
@@ -522,42 +585,82 @@ public class AsyncRunLevelContext {
      * 
      * @return The current task, may be null if there is no current task
      */
-    public synchronized RunLevelFuture getCurrentFuture() {
-        return currentTask;
-    }
-    
-    /* package */ synchronized void setMaximumThreads(int maximum) {
-        if (maximum < 1) {
-            maxThreads = 1;
-        }
-        else {
-            maxThreads = maximum;
+    public RunLevelFuture getCurrentFuture() {
+        try {
+            lock.lock();
+            return currentTask;
+        } finally {
+            lock.unlock();
         }
     }
     
-    /* package */ synchronized int getMaximumThreads() {
-        return maxThreads;
+    /* package */ void setMaximumThreads(int maximum) {
+        try {
+            lock.lock();
+            if (maximum < 1) {
+                maxThreads = 1;
+            }
+            else {
+                maxThreads = maximum;
+            }
+        } finally {
+            lock.unlock();
+        }
     }
     
-    /* package */ synchronized void clearErrors() {
-        levelErrorMap.clear();
-        wasCancelled = false;
+    /* package */ int getMaximumThreads() {
+        try {
+            lock.lock();
+            return maxThreads;
+        } finally {
+            lock.unlock();
+        }
     }
     
-    /* package */ synchronized void setCancelTimeout(long cancelTimeout) {
-        this.cancelTimeout = cancelTimeout;
+    /* package */ void clearErrors() {
+        try {
+            lock.lock();
+            levelErrorMap.clear();
+            wasCancelled = false;
+        } finally {
+            lock.unlock();
+        }
     }
     
-    /* package */ synchronized long getCancelTimeout() {
-        return cancelTimeout;
+    /* package */ void setCancelTimeout(long cancelTimeout) {
+        try {
+            lock.lock();
+            this.cancelTimeout = cancelTimeout;
+        } finally {
+            lock.unlock();
+        }
     }
     
-    /* package */ synchronized Integer getModeOverride() {
-        return modeOverride;
+    /* package */ long getCancelTimeout() {
+        try {
+            lock.lock();
+            return cancelTimeout;
+        } finally {
+            lock.unlock();
+        }
     }
     
-    /* package */ synchronized void setModeOverride(Integer modeOverride) {
-        this.modeOverride = modeOverride;
+    /* package */ Integer getModeOverride() {
+        try {
+            lock.lock();
+            return modeOverride;
+        } finally {
+            lock.unlock();
+        }
+    }
+    
+    /* package */ void setModeOverride(Integer modeOverride) {
+        try {
+            lock.lock();
+            this.modeOverride = modeOverride;
+        } finally {
+            lock.unlock();
+        }
     }
     
     private static class RunLevelControllerThread extends Thread {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -48,8 +49,10 @@ import org.glassfish.hk2.xml.spi.Model;
 public class ModelImpl implements Model {
     private static final long serialVersionUID = 752816761552710497L;
     
+    private final ReentrantLock lock = new ReentrantLock();
     /** For thread safety on the computed fields */
-    private final static Object lock = new Object();
+    // This is probably wrong, no need for static lock
+    private final static ReentrantLock slock = new ReentrantLock();
 
     /** The interface from which the JAXB proxy was created, fully qualified */
     private String originalInterface;
@@ -261,7 +264,8 @@ public class ModelImpl implements Model {
     }
     
     public Set<String> getAllXmlWrappers() {
-        synchronized (lock) {
+        try {
+            slock.lock();
             if (allXmlWrappers != null) return allXmlWrappers;
             allXmlWrappers = new LinkedHashSet<String>();
             
@@ -272,6 +276,8 @@ public class ModelImpl implements Model {
             }
             
             return allXmlWrappers;
+        } finally {
+            slock.unlock();
         }
     }
     
@@ -280,7 +286,8 @@ public class ModelImpl implements Model {
     }
     
     public Set<QName> getUnKeyedChildren() {
-        synchronized (lock) {
+        try {
+            slock.lock();
             if (unKeyedChildren != null) return unKeyedChildren;
             
             unKeyedChildren = new HashSet<QName>();
@@ -291,11 +298,14 @@ public class ModelImpl implements Model {
             }
             
             return unKeyedChildren;
+        } finally {
+            slock.unlock();
         }
     }
     
     public Set<QName> getKeyedChildren() {
-        synchronized (lock) {
+        try {
+            slock.lock();
             if (keyedChildren != null) return keyedChildren;
             
             keyedChildren = new HashSet<QName>();
@@ -306,11 +316,14 @@ public class ModelImpl implements Model {
             }
             
             return keyedChildren;
+        } finally {
+            slock.unlock();
         }
     }
     
     public void setJAUtilities(JAUtilities jaUtilities, ClassLoader myLoader) {
-        synchronized (lock) {
+        try {
+            slock.lock();
             if (this.jaUtilities != null) return;
             this.jaUtilities = jaUtilities;
             this.myLoader = myLoader;
@@ -322,46 +335,60 @@ public class ModelImpl implements Model {
             for (ChildDataModel cdm : nonChildProperty.values()) {
                 cdm.setLoader(myLoader);
             }
+        } finally {
+            slock.unlock();
         }
     }
     
     public String getDefaultChildValue(String propNamespace, String propName) {
         QName propQName = QNameUtilities.createQName(propNamespace, propName);
         
-        synchronized (lock) {
+        try {
+            slock.lock();
             ChildDataModel cd = nonChildProperty.get(propQName);
             if (cd == null) return null;
             return cd.getDefaultAsString();
+        } finally {
+            slock.unlock();
         }
     }
     
     public ModelPropertyType getModelPropertyType(String propNamespace, String propName) {
         QName propQName = QNameUtilities.createQName(propNamespace, propName);
         
-        synchronized (lock) {
+        try {
+            slock.lock();
             if (nonChildProperty.containsKey(propQName)) return ModelPropertyType.FLAT_PROPERTY;
             if (childrenByName.containsKey(propQName)) return ModelPropertyType.TREE_ROOT;
             
             return ModelPropertyType.UNKNOWN;
+        } finally {
+            slock.unlock();
         }
     }
     
     public Class<?> getNonChildType(String propNamespace, String propName) {
         QName propQName = QNameUtilities.createQName(propNamespace, propName);
         
-        synchronized (lock) {
+        try {
+            slock.lock();
             ChildDataModel cd = nonChildProperty.get(propQName);
             if (cd == null) return null;
             
             return cd.getChildTypeAsClass();
+        } finally {
+            slock.unlock();
         }
     }
     
     public ParentedModel getChild(String propNamespace, String propName) {
         QName propQName = QNameUtilities.createQName(propNamespace, propName);
         
-        synchronized (lock) {
+        try {
+            slock.lock();
             return childrenByName.get(propQName);
+        } finally {
+            slock.unlock();
         }
     }
     
@@ -369,12 +396,15 @@ public class ModelImpl implements Model {
     public Class<?> getOriginalInterfaceAsClass() {
         if (originalInterfaceAsClass != null) return originalInterfaceAsClass;
         
-        synchronized (lock) {
+        try {
+            slock.lock();
             if (originalInterfaceAsClass != null) return originalInterfaceAsClass;
             
             originalInterfaceAsClass = GeneralUtilities.loadClass(myLoader, originalInterface);
             return originalInterfaceAsClass;
             
+        } finally {
+            slock.unlock();
         }
     }
     
@@ -382,24 +412,33 @@ public class ModelImpl implements Model {
     public Class<?> getProxyAsClass() {
         if (translatedClassAsClass != null) return translatedClassAsClass;
         
-        synchronized (lock) {
+        try {
+            slock.lock();
             if (translatedClassAsClass != null) return translatedClassAsClass;
             
             translatedClassAsClass = GeneralUtilities.loadClass(myLoader, translatedClass);
             return translatedClassAsClass;
             
+        } finally {
+            slock.unlock();
         }
     }
     
     public Collection<ParentedModel> getAllChildren() {
-        synchronized (lock) {
+        try {
+            slock.lock();
             return Collections.unmodifiableCollection(childrenByName.values());
+        } finally {
+            slock.unlock();
         }
     }
     
     public Map<QName, ParentedModel> getChildrenProperties() {
-        synchronized (lock) {
+        try {
+            slock.lock();
             return Collections.unmodifiableMap(childrenByName);
+        } finally {
+            slock.unlock();
         }
     }
     
@@ -441,52 +480,57 @@ public class ModelImpl implements Model {
         return retVal;
     }
     
-    public synchronized String getJavaNameFromKey(String key, ClassReflectionHelper reflectionHelper) {
-        if (keyToJavaNameMap == null) {
-            keyToJavaNameMap = new LinkedHashMap<String, String>();
-        }
-        
-        String result = keyToJavaNameMap.get(key);
-        if (result != null) return result;
-        
-        if (reflectionHelper == null) return null;
-        
-        Class<?> originalInterface = getOriginalInterfaceAsClass();
-        
-        for (MethodWrapper wrapper : reflectionHelper.getAllMethods(originalInterface)) {
-            Method m = wrapper.getMethod();
+    public String getJavaNameFromKey(String key, ClassReflectionHelper reflectionHelper) {
+        try {
+            lock.lock();
+            if (keyToJavaNameMap == null) {
+                keyToJavaNameMap = new LinkedHashMap<String, String>();
+            }
             
-            String xmlName;
+            String result = keyToJavaNameMap.get(key);
+            if (result != null) return result;
             
-            XmlElement element = m.getAnnotation(XmlElement.class);
-            if (element == null) {
-                XmlAttribute attribute = m.getAnnotation(XmlAttribute.class);
-                if (attribute == null) continue;
+            if (reflectionHelper == null) return null;
+            
+            Class<?> originalInterface = getOriginalInterfaceAsClass();
+            
+            for (MethodWrapper wrapper : reflectionHelper.getAllMethods(originalInterface)) {
+                Method m = wrapper.getMethod();
                 
-                xmlName = attribute.name();
-            }
-            else {
-                xmlName =  element.name();
+                String xmlName;
+                
+                XmlElement element = m.getAnnotation(XmlElement.class);
+                if (element == null) {
+                    XmlAttribute attribute = m.getAnnotation(XmlAttribute.class);
+                    if (attribute == null) continue;
+                    
+                    xmlName = attribute.name();
+                }
+                else {
+                    xmlName =  element.name();
+                }
+                
+                String keyName;
+                String javaName = getJavaNameFromGetterOrSetter(m, reflectionHelper);
+                
+                if ("##default".equals(xmlName)) {
+                    keyName = javaName;
+                }
+                else {
+                    keyName = xmlName;
+                }
+                
+                if (!key.equals(keyName)) continue;
+                
+                // Found it!
+                keyToJavaNameMap.put(key, javaName);
+                return javaName;
             }
             
-            String keyName;
-            String javaName = getJavaNameFromGetterOrSetter(m, reflectionHelper);
-            
-            if ("##default".equals(xmlName)) {
-                keyName = javaName;
-            }
-            else {
-                keyName = xmlName;
-            }
-            
-            if (!key.equals(keyName)) continue;
-            
-            // Found it!
-            keyToJavaNameMap.put(key, javaName);
-            return javaName;
+            return null;
+        } finally {
+            lock.unlock();
         }
-        
-        return null;
     }
     
     private static String getJavaNameFromGetterOrSetter(Method m, ClassReflectionHelper reflectionHelper) {

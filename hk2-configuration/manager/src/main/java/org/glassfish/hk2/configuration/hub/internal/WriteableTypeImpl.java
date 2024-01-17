@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.glassfish.hk2.configuration.hub.api.Change;
 import org.glassfish.hk2.configuration.hub.api.Instance;
@@ -34,6 +35,7 @@ import org.glassfish.hk2.utilities.reflection.internal.ClassReflectionHelperImpl
  *
  */
 public class WriteableTypeImpl implements WriteableType {
+    private final ReentrantLock lock = new ReentrantLock();
     private final WriteableBeanDatabaseImpl parent;
     private final String name;
     private final HashMap<String, Instance> beanMap = new HashMap<String, Instance>();
@@ -66,101 +68,131 @@ public class WriteableTypeImpl implements WriteableType {
      * @see org.glassfish.hk2.configuration.hub.api.Type#getInstances()
      */
     @Override
-    public synchronized Map<String, Instance> getInstances() {
-        return Collections.unmodifiableMap(beanMap);
+    public Map<String, Instance> getInstances() {
+        try {
+            lock.lock();
+            return Collections.unmodifiableMap(beanMap);
+        } finally {
+            lock.unlock();
+        }
     }
     
     /* (non-Javadoc)
      * @see org.glassfish.hk2.configuration.hub.api.Type#getInstance(java.lang.Object)
      */
     @Override
-    public synchronized Instance getInstance(String key) {
-        return beanMap.get(key);
+    public Instance getInstance(String key) {
+        try {
+            lock.lock();
+            return beanMap.get(key);
+        } finally {
+            lock.unlock();
+        }
     }
     
     /* (non-Javadoc)
      * @see org.glassfish.hk2.configuration.hub.api.WriteableType#addInstance(java.lang.Object, java.lang.Object)
      */
     @Override
-    public synchronized Instance addInstance(String key, Object bean) {
-        return addInstance(key, bean, null);
+    public Instance addInstance(String key, Object bean) {
+        try {
+            lock.lock();
+            return addInstance(key, bean, null);
+        } finally {
+            lock.unlock();
+        }
     }
 
     /* (non-Javadoc)
      * @see org.glassfish.hk2.configuration.hub.api.WriteableType#addInstance(java.lang.Object, java.lang.Object)
      */
     @Override
-    public synchronized Instance addInstance(String key, Object bean, Object metadata) {
-        if (key == null || bean == null) throw new IllegalArgumentException();
-        
-        InstanceImpl ii = new InstanceImpl(bean, metadata);
-        
-        parent.addChange(new ChangeImpl(Change.ChangeCategory.ADD_INSTANCE,
-                                   this,
-                                   key,
-                                   ii,
-                                   null,
-                                   null));
-        
-        beanMap.put(key, ii);
-        
-        return ii;
+    public Instance addInstance(String key, Object bean, Object metadata) {
+        try {
+            lock.lock();
+            if (key == null || bean == null) throw new IllegalArgumentException();
+            
+            InstanceImpl ii = new InstanceImpl(bean, metadata);
+            
+            parent.addChange(new ChangeImpl(Change.ChangeCategory.ADD_INSTANCE,
+                                       this,
+                                       key,
+                                       ii,
+                                       null,
+                                       null));
+            
+            beanMap.put(key, ii);
+            
+            return ii;
+        } finally {
+            lock.unlock();
+        }
     }
 
     /* (non-Javadoc)
      * @see org.glassfish.hk2.configuration.hub.api.WriteableType#removeInstance(java.lang.Object)
      */
     @Override
-    public synchronized Instance removeInstance(String key) {
-        if (key == null) throw new IllegalArgumentException();
-        
-        Instance removedValue = beanMap.remove(key);
-        if (removedValue == null) return null;
-        
-        parent.addChange(new ChangeImpl(Change.ChangeCategory.REMOVE_INSTANCE,
-                this,
-                key,
-                removedValue,
-                null,
-                null));
-        
-        return removedValue;
+    public Instance removeInstance(String key) {
+        try {
+            lock.lock();
+            if (key == null) throw new IllegalArgumentException();
+            
+            Instance removedValue = beanMap.remove(key);
+            if (removedValue == null) return null;
+            
+            parent.addChange(new ChangeImpl(Change.ChangeCategory.REMOVE_INSTANCE,
+                    this,
+                    key,
+                    removedValue,
+                    null,
+                    null));
+            
+            return removedValue;
+        } finally {
+            lock.unlock();
+        }
     }
 
     /* (non-Javadoc)
      * @see org.glassfish.hk2.configuration.hub.api.WriteableType#modifyInstance(java.lang.Object, java.lang.Object, java.beans.PropertyChangeEvent[])
      */
     @Override
-    public synchronized PropertyChangeEvent[] modifyInstance(String key, Object newBean,
+    public PropertyChangeEvent[] modifyInstance(String key, Object newBean,
             PropertyChangeEvent... propChanges) {
-        if (key == null || newBean == null) throw new IllegalArgumentException();
-        
-        Instance oldInstance = beanMap.get(key);
-        if (oldInstance == null) {
-            throw new IllegalStateException("Attempting to modify bean with key " + key + " but no such bean exists");
-        }
-        
-        InstanceImpl newInstance = new InstanceImpl(newBean, oldInstance.getMetadata());
-        
-        if (propChanges.length == 0) {
-            propChanges = BeanReflectionHelper.getChangeEvents(helper, oldInstance.getBean(), newInstance.getBean());
-        }
-        
-        beanMap.put(key, newInstance);
+        try {
+            lock.lock();
+            if (key == null || newBean == null) throw new IllegalArgumentException();
+            
+            Instance oldInstance = beanMap.get(key);
+            if (oldInstance == null) {
+                throw new IllegalStateException("Attempting to modify bean with key " + key + " but no such bean exists");
+            }
+            
+            InstanceImpl newInstance = new InstanceImpl(newBean, oldInstance.getMetadata());
+            
+            if (propChanges.length == 0) {
+                propChanges = BeanReflectionHelper.getChangeEvents(helper, oldInstance.getBean(), newInstance.getBean());
+            }
+            
+            beanMap.put(key, newInstance);
 
-        ArrayList<PropertyChangeEvent> propChangesList = new ArrayList<PropertyChangeEvent>(propChanges.length);
-        for (PropertyChangeEvent pce : propChanges) {
-            propChangesList.add(pce);
+            ArrayList<PropertyChangeEvent> propChangesList = new ArrayList<PropertyChangeEvent>(propChanges.length);
+            for (PropertyChangeEvent pce : propChanges) {
+                propChangesList.add(pce);
+            }
+            
+            parent.addChange(new ChangeImpl(Change.ChangeCategory.MODIFY_INSTANCE,
+                    this,
+                    key,
+                    newInstance,
+                    oldInstance,
+                    propChangesList));
+            
+            return propChanges;
+        } finally {
+            lock.unlock();
         }
-        
-        parent.addChange(new ChangeImpl(Change.ChangeCategory.MODIFY_INSTANCE,
-                this,
-                key,
-                newInstance,
-                oldInstance,
-                propChangesList));
-        
-        return propChanges;
     }
 
     ClassReflectionHelper getHelper() {
@@ -171,16 +203,26 @@ public class WriteableTypeImpl implements WriteableType {
      * @see org.glassfish.hk2.configuration.hub.api.Type#getMetadata()
      */
     @Override
-    public synchronized Object getMetadata() {
-        return metadata;
+    public Object getMetadata() {
+        try {
+            lock.lock();
+            return metadata;
+        } finally {
+            lock.unlock();
+        }
     }
 
     /* (non-Javadoc)
      * @see org.glassfish.hk2.configuration.hub.api.Type#setMetadata(java.lang.Object)
      */
     @Override
-    public synchronized void setMetadata(Object metadata) {
-        this.metadata = metadata;
+    public void setMetadata(Object metadata) {
+        try {
+            lock.lock();
+            this.metadata = metadata;
+        } finally {
+            lock.unlock();
+        }
     }
     
     @Override

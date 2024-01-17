@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -20,6 +20,7 @@ import org.glassfish.hk2.classmodel.reflect.*;
 import org.glassfish.hk2.classmodel.reflect.util.ParsingConfig;
 
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
 /**
@@ -27,6 +28,7 @@ import java.util.logging.Logger;
  */
 public abstract class ExtensibleTypeImpl<T extends ExtensibleType> extends TypeImpl implements ExtensibleType<T> {
 
+    private final ReentrantLock lock = new ReentrantLock();
     private TypeProxy<?> parent;
     private final List<FieldModel> staticFields = new ArrayList<FieldModel> ();
     private final List<TypeProxy<InterfaceModel>> implementedIntf = new ArrayList<TypeProxy<InterfaceModel>>();
@@ -46,20 +48,35 @@ public abstract class ExtensibleTypeImpl<T extends ExtensibleType> extends TypeI
         }
     }
     
-    public synchronized TypeProxy<?> setParent(final TypeProxy<?> parent) {
-        if (null == this.parent) { 
-          this.parent = parent;
+    public TypeProxy<?> setParent(final TypeProxy<?> parent) {
+        try {
+            lock.lock();
+            if (null == this.parent) { 
+                this.parent = parent;
+            }
+            return this.parent;
+        } finally {
+            lock.unlock();
         }
-        return this.parent;
     }
 
-    synchronized void isImplementing(TypeProxy<InterfaceModel> intf) {
-        implementedIntf.add(intf);
+    void isImplementing(TypeProxy<InterfaceModel> intf) {
+        try {
+            lock.lock();
+            implementedIntf.add(intf);
+        } finally {
+            lock.unlock();
+        }
     }
 
-    synchronized void isImplementing(ParameterizedInterfaceModelImpl pim) {
-        implementedIntf.add(pim.rawInterface);
-        implementedParameterizedIntf.add(pim);
+    void isImplementing(ParameterizedInterfaceModelImpl pim) {
+        try {
+            lock.lock();
+            implementedIntf.add(pim.rawInterface);
+            implementedParameterizedIntf.add(pim);
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
@@ -90,8 +107,13 @@ public abstract class ExtensibleTypeImpl<T extends ExtensibleType> extends TypeI
         return allTypes;
     }
 
-    synchronized void addStaticField(FieldModel field) {
-        staticFields.add(field);
+    void addStaticField(FieldModel field) {
+        try {
+            lock.lock();
+            staticFields.add(field);
+        } finally {
+            lock.unlock();
+        }
     }
 
     void addField(FieldModel field) {

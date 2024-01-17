@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2023 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -19,6 +19,7 @@ package org.glassfish.hk2.xml.internal;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.glassfish.hk2.utilities.general.GeneralUtilities;
 
@@ -44,7 +45,7 @@ public class ChildDataModel implements Serializable {
         TYPE_MAP.put("boolean", boolean.class);
     };
     
-    private final Object lock = new Object();
+    private final ReentrantLock lock = new ReentrantLock();
     
     /** Set at compile time, the type of the thing */
     private String childType;
@@ -113,13 +114,17 @@ public class ChildDataModel implements Serializable {
     }
     
     public void setLoader(ClassLoader myLoader) {
-        synchronized (lock) {
+        try {
+            lock.lock();
             this.myLoader = myLoader;
+        } finally {
+            lock.unlock();
         }
     }
     
     public Class<?> getChildTypeAsClass() {
-        synchronized (lock) {
+        try {
+            lock.lock();
             if (childTypeAsClass != null) return childTypeAsClass;
             
             childTypeAsClass = TYPE_MAP.get(childType);
@@ -128,12 +133,15 @@ public class ChildDataModel implements Serializable {
             childTypeAsClass = GeneralUtilities.loadClass(myLoader, childType);
             
             return childTypeAsClass;
+        } finally {
+            lock.unlock();
         }
         
     }
     
     public Class<?> getChildListTypeAsClass() {
-        synchronized (lock) {
+        try {
+            lock.lock();
             if (childListType == null) return null;
             if (childListTypeAsClass != null) return childListTypeAsClass;
             
@@ -143,6 +151,8 @@ public class ChildDataModel implements Serializable {
             childListTypeAsClass = GeneralUtilities.loadClass(myLoader, childListType);
             
             return childListTypeAsClass;
+        } finally {
+            lock.unlock();
         }
         
     }

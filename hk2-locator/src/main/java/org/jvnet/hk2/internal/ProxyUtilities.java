@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -21,6 +21,7 @@ import java.security.AccessControlException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.HashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.Injectee;
@@ -39,7 +40,8 @@ import javassist.util.proxy.ProxyObject;
  *
  */
 public class ProxyUtilities {
-    private final static Object proxyCreationLock = new Object();
+    private final static ReentrantLock proxyCreationLock = new ReentrantLock();
+    private final ReentrantLock lock = new ReentrantLock();
     private final HashMap<ClassLoader, DelegatingClassLoader> superClassToDelegator = new HashMap<ClassLoader, DelegatingClassLoader>();
     
     /**
@@ -90,7 +92,8 @@ public class ProxyUtilities {
         });
         
         DelegatingClassLoader initDelegatingLoader;
-        synchronized (superClassToDelegator) {
+        try {
+            lock.lock();
             initDelegatingLoader = superClassToDelegator.get(loader);
             if (initDelegatingLoader == null) {
                 initDelegatingLoader = AccessController.doPrivileged(new PrivilegedAction<DelegatingClassLoader>() {
@@ -107,6 +110,8 @@ public class ProxyUtilities {
                 
                 superClassToDelegator.put(loader, initDelegatingLoader);
             }
+        } finally {
+            lock.unlock();
         }
         
         final DelegatingClassLoader delegatingLoader = initDelegatingLoader;
@@ -130,7 +135,8 @@ public class ProxyUtilities {
             @SuppressWarnings("unchecked")
             @Override
             public T run() {
-                synchronized (proxyCreationLock) {
+                try {
+                    proxyCreationLock.lock();
                     ProxyFactory.ClassLoaderProvider originalProvider = ProxyFactory.classLoaderProvider;
                     ProxyFactory.classLoaderProvider = new ProxyFactory.ClassLoaderProvider() {
                         
@@ -160,6 +166,8 @@ public class ProxyUtilities {
                     finally {
                         ProxyFactory.classLoaderProvider = originalProvider;
                     }
+                } finally {
+                    proxyCreationLock.unlock();
                 }
             }
 
@@ -217,8 +225,11 @@ public class ProxyUtilities {
     }
     
     public void releaseCache() {
-        synchronized (superClassToDelegator) {
+        try {
+            lock.lock();
             superClassToDelegator.clear();
+        } finally {
+            lock.unlock();
         }
     }
 }

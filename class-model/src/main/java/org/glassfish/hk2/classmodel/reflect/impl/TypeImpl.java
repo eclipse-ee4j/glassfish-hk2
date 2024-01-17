@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -22,6 +22,7 @@ import org.glassfish.hk2.classmodel.reflect.util.ParsingConfig;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 import java.net.URI;
 
 /**
@@ -31,6 +32,7 @@ import java.net.URI;
  */
 public class TypeImpl extends AnnotatedElementImpl implements Type {
 
+    private final ReentrantLock lock = new ReentrantLock();
     private final TypeProxy<Type> sink;
     private final List<MethodModel> methods = new ArrayList<MethodModel>();
     private final Set<URI> definingURIs= new HashSet<URI>();
@@ -46,15 +48,20 @@ public class TypeImpl extends AnnotatedElementImpl implements Type {
         return Collections.unmodifiableSet(definingURIs);
     }
 
-    synchronized void addDefiningURI(URI uri) {
-        definingURIs.add(uri);
+    void addDefiningURI(URI uri) {
         try {
-            File file = new File(uri);
-//            assert(file.exists()) : file + " does not exist";
-            definingURIs.add(file.getCanonicalFile().toURI());
-        } catch (IOException e) {
-            // ignore, this is a safeguard for confused user's code that do not
-            // deal well with file path.
+            lock.lock();
+            definingURIs.add(uri);
+            try {
+                File file = new File(uri);
+//                assert(file.exists()) : file + " does not exist";
+                definingURIs.add(file.getCanonicalFile().toURI());
+            } catch (IOException e) {
+                // ignore, this is a safeguard for confused user's code that do not
+                // deal well with file path.
+            }
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -68,8 +75,13 @@ public class TypeImpl extends AnnotatedElementImpl implements Type {
         return false;
     }
 
-    synchronized void addMethod(MethodModelImpl m) {
-        methods.add(m);
+    void addMethod(MethodModelImpl m) {
+        try {
+            lock.lock();
+            methods.add(m);
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override

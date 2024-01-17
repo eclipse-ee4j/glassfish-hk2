@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Holds information about /META-INF/services and /META-INF/inhabitants for a {@link Module}.
@@ -41,6 +42,7 @@ import java.util.*;
  */
 public final class ModuleMetadata implements Serializable {
 
+    private final ReentrantLock lock = new ReentrantLock();
     /**
      * META-INF/hk2-locator/* cache
      */
@@ -50,16 +52,21 @@ public final class ModuleMetadata implements Serializable {
         return descriptors;
     }
 
-    public synchronized void addDescriptors(String serviceLocatorName, Collection<Descriptor> descriptorsToAdd) {
-        List<Descriptor> descriptorList = descriptors.get(serviceLocatorName);
+    public void addDescriptors(String serviceLocatorName, Collection<Descriptor> descriptorsToAdd) {
+        try {
+            lock.lock();
+            List<Descriptor> descriptorList = descriptors.get(serviceLocatorName);
 
-        if (descriptorList == null) {
-            descriptorList = new ArrayList<Descriptor>();
+            if (descriptorList == null) {
+                descriptorList = new ArrayList<Descriptor>();
 
-            descriptors.put(serviceLocatorName, descriptorList);
+                descriptors.put(serviceLocatorName, descriptorList);
+            }
+
+            descriptorList.addAll(descriptorsToAdd);
+        } finally {
+            lock.unlock();
         }
-
-        descriptorList.addAll(descriptorsToAdd);
     }
 
     public static final class Entry implements Serializable {

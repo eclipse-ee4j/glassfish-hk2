@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.glassfish.hk2.utilities.cache.CacheUtilities;
 import org.glassfish.hk2.utilities.cache.Computable;
@@ -48,7 +49,8 @@ public class UnkeyedDiff {
             return Boolean.getBoolean(UNKEYED_DEBUG_PROPERTY);
         }   
     });
-    
+
+    private final ReentrantLock lock = new ReentrantLock();
     private final List<BaseHK2JAXBBean> legacyList;
     private final List<BaseHK2JAXBBean> proposedList;
     private final ParentedModel parentModel;
@@ -90,22 +92,27 @@ public class UnkeyedDiff {
         this(asList(legacy), asList(proposed), parent, parentModel);
     }
     
-    public synchronized Differences compute() {
-        if (computed) return finalSolution;
-        
-        Differences retVal = null;
+    public Differences compute() {
         try {
-            retVal = internalCompute();
-        }
-        finally {
-            if (retVal != null) {
-                finalSolution = retVal;
+            lock.lock();
+            if (computed) return finalSolution;
             
-                computed = true;
+            Differences retVal = null;
+            try {
+                retVal = internalCompute();
             }
+            finally {
+                if (retVal != null) {
+                    finalSolution = retVal;
+                
+                    computed = true;
+                }
+            }
+            
+            return retVal;
+        } finally {
+            lock.unlock();
         }
-        
-        return retVal;
     }
     
     private Differences internalCompute() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.namespace.QName;
@@ -79,7 +80,9 @@ public abstract class BaseHK2JAXBBean implements XmlHk2ConfigurationBean, Serial
     
     private final static String EMPTY = "";
     public final static char XML_PATH_SEPARATOR = '/';
-    
+
+    private final ReentrantLock lock = new ReentrantLock();
+
     /**
      * All fields, including child lists and direct children for beans
      * with no namespace specified (##default)
@@ -221,8 +224,11 @@ public abstract class BaseHK2JAXBBean implements XmlHk2ConfigurationBean, Serial
         
         if (changeControl == null) {
             if (active) {
-                synchronized (this) {
+                try {
+                    lock.lock();
                     nBeanLikeMap.setValue(propNamespace, propName, propValue);
+                } finally {
+                    lock.unlock();
                 }
             }
             else {
@@ -434,9 +440,12 @@ public abstract class BaseHK2JAXBBean implements XmlHk2ConfigurationBean, Serial
         
         if (changeControl == null) {
             if (active) {
-                synchronized (this) {
+                try {
+                    lock.lock();
                     isSet = nBeanLikeMap.isSet(propNamespace, propName);
                     retVal = nBeanLikeMap.getValue(propNamespace, propName);
+                } finally {
+                    lock.unlock();
                 }
             }
             else {
@@ -933,8 +942,11 @@ public abstract class BaseHK2JAXBBean implements XmlHk2ConfigurationBean, Serial
     public boolean _hasProperty(String propNamespace, String propName) {
         if (changeControl == null) {
             if (active) {
-                synchronized (this) {
+                try {
+                    lock.lock();
                     return nBeanLikeMap.isSet(propNamespace, propName);
+                } finally {
+                    lock.unlock();
                 }
             }
             
@@ -957,8 +969,11 @@ public abstract class BaseHK2JAXBBean implements XmlHk2ConfigurationBean, Serial
     public Map<String, Object> _getBeanLikeMap() {
         if (changeControl == null) {
             if (active) {
-                synchronized (this) {
+                try {
+                    lock.lock();
                     return Collections.unmodifiableMap(nBeanLikeMap.getBeanLikeMap(namespaceToPrefixMap));
+                } finally {
+                    lock.unlock();
                 }
             }
             return Collections.unmodifiableMap(nBeanLikeMap.getBeanLikeMap(namespaceToPrefixMap));
@@ -976,8 +991,11 @@ public abstract class BaseHK2JAXBBean implements XmlHk2ConfigurationBean, Serial
     public Map<QName, Object> _getQNameMap() {
         if (changeControl == null) {
             if (active) {
-                synchronized (this) {
+                try {
+                    lock.lock();
                     return Collections.unmodifiableMap(nBeanLikeMap.getQNameMap());
+                } finally {
+                    lock.unlock();
                 }
             }
             return Collections.unmodifiableMap(nBeanLikeMap.getQNameMap());
@@ -1300,8 +1318,11 @@ public abstract class BaseHK2JAXBBean implements XmlHk2ConfigurationBean, Serial
     public boolean _isSet(String propNamespace, String propName) {
         if (changeControl == null) {
             if (active) {
-                synchronized (this) {
+                try {
+                    lock.lock();
                     return nBeanLikeMap.isSet(propNamespace, propName);
+                } finally {
+                    lock.unlock();
                 }
             }
             

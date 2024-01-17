@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -18,6 +18,7 @@ package org.glassfish.hk2.xml.internal.alt.papi;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.type.ArrayType;
@@ -34,6 +35,7 @@ import org.glassfish.hk2.xml.internal.alt.AltMethod;
  *
  */
 public class ArrayTypeAltClassImpl implements AltClass {
+    private final ReentrantLock lock = new ReentrantLock();
     private final ArrayType arrayType;
     private final ProcessingEnvironment processingEnv;
     private String name;
@@ -123,24 +125,34 @@ public class ArrayTypeAltClassImpl implements AltClass {
      * @see org.glassfish.hk2.xml.internal.alt.AltClass#getName()
      */
     @Override
-    public synchronized String getName() {
-        if (name != null) return name;
-        
-        calculateNames();
-        
-        return name;
+    public String getName() {
+        try {
+            lock.lock();
+            if (name != null) return name;
+            
+            calculateNames();
+            
+            return name;
+        } finally {
+            lock.unlock();
+        }
     }
 
     /* (non-Javadoc)
      * @see org.glassfish.hk2.xml.internal.alt.AltClass#getSimpleName()
      */
     @Override
-    public synchronized String getSimpleName() {
-        if (simpleName != null) return simpleName;
-        
-        calculateNames();
-        
-        return simpleName;
+    public String getSimpleName() {
+        try {
+            lock.lock();
+            if (simpleName != null) return simpleName;
+            
+            calculateNames();
+            
+            return simpleName;
+        } finally {
+            lock.unlock();
+        }
     }
 
     /* (non-Javadoc)

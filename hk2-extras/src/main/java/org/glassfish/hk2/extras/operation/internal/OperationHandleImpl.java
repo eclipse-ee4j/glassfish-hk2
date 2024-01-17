@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2024 Oracle and/or its affiliates. All rights reserved.
  * Copyright (c) 2018 Payara Foundation
  *
  * This program and the accompanying materials are made available under the
@@ -21,6 +21,7 @@ import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.extras.operation.OperationHandle;
@@ -34,7 +35,8 @@ import org.glassfish.hk2.extras.operation.OperationState;
 public class OperationHandleImpl<T extends Annotation> implements OperationHandle<T> {
     private final SingleOperationManager<T> parent;
     private final OperationIdentifier<T> identifier;
-    private final Object operationLock;
+    private final ReentrantLock lock = new ReentrantLock();
+    private final ReentrantLock operationLock;
     private OperationState state;
     private final HashSet<Long> activeThreads = new HashSet<Long>();
     
@@ -44,7 +46,7 @@ public class OperationHandleImpl<T extends Annotation> implements OperationHandl
     /* package */ OperationHandleImpl(
             SingleOperationManager<T> parent,
             OperationIdentifier<T> identifier,
-            Object operationLock,
+            ReentrantLock operationLock,
             ServiceLocator locator) {
         this.parent = parent;
         this.identifier = identifier;
@@ -65,8 +67,11 @@ public class OperationHandleImpl<T extends Annotation> implements OperationHandl
      */
     @Override
     public OperationState getState() {
-        synchronized (operationLock) {
+        try {
+            operationLock.lock();
             return state;
+        } finally {
+            operationLock.unlock();
         }
     }
     
@@ -78,10 +83,13 @@ public class OperationHandleImpl<T extends Annotation> implements OperationHandl
     }
     
     private void checkState() {
-        synchronized (operationLock) {
+        try {
+            operationLock.lock();
             if (OperationState.CLOSED.equals(state)) {
                 throw new IllegalStateException(this + " is closed");
             }
+        } finally {
+            operationLock.unlock();
         }
     }
 
@@ -90,8 +98,11 @@ public class OperationHandleImpl<T extends Annotation> implements OperationHandl
      */
     @Override
     public Set<Long> getActiveThreads() {
-        synchronized (operationLock) {
+        try {
+            operationLock.lock();
             return Collections.unmodifiableSet(activeThreads);
+        } finally {
+            operationLock.unlock();
         }
     }
 
@@ -100,7 +111,8 @@ public class OperationHandleImpl<T extends Annotation> implements OperationHandl
      */
     @Override
     public void suspend(long threadId) {
-        synchronized (operationLock) {
+        try {
+            operationLock.lock();
             if (OperationState.CLOSED.equals(state)) return;
             
             parent.disassociateThread(threadId, this);
@@ -110,6 +122,8 @@ public class OperationHandleImpl<T extends Annotation> implements OperationHandl
                     state = OperationState.SUSPENDED;
                 }
             }
+        } finally {
+            operationLock.unlock();
         }
         
     }
@@ -127,7 +141,8 @@ public class OperationHandleImpl<T extends Annotation> implements OperationHandl
      */
     @Override
     public void resume(long threadId) throws IllegalStateException {
-        synchronized (operationLock) {
+        try {
+            operationLock.lock();
             checkState();
             
             if (activeThreads.contains(threadId)) return;
@@ -144,6 +159,8 @@ public class OperationHandleImpl<T extends Annotation> implements OperationHandl
             activeThreads.add(threadId);
             
             parent.associateWithThread(threadId, this);
+        } finally {
+            operationLock.unlock();
         }
         
     }
@@ -164,7 +181,8 @@ public class OperationHandleImpl<T extends Annotation> implements OperationHandl
         // outside the lock
         parent.disposeAllOperationServices(this);
         
-        synchronized (operationLock) {
+        try {
+            operationLock.lock();
             for (long threadId : activeThreads) {
                 parent.disassociateThread(threadId, this);
             }
@@ -172,6 +190,8 @@ public class OperationHandleImpl<T extends Annotation> implements OperationHandl
             activeThreads.clear();
             state = OperationState.CLOSED;
             parent.closeOperation(this);
+        } finally {
+            operationLock.unlock();
         }
         
         
@@ -186,16 +206,26 @@ public class OperationHandleImpl<T extends Annotation> implements OperationHandl
      * @see org.glassfish.hk2.extras.operation.OperationHandle#getOperationData()
      */
     @Override
-    public synchronized Object getOperationData() {
-        return userData;
+    public Object getOperationData() {
+        try {
+            lock.lock();
+            return userData;
+        } finally {
+            lock.unlock();
+        }
     }
 
     /* (non-Javadoc)
      * @see org.glassfish.hk2.extras.operation.OperationHandle#setOperationData(java.lang.Object)
      */
     @Override
-    public synchronized void setOperationData(Object data) {
-        userData = data;
+    public void setOperationData(Object data) {
+        try {
+            lock.lock();
+            userData = data;
+        } finally {
+            lock.unlock();
+        }
     }
     
     @Override

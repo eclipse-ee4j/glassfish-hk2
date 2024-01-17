@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -20,6 +20,7 @@ import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -34,6 +35,7 @@ import org.glassfish.hk2.extras.operation.OperationManager;
  */
 @Singleton
 public class OperationManagerImpl implements OperationManager {
+    private final ReentrantLock lock = new ReentrantLock();
     private final HashMap<Class<? extends Annotation>, SingleOperationManager<?>> children =
             new HashMap<Class<? extends Annotation>, SingleOperationManager<?>>();
     
@@ -47,13 +49,16 @@ public class OperationManagerImpl implements OperationManager {
     @Override
     public <T extends Annotation> OperationHandle<T> createOperation(T scope) {
         SingleOperationManager<T> manager;
-        synchronized (this) {
+        try {
+            lock.lock();
             manager = (SingleOperationManager<T>) children.get(scope.annotationType());
         
             if (manager == null) {
                 manager = new SingleOperationManager<T>(scope, locator);
                 children.put(scope.annotationType(), manager);
             }
+        } finally {
+            lock.unlock();
         }
         
         return manager.createOperation();
@@ -77,9 +82,12 @@ public class OperationManagerImpl implements OperationManager {
     @Override
     public <T extends Annotation> Set<OperationHandle<T>> getCurrentOperations(T scope) {
         SingleOperationManager<T> manager;
-        synchronized (this) {
+        try {
+            lock.lock();
             manager = (SingleOperationManager<T>) children.get(scope.annotationType());
             if (manager == null) return Collections.emptySet();
+        } finally {
+            lock.unlock();
         }
         
         return manager.getAllOperations();
@@ -92,9 +100,12 @@ public class OperationManagerImpl implements OperationManager {
     @Override
     public <T extends Annotation> OperationHandle<T> getCurrentOperation(T scope) {
         SingleOperationManager<T> manager;
-        synchronized (this) {
+        try {
+            lock.lock();
             manager = (SingleOperationManager<T>) children.get(scope.annotationType());
             if (manager == null) return null;  
+        } finally {
+            lock.unlock();
         }
         
         return manager.getCurrentOperationOnThisThread();
@@ -106,11 +117,14 @@ public class OperationManagerImpl implements OperationManager {
     @Override
     public void shutdownAllOperations(Annotation scope) {
         SingleOperationManager<?> manager;
-        synchronized (this) {
+        try {
+            lock.lock();
             manager = children.remove(scope.annotationType());
             if (manager == null) return;
             
             manager.shutdown();
+        } finally {
+            lock.unlock();
         }
         
     }

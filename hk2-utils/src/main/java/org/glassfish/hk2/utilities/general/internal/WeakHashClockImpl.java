@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.glassfish.hk2.utilities.cache.CacheKeyFilter;
 import org.glassfish.hk2.utilities.general.WeakHashClock;
@@ -36,7 +37,8 @@ public class WeakHashClockImpl<K,V> implements WeakHashClock<K,V> {
     private final boolean isWeak;
     private final ConcurrentHashMap<K, DoubleNode<K,V>> byKeyNotWeak;
     private final WeakHashMap<K, DoubleNode<K, V>> byKey;
-    
+
+    private final ReentrantLock lock = new ReentrantLock();
     private final ReferenceQueue<? super K> myQueue = new ReferenceQueue<K>();
     
     private DoubleNode<K, V> head;
@@ -117,7 +119,8 @@ public class WeakHashClockImpl<K,V> implements WeakHashClock<K,V> {
     public void put(final K key, final V value) {
         if (key == null || value == null) throw new IllegalArgumentException("key " + key + " or value " + value + " is null");
         
-        synchronized (this) {
+        try {
+            lock.lock();
             if (isWeak) {
                 removeStale();
             }
@@ -130,6 +133,8 @@ public class WeakHashClockImpl<K,V> implements WeakHashClock<K,V> {
             else {
                 byKeyNotWeak.put(key, addMe);
             }
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -142,10 +147,13 @@ public class WeakHashClockImpl<K,V> implements WeakHashClock<K,V> {
         
         DoubleNode<K,V> node;
         if (isWeak) {
-            synchronized (this) {
+            try {
+                lock.lock();
                 removeStale();
         
                 node = byKey.get(key);
+            } finally {
+                lock.unlock();
             }
         }
         else {
@@ -164,7 +172,8 @@ public class WeakHashClockImpl<K,V> implements WeakHashClock<K,V> {
     public V remove(K key) {
         if (key == null) return null;
         
-        synchronized (this) {
+        try {
+            lock.lock();
             DoubleNode<K,V> node;
             if (isWeak) {
                 removeStale();
@@ -180,6 +189,8 @@ public class WeakHashClockImpl<K,V> implements WeakHashClock<K,V> {
             removeFromDLL(node);
             
             return node.getValue();
+        } finally {
+            lock.unlock();
         }
     }
     
@@ -187,26 +198,31 @@ public class WeakHashClockImpl<K,V> implements WeakHashClock<K,V> {
      * @see org.glassfish.hk2.utilities.general.WeakHashClock#releaseMatching(org.glassfish.hk2.utilities.cache.CacheKeyFilter)
      */
     @Override
-    public synchronized void releaseMatching(CacheKeyFilter<K> filter) {
-        if (filter == null) return;
-        
-        if (isWeak) {
-            removeStale();
-        }
-        
-        LinkedList<K> removeMe = new LinkedList<K>();
-        DoubleNode<K,V> current = head;
-        while (current != null) {
-            K key = current.getWeakKey().get();
-            if (key != null && filter.matches(key)) {
-                removeMe.add(key);
+    public void releaseMatching(CacheKeyFilter<K> filter) {
+        try {
+            lock.lock();
+            if (filter == null) return;
+            
+            if (isWeak) {
+                removeStale();
             }
             
-            current = current.getNext();
-        }
-        
-        for (K removeKey : removeMe) {
-            remove(removeKey);
+            LinkedList<K> removeMe = new LinkedList<K>();
+            DoubleNode<K,V> current = head;
+            while (current != null) {
+                K key = current.getWeakKey().get();
+                if (key != null && filter.matches(key)) {
+                    removeMe.add(key);
+                }
+                
+                current = current.getNext();
+            }
+            
+            for (K removeKey : removeMe) {
+                remove(removeKey);
+            }
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -216,10 +232,13 @@ public class WeakHashClockImpl<K,V> implements WeakHashClock<K,V> {
     @Override
     public int size() {
         if (isWeak) {
-            synchronized (this) {
+            try {
+                lock.lock();
                 removeStale();
         
                 return byKey.size();
+            } finally {
+                lock.unlock();
             }
         }
         
@@ -257,36 +276,41 @@ public class WeakHashClockImpl<K,V> implements WeakHashClock<K,V> {
      * @see org.glassfish.hk2.utilities.general.WeakHashClock#next()
      */
     @Override
-    public synchronized Entry<K, V> next() {
-        DoubleNode<K,V> hardenedNode = moveDotNoWeak();
-        if (hardenedNode == null) return null;
+    public Entry<K, V> next() {
         try {
-            final K key = hardenedNode.getHardenedKey();
-            final V value = hardenedNode.getValue();
-            
-            return new Map.Entry<K,V>() {
-
-                @Override
-                public K getKey() {
-                    return key;
-                }
-
-                @Override
-                public V getValue() {
-                    return value;
-                }
-
-                @Override
-                public V setValue(V value) {
-                    throw new AssertionError("not implemented");
-                }
+            lock.lock();
+            DoubleNode<K,V> hardenedNode = moveDotNoWeak();
+            if (hardenedNode == null) return null;
+            try {
+                final K key = hardenedNode.getHardenedKey();
+                final V value = hardenedNode.getValue();
                 
-            };
-        }
-        finally {
-            hardenedNode.setHardenedKey(null);
-            
-            removeStale();
+                return new Map.Entry<K,V>() {
+
+                    @Override
+                    public K getKey() {
+                        return key;
+                    }
+
+                    @Override
+                    public V getValue() {
+                        return value;
+                    }
+
+                    @Override
+                    public V setValue(V value) {
+                        throw new AssertionError("not implemented");
+                    }
+                    
+                };
+            }
+            finally {
+                hardenedNode.setHardenedKey(null);
+                
+                removeStale();
+            }
+        } finally {
+            lock.unlock();
         }
     }
     
@@ -294,23 +318,33 @@ public class WeakHashClockImpl<K,V> implements WeakHashClock<K,V> {
      * @see org.glassfish.hk2.utilities.general.WeakHashClock#clear()
      */
     @Override
-    public synchronized void clear() {
-        if (isWeak) {
-            byKey.clear();
+    public void clear() {
+        try {
+            lock.lock();
+            if (isWeak) {
+                byKey.clear();
+            }
+            else {
+                byKeyNotWeak.clear();
+            }
+            
+            head = tail = dot = null;
+        } finally {
+            lock.unlock();
         }
-        else {
-            byKeyNotWeak.clear();
-        }
-        
-        head = tail = dot = null;
     }
     
     /* (non-Javadoc)
      * @see org.glassfish.hk2.utilities.general.WeakHashClock#clearStaleReferences()
      */
     @Override
-    public synchronized void clearStaleReferences() {
-        removeStale();
+    public void clearStaleReferences() {
+        try {
+            lock.lock();
+            removeStale();
+        } finally {
+            lock.unlock();
+        }
     }
     
     private void removeStale() {
@@ -342,32 +376,37 @@ public class WeakHashClockImpl<K,V> implements WeakHashClock<K,V> {
     }
     
     @Override
-    public synchronized String toString() {
-        StringBuffer sb = new StringBuffer("WeakHashClockImpl({");
-        
-        boolean first = true;
-        DoubleNode<K,V> current = dot;
-        if (current != null) {
-            do {
-                K key = current.getWeakKey().get();
-                String keyString = (key == null) ? "null" : key.toString();
+    public String toString() {
+        try {
+            lock.lock();
+            StringBuffer sb = new StringBuffer("WeakHashClockImpl({");
             
-                if (first) {
-                    first = false;
+            boolean first = true;
+            DoubleNode<K,V> current = dot;
+            if (current != null) {
+                do {
+                    K key = current.getWeakKey().get();
+                    String keyString = (key == null) ? "null" : key.toString();
                 
-                    sb.append(keyString);
-                }
-                else {
-                    sb.append("," + keyString);
-                }
+                    if (first) {
+                        first = false;
+                    
+                        sb.append(keyString);
+                    }
+                    else {
+                        sb.append("," + keyString);
+                    }
+                
+                    current = current.getNext();
+                    if (current == null) current = head;
+                } while (current != dot);
+            }
             
-                current = current.getNext();
-                if (current == null) current = head;
-            } while (current != dot);
+            sb.append("}," + System.identityHashCode(this) + ")");
+                  
+            return sb.toString();
+        } finally {
+            lock.unlock();
         }
-        
-        sb.append("}," + System.identityHashCode(this) + ")");
-              
-        return sb.toString();
     }
 }

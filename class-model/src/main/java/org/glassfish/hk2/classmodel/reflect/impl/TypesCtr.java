@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -22,6 +22,7 @@ import org.glassfish.hk2.classmodel.reflect.Types;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * contains all the parsed types references.
@@ -91,11 +92,14 @@ public class TypesCtr implements Types {
             TypeProxy<Type> tmp = unknownTypesStorage.get(name);
             // in our unknown type pool ?
             if (tmp!=null) {
-                synchronized (unknownTypesStorage) {
+                try {
+                    unknownTypesStorageLock.lock();
                     typeProxy = unknownTypesStorage.remove(name);
                     if (typeProxy == null) { 
                         typeProxy = tmp; 
-                     }
+                    }
+                } finally {
+                    unknownTypesStorageLock.unlock();
                 }
                 if (typeProxy!=null) {
                     TypeProxy<Type> old = typeStorage.putIfAbsent(name, typeProxy);
@@ -158,6 +162,7 @@ public class TypesCtr implements Types {
     private final ConcurrentMap<Class, ConcurrentMap<String, TypeProxy<Type>>> storage=
             new ConcurrentHashMap<Class, ConcurrentMap<String, TypeProxy<Type>>>();
 
+    private final ReentrantLock unknownTypesStorageLock = new ReentrantLock();
     /**
      * Map of encountered types which we don't know if it is an interface, class or annotation
      */

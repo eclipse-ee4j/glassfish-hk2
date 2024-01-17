@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -54,7 +54,8 @@ public class TypesImpl implements TypeBuilder {
         Class<? extends Type> requestedType = getType(access);
 
         TypeProxy<Type> typeProxy = types.getHolder(name, requestedType);
-        synchronized(typeProxy) {
+        try {
+            typeProxy.lock.lock();
             final Type type = typeProxy.get();
             TypeImpl result;
             if (null == type) {
@@ -76,6 +77,8 @@ public class TypesImpl implements TypeBuilder {
                 }
                 return impl;
             }
+        } finally {
+            typeProxy.lock.unlock();
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -84,7 +85,7 @@ public class ConfigurationListener implements BeanDatabaseUpdateListener {
     private final ConcurrentHashMap<String, ModificationInformation> typeInformation = 
             new ConcurrentHashMap<String, ModificationInformation>();
     
-    private final Object progenitorLock = new Object();
+    private final ReentrantLock progenitorLock = new ReentrantLock();
     private HashSet<ActiveDescriptor<?>> allProgenitors =
             new HashSet<ActiveDescriptor<?>>();
     
@@ -329,8 +330,11 @@ public class ConfigurationListener implements BeanDatabaseUpdateListener {
         
         List<ActiveDescriptor<?>> progenitors = locator.getDescriptors(new NoNameTypeFilter(locator, null, null));
         
-        synchronized (progenitorLock) {
+        try {
+            progenitorLock.lock();
             allProgenitors.addAll(progenitors);
+        } finally {
+            progenitorLock.unlock();
         }
         config.addActiveDescriptor(DescriptorListener.class);
         
@@ -523,8 +527,8 @@ public class ConfigurationListener implements BeanDatabaseUpdateListener {
         final DynamicConfiguration config = configurationService.createDynamicConfiguration();
         final LinkedList<ActiveDescriptor<?>> addedList = new LinkedList<ActiveDescriptor<?>>();
         final LinkedList<ActiveDescriptor<?>> removedList = new LinkedList<ActiveDescriptor<?>>();
-        
-        synchronized (progenitorLock) {
+        try {
+            progenitorLock.lock();
             HashSet<ActiveDescriptor<?>> removed = new HashSet<ActiveDescriptor<?>>(allProgenitors);
             
             progenitors = locator.getDescriptors(new NoNameTypeFilter(locator, null, null));
@@ -553,6 +557,8 @@ public class ConfigurationListener implements BeanDatabaseUpdateListener {
                 }
             }
             
+        } finally {
+            progenitorLock.unlock();
         }
         
         if (!addedList.isEmpty() || !removedList.isEmpty()) {

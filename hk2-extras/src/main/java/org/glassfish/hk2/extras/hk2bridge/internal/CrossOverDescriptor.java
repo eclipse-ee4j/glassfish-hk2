@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -20,6 +20,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.Injectee;
@@ -33,6 +34,7 @@ import org.glassfish.hk2.utilities.AbstractActiveDescriptor;
  *
  */
 public class CrossOverDescriptor<T> extends AbstractActiveDescriptor<T> {
+    private final ReentrantLock lock = new ReentrantLock();
     private final ServiceLocator remoteLocator;
     private final ActiveDescriptor<T> remote;
     private boolean remoteReified;
@@ -67,12 +69,17 @@ public class CrossOverDescriptor<T> extends AbstractActiveDescriptor<T> {
         return true;
     }
     
-    private synchronized void checkState() {
-        if (remoteReified) return;
-        remoteReified = true;
-        
-        if (remote.isReified()) return;
-        remoteLocator.reifyDescriptor(remote);
+    private void checkState() {
+        try {
+            lock.lock();
+            if (remoteReified) return;
+            remoteReified = true;
+            
+            if (remote.isReified()) return;
+            remoteLocator.reifyDescriptor(remote);
+        } finally {
+            lock.unlock();
+        }
     }
     
     @Override

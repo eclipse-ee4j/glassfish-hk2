@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -18,6 +18,7 @@ package org.glassfish.hk2.utilities.cache.internal;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.glassfish.hk2.utilities.cache.CacheKeyFilter;
 import org.glassfish.hk2.utilities.cache.Computable;
@@ -46,7 +47,8 @@ public class WeakCARCacheImpl<K,V> implements WeakCARCache<K, V> {
     
     // The target size of t1, adaptive
     private int p = 0;
-    
+
+    private final ReentrantLock lock = new ReentrantLock();
     private final AtomicLong hits = new AtomicLong(0L);
     private final AtomicLong tries = new AtomicLong(0L);
     
@@ -92,7 +94,8 @@ public class WeakCARCacheImpl<K,V> implements WeakCARCache<K, V> {
             return value;
         }
         
-        synchronized (this) {
+        try {
+            lock.lock();
             value = getValueFromT(key);
             if (value != null) {
                 hits.getAndIncrement();
@@ -162,6 +165,8 @@ public class WeakCARCacheImpl<K,V> implements WeakCARCache<K, V> {
                 b2.remove(key);
                 t2.put(key, new CarValue<V>(value));
             }
+        } finally {
+            lock.unlock();
         }
         
         return value;
@@ -211,32 +216,47 @@ public class WeakCARCacheImpl<K,V> implements WeakCARCache<K, V> {
      * @see org.glassfish.hk2.utilities.cache.WeakCARCache#getKeySize()
      */
     @Override
-    public synchronized int getKeySize() {
-        return t1.size() + t2.size() + b1.size() + b2.size();
+    public int getKeySize() {
+        try {
+            lock.lock();
+            return t1.size() + t2.size() + b1.size() + b2.size();
+        } finally {
+            lock.unlock();
+        }
     }
 
     /* (non-Javadoc)
      * @see org.glassfish.hk2.utilities.cache.WeakCARCache#getValueSize()
      */
     @Override
-    public synchronized int getValueSize() {
-        return t1.size() + t2.size();
+    public int getValueSize() {
+        try {
+            lock.lock();
+            return t1.size() + t2.size();
+        } finally {
+            lock.unlock();
+        }
     }
 
     /* (non-Javadoc)
      * @see org.glassfish.hk2.utilities.cache.WeakCARCache#clear()
      */
     @Override
-    public synchronized void clear() {
-        t1.clear();
-        t2.clear();
-        b1.clear();
-        b2.clear();
-        
-        p = 0;
-        
-        tries.set(0);
-        hits.set(0);
+    public void clear() {
+        try {
+            lock.lock();
+            t1.clear();
+            t2.clear();
+            b1.clear();
+            b2.clear();
+            
+            p = 0;
+            
+            tries.set(0);
+            hits.set(0);
+        } finally {
+            lock.unlock();
+        }
     }
 
     /* (non-Javadoc)
@@ -259,44 +279,59 @@ public class WeakCARCacheImpl<K,V> implements WeakCARCache<K, V> {
      * @see org.glassfish.hk2.utilities.cache.WeakCARCache#remove(java.lang.Object)
      */
     @Override
-    public synchronized boolean remove(K key) {
-        if (t1.remove(key) == null) {
-            if (t2.remove(key) == null) {
-                if (!b1.remove(key)) {
-                    return b2.remove(key);
+    public boolean remove(K key) {
+        try {
+            lock.lock();
+            if (t1.remove(key) == null) {
+                if (t2.remove(key) == null) {
+                    if (!b1.remove(key)) {
+                        return b2.remove(key);
+                    }
+                    
+                    return true;
                 }
                 
                 return true;
             }
             
             return true;
+        } finally {
+            lock.unlock();
         }
-        
-        return true;
     }
     
     /* (non-Javadoc)
      * @see org.glassfish.hk2.utilities.cache.WeakCARCache#releaseMatching(org.glassfish.hk2.utilities.cache.CacheKeyFilter)
      */
     @Override
-    public synchronized void releaseMatching(CacheKeyFilter<K> filter) {
-        if (filter == null) return;
-        
-        b2.releaseMatching(filter);
-        b1.releaseMatching(filter);
-        t1.releaseMatching(filter);
-        t2.releaseMatching(filter);
+    public void releaseMatching(CacheKeyFilter<K> filter) {
+        try {
+            lock.lock();
+            if (filter == null) return;
+            
+            b2.releaseMatching(filter);
+            b1.releaseMatching(filter);
+            t1.releaseMatching(filter);
+            t2.releaseMatching(filter);
+        } finally {
+            lock.unlock();
+        }
     }
 
     /* (non-Javadoc)
      * @see org.glassfish.hk2.utilities.cache.WeakCARCache#clearStaleReferences()
      */
     @Override
-    public synchronized void clearStaleReferences() {
-        t1.clearStaleReferences();
-        t2.clearStaleReferences();
-        b1.clearStaleReferences();
-        b2.clearStaleReferences();
+    public void clearStaleReferences() {
+        try {
+            lock.lock();
+            t1.clearStaleReferences();
+            t2.clearStaleReferences();
+            b1.clearStaleReferences();
+            b2.clearStaleReferences();
+        } finally {
+            lock.unlock();
+        }
     }
     
     private static class CarValue<V> {

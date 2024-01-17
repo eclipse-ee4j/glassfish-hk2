@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.ServiceConfigurationError;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.api.ServiceLocatorFactory;
@@ -49,7 +50,7 @@ public class ServiceLocatorFactoryImpl extends ServiceLocatorFactory {
             
     });
     
-    private static final Object sLock = new Object();
+    private static final ReentrantLock sLock = new ReentrantLock();
     private static int name_count = 0;
     private static final String GENERATED_NAME_PREFIX = "__HK2_Generated_";
     
@@ -57,7 +58,7 @@ public class ServiceLocatorFactoryImpl extends ServiceLocatorFactory {
         private final static ServiceLocatorGenerator defaultGenerator = getGeneratorSecure();
     }
     
-    private final Object lock = new Object();
+    private final ReentrantLock lock = new ReentrantLock();
     private final HashMap<String, ServiceLocator> serviceLocators = new HashMap<String, ServiceLocator>();
     private final HashSet<ServiceLocatorListener> listeners = new HashSet<ServiceLocatorListener>();
     
@@ -139,8 +140,11 @@ public class ServiceLocatorFactoryImpl extends ServiceLocatorFactory {
    */
   @Override
   public ServiceLocator find(String name) {
-    synchronized (lock) {
+    try {
+      lock.lock();
       return serviceLocators.get(name);
+    } finally {
+      lock.unlock();
     }
   }
 
@@ -155,7 +159,8 @@ public class ServiceLocatorFactoryImpl extends ServiceLocatorFactory {
   private void destroy(String name, ServiceLocator locator) {
       ServiceLocator killMe = null;
     
-      synchronized (lock) {
+      try {
+          lock.lock();
           if (name != null) {
               killMe = serviceLocators.remove(name);
           }
@@ -180,6 +185,8 @@ public class ServiceLocatorFactoryImpl extends ServiceLocatorFactory {
                   }
               }
           }
+      } finally {
+          lock.unlock();
       }
     
       if (killMe != null) {
@@ -203,8 +210,11 @@ public class ServiceLocatorFactoryImpl extends ServiceLocatorFactory {
     }
     
     private static String getGeneratedName() {
-        synchronized (sLock) {
+        try {
+            sLock.lock();
             return GENERATED_NAME_PREFIX + name_count++;
+        } finally {
+            sLock.unlock();
         }
         
     }
@@ -237,7 +247,8 @@ public class ServiceLocatorFactoryImpl extends ServiceLocatorFactory {
             Logger.getLogger().debug("ServiceFactoryImpl given create of " + name + " with parent " + parent +
                     " with generator " + generator + " and policy " + policy, new Throwable());
         }
-        synchronized (lock) {
+        try {
+            lock.lock();
             ServiceLocator retVal;
 
             if (name == null) {
@@ -276,6 +287,8 @@ public class ServiceLocatorFactoryImpl extends ServiceLocatorFactory {
                 Logger.getLogger().debug("ServiceFactoryImpl created locator " + retVal);
             }
             return retVal;
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -293,7 +306,8 @@ public class ServiceLocatorFactoryImpl extends ServiceLocatorFactory {
     public void addListener(ServiceLocatorListener listener) {
         if (listener == null) throw new IllegalArgumentException();
         
-        synchronized (lock) {
+        try {
+            lock.lock();
             if (listeners.contains(listener)) return;
             
             try {
@@ -307,6 +321,8 @@ public class ServiceLocatorFactoryImpl extends ServiceLocatorFactory {
             }
             
             listeners.add(listener);
+        } finally {
+            lock.unlock();
         }
         
     }
@@ -315,8 +331,11 @@ public class ServiceLocatorFactoryImpl extends ServiceLocatorFactory {
     public void removeListener(ServiceLocatorListener listener) {
         if (listener == null) throw new IllegalArgumentException();
         
-        synchronized (lock) {
+        try {
+            lock.lock();
             listeners.remove(listener);
+        } finally {
+            lock.unlock();
         }
         
     }

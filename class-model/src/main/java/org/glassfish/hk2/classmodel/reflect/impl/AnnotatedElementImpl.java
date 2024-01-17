@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -18,6 +18,7 @@ package org.glassfish.hk2.classmodel.reflect.impl;
 
 import org.glassfish.hk2.classmodel.reflect.*;
 
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.*;
 
 /**
@@ -26,7 +27,8 @@ import java.util.*;
  * @author Jerome Dochez
  */
 public class AnnotatedElementImpl implements AnnotatedElement {
-    
+
+    private final ReentrantLock lock = new ReentrantLock();
     private final String name;
 
     private final List<AnnotationModel> annotations = new ArrayList<AnnotationModel>();
@@ -42,8 +44,13 @@ public class AnnotatedElementImpl implements AnnotatedElement {
         return name;
     }
 
-    synchronized void addAnnotation(AnnotationModel annotation) {
-        annotations.add(annotation);
+    void addAnnotation(AnnotationModel annotation) {
+        try {
+            lock.lock();
+            annotations.add(annotation);
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override

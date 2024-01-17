@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -22,6 +22,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -48,7 +49,8 @@ public class ConfiguredByInjectionResolver implements
     
     @Inject
     private ConfiguredByContext context;
-    
+
+    private final ReentrantLock lock = new ReentrantLock();
     private final ConcurrentHashMap<ActiveDescriptor<?>, BeanInfo> beanMap = new ConcurrentHashMap<ActiveDescriptor<?>, BeanInfo>(); 
     
     private static String getParameterNameFromConstructor(Constructor<?> cnst, int position) {
@@ -95,38 +97,43 @@ public class ConfiguredByInjectionResolver implements
      * @see org.glassfish.hk2.api.InjectionResolver#resolve(org.glassfish.hk2.api.Injectee, org.glassfish.hk2.api.ServiceHandle)
      */
     @Override
-    public synchronized Object resolve(Injectee injectee, ServiceHandle<?> root) {
-        ActiveDescriptor<?> injecteeParent = injectee.getInjecteeDescriptor();
-        if (injecteeParent == null) return systemResolver.resolve(injectee, root);
-        
-        AnnotatedElement ae = injectee.getParent();
-        if (ae == null) return systemResolver.resolve(injectee, root);
-        
-        String parameterName = null;
-        if (ae instanceof Field) {
-            parameterName = BeanUtilities.getParameterNameFromField((Field) ae, false);
+    public Object resolve(Injectee injectee, ServiceHandle<?> root) {
+        try {
+            lock.lock();
+            ActiveDescriptor<?> injecteeParent = injectee.getInjecteeDescriptor();
+            if (injecteeParent == null) return systemResolver.resolve(injectee, root);
+            
+            AnnotatedElement ae = injectee.getParent();
+            if (ae == null) return systemResolver.resolve(injectee, root);
+            
+            String parameterName = null;
+            if (ae instanceof Field) {
+                parameterName = BeanUtilities.getParameterNameFromField((Field) ae, false);
+            }
+            else if (ae instanceof Constructor) {
+                parameterName = getParameterNameFromConstructor((Constructor<?>) ae, injectee.getPosition());
+            }
+            else if (ae instanceof Method){
+                parameterName = getParameterNameFromMethod((Method) ae, injectee.getPosition());
+            }
+            else {
+                return systemResolver.resolve(injectee, root);
+            }
+            
+            if (parameterName == null) return systemResolver.resolve(injectee, root);
+            
+            ActiveDescriptor<?> workingOn = context.getWorkingOn();
+            if (workingOn == null) return systemResolver.resolve(injectee, root);
+            
+            BeanInfo beanInfo = beanMap.get(workingOn);
+            if (beanInfo == null) {
+                throw new IllegalStateException("Could not find a configuration bean for " + injectee + " with descriptor " + workingOn);
+            }
+            
+            return BeanUtilities.getBeanPropertyValue(injectee.getRequiredType(), parameterName, beanInfo);
+        } finally {
+            lock.unlock();
         }
-        else if (ae instanceof Constructor) {
-            parameterName = getParameterNameFromConstructor((Constructor<?>) ae, injectee.getPosition());
-        }
-        else if (ae instanceof Method){
-            parameterName = getParameterNameFromMethod((Method) ae, injectee.getPosition());
-        }
-        else {
-            return systemResolver.resolve(injectee, root);
-        }
-        
-        if (parameterName == null) return systemResolver.resolve(injectee, root);
-        
-        ActiveDescriptor<?> workingOn = context.getWorkingOn();
-        if (workingOn == null) return systemResolver.resolve(injectee, root);
-        
-        BeanInfo beanInfo = beanMap.get(workingOn);
-        if (beanInfo == null) {
-            throw new IllegalStateException("Could not find a configuration bean for " + injectee + " with descriptor " + workingOn);
-        }
-        
-        return BeanUtilities.getBeanPropertyValue(injectee.getRequiredType(), parameterName, beanInfo);
     }
 
     /* (non-Javadoc)
@@ -145,14 +152,25 @@ public class ConfiguredByInjectionResolver implements
         return true;
     }
     
-    /* package */ synchronized BeanInfo addBean(ActiveDescriptor<?> descriptor, Object bean, String type, Object metadata) {
-        BeanInfo retVal = new BeanInfo(type, descriptor.getName(), bean, metadata);
-        beanMap.put(descriptor, retVal);
-        return retVal;
+    /* package */ BeanInfo addBean(ActiveDescriptor<?> descriptor, Object bean, String type, Object metadata) {
+        try {
+            lock.lock();
+            BeanInfo retVal = new BeanInfo(type, descriptor.getName(), bean, metadata);
+            beanMap.put(descriptor, retVal);
+            return retVal;
+        } finally {
+            lock.unlock();
+        }
     }
     
-    /* package */ synchronized void removeBean(ActiveDescriptor<?> descriptor) {
-        beanMap.remove(descriptor);
+    /* package */ void removeBean(ActiveDescriptor<?> descriptor) {
+        
+        try {
+            lock.lock();
+            beanMap.remove(descriptor);
+        } finally {
+            lock.unlock();
+        }
     }
     
     @Override

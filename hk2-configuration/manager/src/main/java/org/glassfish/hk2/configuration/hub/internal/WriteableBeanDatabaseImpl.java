@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.glassfish.hk2.api.MultiException;
 import org.glassfish.hk2.api.TwoPhaseResource;
@@ -43,7 +44,8 @@ public class WriteableBeanDatabaseImpl implements WriteableBeanDatabase {
     private final HashMap<String, WriteableTypeImpl> types = new HashMap<String, WriteableTypeImpl>();
     private final HubImpl hub;
     private final TwoPhaseResourceImpl resource = new TwoPhaseResourceImpl();
-    
+
+    private final ReentrantLock lock = new ReentrantLock();
     private final LinkedList<Change> changes = new LinkedList<Change>();
     private final LinkedList<WriteableTypeImpl> removedTypes = new LinkedList<WriteableTypeImpl>();
     private boolean committed = false;
@@ -63,8 +65,13 @@ public class WriteableBeanDatabaseImpl implements WriteableBeanDatabase {
      * @see org.glassfish.hk2.configuration.hub.api.BeanDatabase#getAllTypes()
      */
     @Override
-    public synchronized Set<Type> getAllTypes() {
-        return Collections.unmodifiableSet(new HashSet<Type>(types.values()));
+    public Set<Type> getAllTypes() {
+        try {
+            lock.lock();
+            return Collections.unmodifiableSet(new HashSet<Type>(types.values()));
+        } finally {
+            lock.unlock();
+        }
     }
     
     /* (non-Javadoc)
@@ -79,19 +86,29 @@ public class WriteableBeanDatabaseImpl implements WriteableBeanDatabase {
      * @see org.glassfish.hk2.configuration.hub.api.BeanDatabase#getType(java.lang.String)
      */
     @Override
-    public synchronized Type getType(String type) {
-        return types.get(type);
+    public Type getType(String type) {
+        try {
+            lock.lock();
+            return types.get(type);
+        } finally {
+            lock.unlock();
+        }
     }
     
     /* (non-Javadoc)
      * @see org.glassfish.hk2.configuration.hub.api.BeanDatabase#getInstance(java.lang.String, java.lang.Object)
      */
     @Override
-    public synchronized Instance getInstance(String type, String instanceKey) {
-        Type t = getType(type);
-        if (t == null) return null;
-        
-        return t.getInstance(instanceKey);
+    public Instance getInstance(String type, String instanceKey) {
+        try {
+            lock.lock();
+            Type t = getType(type);
+            if (t == null) return null;
+            
+            return t.getInstance(instanceKey);
+        } finally {
+            lock.unlock();
+        }
     }
     
     private void checkState() {
@@ -102,75 +119,95 @@ public class WriteableBeanDatabaseImpl implements WriteableBeanDatabase {
      * @see org.glassfish.hk2.configuration.hub.api.WriteableBeanDatabase#addType(java.lang.String)
      */
     @Override
-    public synchronized WriteableType addType(String typeName) {
-        if (typeName == null) throw new IllegalArgumentException();
-        checkState();
-        
-        WriteableTypeImpl wti = new WriteableTypeImpl(this, typeName);
-        
-        changes.add(new ChangeImpl(Change.ChangeCategory.ADD_TYPE,
-                                   wti,
-                                   null,
-                                   null,
-                                   null,
-                                   null));
-        
-        types.put(typeName, wti);
-        
-        return wti;
+    public WriteableType addType(String typeName) {
+        try {
+            lock.lock();
+            if (typeName == null) throw new IllegalArgumentException();
+            checkState();
+            
+            WriteableTypeImpl wti = new WriteableTypeImpl(this, typeName);
+            
+            changes.add(new ChangeImpl(Change.ChangeCategory.ADD_TYPE,
+                                       wti,
+                                       null,
+                                       null,
+                                       null,
+                                       null));
+            
+            types.put(typeName, wti);
+            
+            return wti;
+        } finally {
+            lock.unlock();
+        }
     }
 
     /* (non-Javadoc)
      * @see org.glassfish.hk2.configuration.hub.api.WriteableBeanDatabase#removeType(java.lang.String)
      */
     @Override
-    public synchronized Type removeType(String typeName) {
-        if (typeName == null) throw new IllegalArgumentException();
-        checkState();
-        
-        WriteableTypeImpl retVal = types.remove(typeName);
-        if (retVal == null) return null;
-        
-        Map<String, Instance> instances = retVal.getInstances();
-        for (String key : new HashSet<String>(instances.keySet())) {
-            retVal.removeInstance(key);
+    public Type removeType(String typeName) {
+        try {
+            lock.lock();
+            if (typeName == null) throw new IllegalArgumentException();
+            checkState();
+            
+            WriteableTypeImpl retVal = types.remove(typeName);
+            if (retVal == null) return null;
+            
+            Map<String, Instance> instances = retVal.getInstances();
+            for (String key : new HashSet<String>(instances.keySet())) {
+                retVal.removeInstance(key);
+            }
+            
+            changes.add(new ChangeImpl(Change.ChangeCategory.REMOVE_TYPE,
+                    retVal,
+                    null,
+                    null,
+                    null,
+                    null));
+            
+            removedTypes.add(retVal);
+            
+            return retVal;
+        } finally {
+            lock.unlock();
         }
-        
-        changes.add(new ChangeImpl(Change.ChangeCategory.REMOVE_TYPE,
-                retVal,
-                null,
-                null,
-                null,
-                null));
-        
-        removedTypes.add(retVal);
-        
-        return retVal;
     }
 
     /* (non-Javadoc)
      * @see org.glassfish.hk2.configuration.hub.api.WriteableBeanDatabase#getWriteableType(java.lang.String)
      */
     @Override
-    public synchronized WriteableType getWriteableType(String typeName) {
-        checkState();
-        return types.get(typeName);
+    public WriteableType getWriteableType(String typeName) {
+        try {
+            lock.lock();
+            checkState();
+            return types.get(typeName);
+        } finally {
+            lock.unlock();
+        }
     }
 
     /* (non-Javadoc)
      * @see org.glassfish.hk2.configuration.hub.api.WriteableBeanDatabase#findOrAddWriteableType(java.lang.String)
      */
     @Override
-    public synchronized WriteableType findOrAddWriteableType(String typeName) {
-        if (typeName == null) throw new IllegalArgumentException();
-        checkState();
-        
-        WriteableTypeImpl wti = types.get(typeName);
-        if (wti == null) {
-            return addType(typeName);
+    public WriteableType findOrAddWriteableType(String typeName) {
+        try {
+            lock.lock();
+            if (typeName == null) throw new IllegalArgumentException();
+            checkState();
+            
+            WriteableTypeImpl wti = types.get(typeName);
+            if (wti == null) {
+                return addType(typeName);
+            }
+            
+            return wti;
+        } finally {
+            lock.unlock();
         }
-        
-        return wti;
     }
     
     /* (non-Javadoc)
@@ -179,8 +216,11 @@ public class WriteableBeanDatabaseImpl implements WriteableBeanDatabase {
     @Override
     public void commit() {
         Object defaultCommit;
-        synchronized (this) {
+        try {
+            lock.lock();
             defaultCommit = commitMessage;
+        } finally {
+            lock.unlock();
         }
         
         commit(defaultCommit);
@@ -191,10 +231,13 @@ public class WriteableBeanDatabaseImpl implements WriteableBeanDatabase {
      */
     @Override
     public void commit(Object commitMessage) {
-        synchronized (this) {
+        try {
+            lock.lock();
             checkState();
         
             committed = true;
+        } finally {
+            lock.unlock();
         }
         
         // Outside of lock
@@ -211,8 +254,13 @@ public class WriteableBeanDatabaseImpl implements WriteableBeanDatabase {
         return baseRevision;
     }
     
-    /* package */ synchronized void addChange(Change change) {
-        changes.add(change);
+    /* package */ void addChange(Change change) {
+        try {
+            lock.lock();
+            changes.add(change);
+        } finally {
+            lock.unlock();
+        }
     }
 
     /* (non-Javadoc)
@@ -227,8 +275,13 @@ public class WriteableBeanDatabaseImpl implements WriteableBeanDatabase {
      * @see org.glassfish.hk2.configuration.hub.api.BeanDatabase#dumpDatabase(java.io.PrintStream)
      */
     @Override
-    public synchronized void dumpDatabase(PrintStream output) {
-        Utilities.dumpDatabase(this, output);        
+    public void dumpDatabase(PrintStream output) {
+        try {
+            lock.lock();
+            Utilities.dumpDatabase(this, output);
+        } finally {
+            lock.unlock();
+        }
     }
     
     /* (non-Javadoc)
@@ -251,16 +304,26 @@ public class WriteableBeanDatabaseImpl implements WriteableBeanDatabase {
      * @see org.glassfish.hk2.configuration.hub.api.WriteableBeanDatabase#getCommitMessage()
      */
     @Override
-    public synchronized Object getCommitMessage() {
-        return commitMessage;
+    public Object getCommitMessage() {
+        try {
+            lock.lock();
+            return commitMessage;
+        } finally {
+            lock.unlock();
+        }
     }
 
     /* (non-Javadoc)
      * @see org.glassfish.hk2.configuration.hub.api.WriteableBeanDatabase#setCommitMessage(java.lang.Object)
      */
     @Override
-    public synchronized void setCommitMessage(Object commitMessage) {
-        this.commitMessage = commitMessage;
+    public void setCommitMessage(Object commitMessage) {
+        try {
+            lock.lock();
+            this.commitMessage = commitMessage;
+        } finally {
+            lock.unlock();
+        }
     }
 
     
@@ -276,12 +339,15 @@ public class WriteableBeanDatabaseImpl implements WriteableBeanDatabase {
                 TwoPhaseTransactionData dynamicConfiguration)
                 throws MultiException {
             Object defaultCommit;
-            synchronized (WriteableBeanDatabaseImpl.this) {
+            try {
+                WriteableBeanDatabaseImpl.this.lock.lock();
                 checkState();
                 
                 committed = true;
                 
                 defaultCommit = commitMessage;
+            } finally {
+                WriteableBeanDatabaseImpl.this.lock.unlock();
             }
             
             // Outside of lock
@@ -298,8 +364,11 @@ public class WriteableBeanDatabaseImpl implements WriteableBeanDatabase {
             this.completedListeners = null;
             
             Object defaultCommit;
-            synchronized (WriteableBeanDatabaseImpl.this) {
+            try {
+                WriteableBeanDatabaseImpl.this.lock.lock();
                 defaultCommit = commitMessage;
+            } finally {
+                WriteableBeanDatabaseImpl.this.lock.unlock();
             }
             
             hub.activateCurrentDatabase(WriteableBeanDatabaseImpl.this, defaultCommit, changes, completedListeners);
@@ -322,10 +391,13 @@ public class WriteableBeanDatabaseImpl implements WriteableBeanDatabase {
             this.completedListeners = null;
             
             Object defaultCommit;
-            synchronized (WriteableBeanDatabaseImpl.this) {
+            try {
+                WriteableBeanDatabaseImpl.this.lock.lock();
                 defaultCommit = commitMessage;
+            } finally {
+                WriteableBeanDatabaseImpl.this.lock.unlock();
             }
-            
+
             hub.rollbackCurrentDatabase(WriteableBeanDatabaseImpl.this, defaultCommit, changes, completedListeners);
             
             for (WriteableTypeImpl removedType : removedTypes) {

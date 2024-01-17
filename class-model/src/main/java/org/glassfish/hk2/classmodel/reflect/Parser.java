@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -32,6 +32,7 @@ import java.net.URL;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -48,6 +49,8 @@ public class Parser implements Closeable {
     private final ParsingContext context;
     private final Map<String, Types> processedURI = Collections.synchronizedMap(new HashMap<String, Types>());
 
+    private final ReentrantLock thislock = new ReentrantLock();
+    private final ReentrantLock futuresLock = new ReentrantLock();
     private final Stack<Future<Result>> futures = new Stack<Future<Result>>();
     private final ExecutorService executorService;
     private final boolean ownES;
@@ -76,13 +79,14 @@ public class Parser implements Closeable {
                  context.logger.log(Level.FINE, "Await iterating at " + System.currentTimeMillis() + " waiting for " + futures.size());
             }
             Future<Result> f;
-            synchronized(futures) {
-                try {
-                    f = futures.pop();
-                } catch(EmptyStackException e) {
-                    // it's ok, another thread took the load from us.
-                    f = null;
-                }
+            try {
+                futuresLock.lock();
+                f = futures.pop();
+            } catch(EmptyStackException e) {
+                // it's ok, another thread took the load from us.
+                f = null;
+            } finally {
+                futuresLock.unlock();
             }
             if (f!=null) {
                 try {
@@ -286,8 +290,11 @@ public class Parser implements Closeable {
                     }
                 }
             });
-            synchronized(futures) {
+            try {
+                futuresLock.lock();
                 futures.add(future);
+            } finally {
+                futuresLock.unlock();
             }
             if (immediateShutdown) {
                 es.shutdown();
@@ -298,12 +305,22 @@ public class Parser implements Closeable {
         }
     }
 
-    private synchronized Types getResult(URI uri) {
-        return processedURI.get(uri.getSchemeSpecificPart());
+    private Types getResult(URI uri) {
+        try {
+            thislock.lock();
+            return processedURI.get(uri.getSchemeSpecificPart());
+        } finally {
+            thislock.unlock();
+        }
     }
                                
-    private synchronized void saveResult(URI uri, Types types) {
-        this.processedURI.put(uri.getPath(), types);
+    private void saveResult(URI uri, Types types) {
+        try {
+            thislock.lock();
+            this.processedURI.put(uri.getPath(), types);
+        } finally {
+            thislock.unlock();
+        }
     }
 
     private void doJob(final ArchiveAdapter adapter, final Runnable doneHook) throws Exception {

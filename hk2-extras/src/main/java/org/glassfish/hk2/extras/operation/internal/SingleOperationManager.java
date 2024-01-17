@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.ServiceLocator;
@@ -36,7 +37,7 @@ import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 public class SingleOperationManager<T extends Annotation> {
     private final static String ID_PREAMBLE = "OperationIdentifier(";
     
-    private final Object operationLock = new Object();
+    private final ReentrantLock operationLock = new ReentrantLock();
     private final T scope;
     private final HashMap<OperationIdentifier<T>, OperationHandleImpl<T>> openScopes = new HashMap<OperationIdentifier<T>, OperationHandleImpl<T>>();
     private final HashMap<Long, OperationHandleImpl<T>> threadToHandleMap = new HashMap<Long, OperationHandleImpl<T>>();
@@ -80,7 +81,8 @@ public class SingleOperationManager<T extends Annotation> {
     
     public OperationHandleImpl<T> createOperation() {
         
-        synchronized (operationLock) {
+        try {
+            operationLock.lock();
             if (closed) {
                 throw new IllegalStateException("This manager has been closed");
             }
@@ -91,6 +93,8 @@ public class SingleOperationManager<T extends Annotation> {
             openScopes.put(id, created);
             
             return created;
+        } finally {
+            operationLock.unlock();
         }
     }
 
@@ -152,26 +156,33 @@ public class SingleOperationManager<T extends Annotation> {
     public OperationHandleImpl<T> getCurrentOperationOnThisThread() {
         long threadId = Thread.currentThread().getId();
         
-        synchronized (operationLock) {
+        try {
+            operationLock.lock();
             if (closed) return null;
             return getCurrentOperationOnThisThread(threadId);
+        } finally {
+            operationLock.unlock();
         }
     }
     
     /* package */ Set<OperationHandle<T>> getAllOperations() {
         HashSet<OperationHandle<T>> retVal = new HashSet<OperationHandle<T>>();
         
-        synchronized (operationLock) {
+        try {
+            operationLock.lock();
             if (closed) return Collections.emptySet();
             
             retVal.addAll(openScopes.values());
             
             return Collections.unmodifiableSet(retVal);
+        } finally {
+            operationLock.unlock();
         }
     }
     
     /* package */ void shutdown() {
-        synchronized (operationLock) {
+        try {
+            operationLock.lock();
             if (closed) return;
             closed = true;
             
@@ -183,6 +194,8 @@ public class SingleOperationManager<T extends Annotation> {
             threadToHandleMap.clear();
             
             ServiceLocatorUtilities.removeOneDescriptor(locator, operationDescriptor);
+        } finally {
+            operationLock.unlock();
         }
     }
     

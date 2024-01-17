@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.glassfish.hk2.configuration.hub.api.BeanDatabase;
 import org.glassfish.hk2.configuration.hub.api.Instance;
@@ -32,6 +33,7 @@ import org.glassfish.hk2.configuration.hub.api.Type;
  */
 public class BeanDatabaseImpl implements BeanDatabase {
     private final long revision;
+    private final ReentrantLock lock = new ReentrantLock();
     private final HashMap<String, TypeImpl> types = new HashMap<String, TypeImpl>();
 
     /**
@@ -53,27 +55,42 @@ public class BeanDatabaseImpl implements BeanDatabase {
      * @see org.glassfish.hk2.configuration.hub.api.BeanDatabase#getAllTypes()
      */
     @Override
-    public synchronized Set<Type> getAllTypes() {
-        return Collections.unmodifiableSet(new HashSet<Type>(types.values()));
+    public Set<Type> getAllTypes() {
+        try {
+            lock.lock();
+            return Collections.unmodifiableSet(new HashSet<Type>(types.values()));
+        } finally {
+            lock.unlock();
+        }
     }
 
     /* (non-Javadoc)
      * @see org.glassfish.hk2.configuration.hub.api.BeanDatabase#getInstance(java.lang.String, java.lang.Object)
      */
     @Override
-    public synchronized Instance getInstance(String type, String instanceKey) {
-        Type t = getType(type);
-        if (t == null) return null;
+    public Instance getInstance(String type, String instanceKey) {
+        try {
+            lock.lock();
+            Type t = getType(type);
+            if (t == null) return null;
 
-        return t.getInstance(instanceKey);
+            return t.getInstance(instanceKey);
+        } finally {
+            lock.unlock();
+        }
     }
 
     /* (non-Javadoc)
      * @see org.glassfish.hk2.configuration.hub.api.BeanDatabase#getType(java.lang.String)
      */
     @Override
-    public synchronized Type getType(String type) {
-        return types.get(type);
+    public Type getType(String type) {
+        try {
+            lock.lock();
+            return types.get(type);
+        } finally {
+            lock.unlock();
+        }
     }
 
     /* package */ long getRevision() {

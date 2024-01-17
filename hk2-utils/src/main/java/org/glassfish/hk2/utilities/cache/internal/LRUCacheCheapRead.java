@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -22,6 +22,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.glassfish.hk2.utilities.cache.CacheEntry;
 import org.glassfish.hk2.utilities.cache.CacheKeyFilter;
@@ -41,7 +42,7 @@ import org.glassfish.hk2.utilities.cache.LRUCache;
  */
 public class LRUCacheCheapRead<K,V> extends LRUCache<K,V> {
 
-    final Object prunningLock = new Object();
+    final ReentrantLock prunningLock = new ReentrantLock();
 
     final int maxCacheSize;
     Map<K,CacheEntryImpl<K, V>> cache = new ConcurrentHashMap<K, CacheEntryImpl<K,V>>();
@@ -64,12 +65,15 @@ public class LRUCacheCheapRead<K,V> extends LRUCache<K,V> {
     @Override
     public CacheEntry put(K key, V value) {
         CacheEntryImpl<K, V> entry = new CacheEntryImpl<K, V>(key, value, this);
-        synchronized (prunningLock) {
+        try {
+            prunningLock.lock();
             if (cache.size() + 1 > maxCacheSize) {
                 removeLRUItem();
             }
             cache.put(key, entry);
             return entry;
+        } finally {
+            prunningLock.unlock();
         }
     }
 

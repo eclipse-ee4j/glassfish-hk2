@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.Descriptor;
@@ -689,6 +690,7 @@ public class BuilderHelper {
 	public static <T> ServiceHandle<T> createConstantServiceHandle(final T obj) {
 	    return new ServiceHandle<T>() {
 	        private Object serviceData;
+	        private final ReentrantLock lock = new ReentrantLock();
 
             @Override
             public T getService() {
@@ -711,13 +713,23 @@ public class BuilderHelper {
             }
             
             @Override
-            public synchronized void setServiceData(Object serviceData) {
-                this.serviceData = serviceData;
+            public void setServiceData(Object serviceData) {
+                try {
+                    lock.lock();
+                    this.serviceData = serviceData;
+                } finally {
+                    lock.unlock();
+                }
             }
 
             @Override
-            public synchronized Object getServiceData() {
-                return serviceData;
+            public Object getServiceData() {
+                try {
+                    lock.lock();
+                    return serviceData;
+                } finally {
+                    lock.unlock();
+                }
             }
 
             @Override
