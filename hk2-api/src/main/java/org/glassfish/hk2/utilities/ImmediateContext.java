@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.inject.Inject;
@@ -50,6 +51,7 @@ import org.glassfish.hk2.internal.ImmediateLocalLocatorFilter;
 @Singleton @Visibility(DescriptorVisibility.LOCAL)
 public class ImmediateContext implements Context<Immediate>{
     private final ReentrantLock lock = new ReentrantLock();
+    private final Condition notEmpty = lock.newCondition();
     private final HashMap<ActiveDescriptor<?>, HandleAndService> currentImmediateServices = new HashMap<ActiveDescriptor<?>, HandleAndService>();
     private final HashMap<ActiveDescriptor<?>, Long> creating = new HashMap<ActiveDescriptor<?>, Long>();
     
@@ -94,7 +96,7 @@ public class ImmediateContext implements Context<Immediate>{
                 }
                 
                 try {
-                    this.wait();
+                    notEmpty.await();
                 }
                 catch (InterruptedException ie) {
                     throw new MultiException(ie);
@@ -130,7 +132,7 @@ public class ImmediateContext implements Context<Immediate>{
                 }
                 
                 creating.remove(activeDescriptor);
-                this.notifyAll();
+                notEmpty.signalAll();
             } finally {
                 lock.unlock();
             }
@@ -274,7 +276,7 @@ public class ImmediateContext implements Context<Immediate>{
             // First thing to do is wait until all the things in-flight have gone
             while (creating.size() > 0) {
                 try {
-                    this.wait();
+                    notEmpty.await();
                 }
                 catch (InterruptedException ie) {
                     throw new RuntimeException(ie);

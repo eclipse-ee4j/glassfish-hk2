@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2024 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2018 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -16,8 +16,6 @@
 
 package org.glassfish.examples.events.threaded.tests;
 
-import java.util.concurrent.locks.ReentrantLock;
-
 import javax.inject.Singleton;
 
 import org.glassfish.hk2.api.messaging.MessageReceiver;
@@ -33,7 +31,7 @@ import org.jvnet.hk2.annotations.Service;
  */
 @Service @Singleton @MessageReceiver
 public class EventSubscriberService {
-    private final ReentrantLock lock = new ReentrantLock();
+    private final Object lock = new Object();
     private Long eventThreadId = null;
     
     /**
@@ -44,13 +42,10 @@ public class EventSubscriberService {
      */
     @SuppressWarnings("unused")
     private void eventSubscriber(@SubscribeTo Event event) {
-        try {
-            lock.lock();
+        synchronized (lock) {
             eventThreadId = Thread.currentThread().getId();
             
             lock.notifyAll();
-        } finally {
-            lock.unlock();
         }
         
     }
@@ -62,15 +57,12 @@ public class EventSubscriberService {
      * @throws InterruptedException If the thread gets interrupted
      */
     public long getEventThread() throws InterruptedException {
-        try {
-            lock.lock();
+        synchronized (lock) {
             while (eventThreadId == null) {
                 lock.wait();
             }
             
             return eventThreadId;
-        } finally {
-            lock.unlock();
         }
     }
 

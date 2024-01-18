@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2024 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2018 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -24,7 +24,6 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -86,7 +85,7 @@ public class ImmediateHelper implements DynamicConfigurationListener, Runnable,
     
     private final HashSet<Long> tidsWithWork = new HashSet<Long>();
     
-    private final ReentrantLock queueLock = new ReentrantLock();
+    private final Object queueLock = new Object();
     private boolean threadAvailable;
     private boolean outstandingJob;
     private boolean waitingForWork;
@@ -147,13 +146,10 @@ public class ImmediateHelper implements DynamicConfigurationListener, Runnable,
     
     @Override
     public void configurationChanged() {
-        try {
-            queueLock.lock();
+        synchronized (queueLock) {
             if (currentState.equals(ImmediateServiceState.SUSPENDED)) return;
             
             doWorkIfWeHaveSome();
-        } finally {
-            queueLock.unlock();
         }
     }
     
@@ -173,11 +169,9 @@ public class ImmediateHelper implements DynamicConfigurationListener, Runnable,
         if (!(ErrorType.DYNAMIC_CONFIGURATION_FAILURE.equals(errorInformation.getErrorType()))) {
             // Only interested in dynamic configuration failures
             long tid = Thread.currentThread().getId();
-            try {
-                queueLock.lock();
+            
+            synchronized (queueLock) {
                 tidsWithWork.remove(tid);
-            } finally {
-                queueLock.unlock();
             }
             
             return;
@@ -190,11 +184,9 @@ public class ImmediateHelper implements DynamicConfigurationListener, Runnable,
         if (info.getOperation().equals(Operation.BIND) ||
                 info.getOperation().equals(Operation.UNBIND)) {
             long tid = Thread.currentThread().getId();
-            try {
-                queueLock.lock();
+            
+            synchronized (queueLock) {
                 tidsWithWork.add(tid);
-            } finally {
-                queueLock.unlock();
             }
         }
         
@@ -208,8 +200,7 @@ public class ImmediateHelper implements DynamicConfigurationListener, Runnable,
     @Override
     public void run() {
         for(;;) {
-            try {
-                queueLock.lock();
+            synchronized (queueLock) {
                 long decayTime = this.decayTime;
                 
                 while (currentState.equals(ImmediateServiceState.RUNNING) &&
@@ -237,8 +228,6 @@ public class ImmediateHelper implements DynamicConfigurationListener, Runnable,
                 }
                 
                 outstandingJob = false;
-            } finally {
-                queueLock.unlock();
             }
             
             immediateContext.doWork();
@@ -251,11 +240,8 @@ public class ImmediateHelper implements DynamicConfigurationListener, Runnable,
      */
     @Override
     public Executor getExecutor() {
-        try {
-            queueLock.lock();
+        synchronized (queueLock) {
             return currentExecutor;
-        } finally {
-            queueLock.unlock();
         }
     }
 
@@ -264,15 +250,12 @@ public class ImmediateHelper implements DynamicConfigurationListener, Runnable,
      */
     @Override
     public void setExecutor(Executor executor) throws IllegalStateException {
-        try  {
-            queueLock.lock();
+        synchronized (queueLock)  {
             if (currentState.equals(ImmediateServiceState.RUNNING)) {
                 throw new IllegalStateException("ImmediateSerivce attempt made to change executor while in RUNNING state");
             }
             
             currentExecutor = (executor == null) ? DEFAULT_EXECUTOR : executor ;
-        } finally {
-            queueLock.unlock();
         }
         
     }
@@ -282,11 +265,8 @@ public class ImmediateHelper implements DynamicConfigurationListener, Runnable,
      */
     @Override
     public long getThreadInactivityTimeout() {
-        try {
-            queueLock.lock();
+        synchronized (queueLock) {
             return decayTime;
-        } finally {
-            queueLock.unlock();
         }
     }
 
@@ -296,15 +276,12 @@ public class ImmediateHelper implements DynamicConfigurationListener, Runnable,
     @Override
     public void setThreadInactivityTimeout(long timeInMillis)
             throws IllegalStateException {
-        try  {
-            queueLock.lock();
+        synchronized (queueLock)  {
             if (timeInMillis < 0) {
                 throw new IllegalArgumentException();
             }
             
             decayTime = timeInMillis;
-        } finally {
-            queueLock.unlock();
         }
         
     }
@@ -314,11 +291,8 @@ public class ImmediateHelper implements DynamicConfigurationListener, Runnable,
      */
     @Override
     public ImmediateServiceState getImmediateState() {
-        try {
-            queueLock.lock();
+        synchronized (queueLock) {
             return currentState;
-        } finally {
-            queueLock.unlock();
         }
     }
 
@@ -327,8 +301,7 @@ public class ImmediateHelper implements DynamicConfigurationListener, Runnable,
      */
     @Override
     public void setImmediateState(ImmediateServiceState state) {
-        try {
-            queueLock.lock();
+        synchronized (queueLock)  {
             if (state == null) throw new IllegalArgumentException();
             
             if (state == currentState) return;
@@ -337,8 +310,6 @@ public class ImmediateHelper implements DynamicConfigurationListener, Runnable,
             if (currentState.equals(ImmediateServiceState.RUNNING)) {
                 doWorkIfWeHaveSome();
             }
-        } finally {
-            queueLock.unlock();
         }
         
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -27,6 +27,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.glassfish.hk2.api.ActiveDescriptor;
@@ -74,6 +75,7 @@ public class SystemDescriptor<T> implements ActiveDescriptor<T>, Closeable {
 
     private final ReentrantLock lock = new ReentrantLock();
     private final ReentrantLock cacheLock = new ReentrantLock();
+    private final Condition notReifyingCondition = lock.newCondition();
     private boolean cacheSet = false;
     private T cachedValue;
 
@@ -120,7 +122,7 @@ public class SystemDescriptor<T> implements ActiveDescriptor<T>, Closeable {
                 }
             }
             else {
-            	activeDescriptor = null;
+                activeDescriptor = null;
                 preAnalyzed = true;
 
                 implClass = active.getImplementationClass();
@@ -295,7 +297,6 @@ public class SystemDescriptor<T> implements ActiveDescriptor<T>, Closeable {
         } finally {
             cacheLock.unlock();
         }
-
     }
 
     /* (non-Javadoc)
@@ -310,7 +311,6 @@ public class SystemDescriptor<T> implements ActiveDescriptor<T>, Closeable {
         } finally {
             cacheLock.unlock();
         }
-
     }
 
     /* (non-Javadoc)
@@ -665,7 +665,7 @@ public class SystemDescriptor<T> implements ActiveDescriptor<T>, Closeable {
 
             while (reifying) {
                 try {
-                    this.wait();
+                    notReifyingCondition.await();
                 }
                 catch (InterruptedException e) {
                     collector.addThrowable(e);
@@ -690,7 +690,7 @@ public class SystemDescriptor<T> implements ActiveDescriptor<T>, Closeable {
             try {
                 lock.lock();
                 reifying = false;
-                this.notifyAll();
+                notReifyingCondition.signalAll();
 
                 if (!collector.hasErrors()) {
                     reified = true;

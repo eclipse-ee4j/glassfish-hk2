@@ -30,6 +30,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.Condition;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -70,7 +71,8 @@ public class AsyncRunLevelContext {
     
     private static final ThreadFactory THREAD_FACTORY = new RunLevelThreadFactory();
     
-    private final ReentrantLock lock = new ReentrantLock();
+    final ReentrantLock lock = new ReentrantLock();
+    private final Condition notEmpty = lock.newCondition();
     private final org.glassfish.hk2.utilities.reflection.Logger hk2Logger = org.glassfish.hk2.utilities.reflection.Logger.getLogger();
     
     private int currentLevel = RunLevel.RUNLEVEL_VAL_INITIAL;
@@ -216,7 +218,7 @@ public class AsyncRunLevelContext {
                 }
                 
                 try {
-                    this.wait();
+                    notEmpty.await();
                 }
                 catch (InterruptedException ie) {
                     throw new MultiException(ie);
@@ -338,7 +340,7 @@ public class AsyncRunLevelContext {
                         }
                         
                         creatingDescriptors.remove(activeDescriptor);
-                        this.notifyAll();
+                        notEmpty.signalAll();
                         if (DEBUG_CONTEXT) {
                             hk2Logger.debug("AsyncRunLevelController other threads notified cancellation path for " +
                                 oneLineDescriptor + " in thread " + tid);
@@ -354,7 +356,7 @@ public class AsyncRunLevelContext {
                 }
                 
                 creatingDescriptors.remove(activeDescriptor);
-                this.notifyAll();
+                notEmpty.signalAll();
                 if (DEBUG_CONTEXT) {
                     hk2Logger.debug("AsyncRunLevelController other threads notified for " +
                         oneLineDescriptor + " in thread " + tid);
@@ -460,7 +462,7 @@ public class AsyncRunLevelContext {
             lock.unlock();
         }
     }
-    
+
     /* package */ void setCurrentLevel(int currentLevel) {
         try {
             lock.lock();

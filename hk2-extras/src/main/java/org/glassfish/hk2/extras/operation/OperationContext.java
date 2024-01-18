@@ -141,7 +141,8 @@ public abstract class OperationContext<T extends Annotation> implements Context<
             // retVal is null, and this is not an explicit null, so must actually do the creation
             while (creating.contains(activeDescriptor)) {
                 try {
-                    this.wait();
+                    // FIXME Find other way to replace wait()
+                    Thread.sleep(1);
                 }
                 catch (InterruptedException e) {
                     throw new RuntimeException(e);
@@ -180,7 +181,6 @@ public abstract class OperationContext<T extends Annotation> implements Context<
                 }
                 
                 creating.remove(activeDescriptor);
-                this.notifyAll();
             } finally {
                 lock.unlock();
             }

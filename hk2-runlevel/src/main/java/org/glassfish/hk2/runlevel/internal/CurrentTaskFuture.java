@@ -25,6 +25,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.glassfish.hk2.api.ActiveDescriptor;
@@ -53,7 +54,6 @@ import org.glassfish.hk2.runlevel.utilities.Utilities;
  */
 public class CurrentTaskFuture implements ChangeableRunLevelFuture {
     private final ReentrantLock lock = new ReentrantLock();
-    private final ReentrantLock asyncContextLock = new ReentrantLock();
     private final AsyncRunLevelContext asyncContext;
     private final Executor executor;
     private final ServiceLocator locator;
@@ -180,7 +180,7 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
     public boolean cancel(boolean mayInterruptIfRunning) {
         // Not locking in this order can cause deadlocks
         try {
-            asyncContextLock.lock();
+            asyncContext.lock.lock();
             try {
                 lock.lock();
                 if (done) return false;
@@ -200,7 +200,7 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                 lock.unlock();
             }
         } finally {
-            asyncContextLock.unlock();
+            asyncContext.lock.unlock();
         }
     }
 
@@ -487,6 +487,7 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
     
     private class UpAllTheWay implements AllTheWay {
         private final ReentrantLock lock = new ReentrantLock();
+        private final Condition condition = lock.newCondition();
         
         private int goingTo;
         private final int maxThreads;
@@ -527,7 +528,7 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                 asyncContext.levelCancelled();
                 currentJob.cancel();
             } finally {
-                lock.lock();
+                lock.unlock();
             }
         }
         
@@ -540,7 +541,7 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                 while (totalWaitTimeMillis > 0L && !done && !repurposed) {
                     long startTime = System.currentTimeMillis();
                     
-                    lock.wait(totalWaitTimeMillis);
+                    condition.await(totalWaitTimeMillis, TimeUnit.MILLISECONDS);
                     
                     long elapsedTime = System.currentTimeMillis() - startTime;
                     totalWaitTimeMillis -= elapsedTime;
@@ -554,7 +555,7 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                 
                 return done;
             } finally {
-                lock.lock();
+                lock.unlock();
             }
         }
         
@@ -566,7 +567,7 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                     this.repurposed = true;
                 }
             } finally {
-                lock.lock();
+                lock.unlock();
             }
         }
         
@@ -582,6 +583,7 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                             done = true;
                         }
                         
+                        condition.signalAll();
                         return;
                     }
             
@@ -596,7 +598,7 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                     executor.execute(currentJob);
                     return;
                 } finally {
-                    lock.lock();
+                    lock.unlock();
                 }
             }
                 
@@ -614,7 +616,7 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                             0,
                             cancelTimeout);
                 } finally {
-                    lock.lock();
+                    lock.unlock();
                 }
                 
                 currentJob.run();
@@ -632,8 +634,9 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                     done = true;
                 }
                 
+                condition.signalAll();
             } finally {
-                lock.lock();
+                lock.unlock();
             }
         }
         
@@ -646,13 +649,14 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                 downer.run();
                 
                 try {
-                    lock.lock();                    
+                    lock.lock();
                     done = true;
                     this.exception = accumulatedExceptions;
+                    condition.signalAll();;
                     
                     asyncContext.jobDone();
                 } finally {
-                    lock.lock();
+                    lock.unlock();
                 }
                 
                 return;
@@ -665,7 +669,7 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                     downer = new DownAllTheWay(workingOn - 1, null, null);
                 }
             } finally {
-                lock.lock();
+                lock.unlock();
             }
             
             if (downer != null) {
@@ -676,12 +680,13 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                 try {
                     lock.lock();
                     done = true;
+                    condition.signalAll();
                         
                     asyncContext.jobDone();
                         
                     return;
                 } finally {
-                    lock.lock();
+                    lock.unlock();
                 }
             }
             
@@ -736,18 +741,18 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                 hardCanceller = new CancelTimer(this);
                 timer.schedule(hardCanceller, cancelTimeout);
             } finally {
-                lock.lock();
+                lock.unlock();
             }
         }
         
         private void hardCancel() {
             try {
-                asyncContextLock.lock();
+                asyncContext.lock.lock();
                 try {
                     lock.lock();
                     hardCancelled = true;
                 } finally {
-                    lock.lock();
+                    lock.unlock();
                 }
                 
                 HashSet<ServiceHandle<?>> poisonMe;
@@ -763,7 +768,7 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                     asyncContext.hardCancelOne(handle.getActiveDescriptor());
                 }
             } finally {
-                asyncContextLock.unlock();
+                asyncContext.lock.unlock();
             }
             
             master.currentJobComplete(null);
@@ -860,7 +865,7 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                 
                 accumulatedExceptions.addError(th);
             } finally {
-                lock.lock();
+                lock.unlock();
             }
         }
         
@@ -879,7 +884,7 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                     }
                 }
             } finally {
-                lock.lock();
+                lock.unlock();
             }
             
             if (complete) {
@@ -909,6 +914,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
      *
      */
     private class DownAllTheWay implements Runnable, AllTheWay {
+        private final ReentrantLock lock = new ReentrantLock();
+        private final Condition lockCondition = lock.newCondition();
         private int goingTo;
         private CurrentTaskFuture future;
         private final List<ServiceHandle<RunLevelListener>> listeners;
@@ -922,9 +929,9 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
         private Throwable lastError = null;
         private ActiveDescriptor<?> lastErrorDescriptor = null;
         
-        private final ReentrantLock lock = new ReentrantLock();
-        private final ReentrantLock queueLock = new ReentrantLock();
         private List<ActiveDescriptor<?>> queue = Collections.emptyList();
+        private ReentrantLock queueLock = new ReentrantLock();
+        private Condition queueCondition = queueLock.newCondition();
         private boolean downHardCancelled = false;
         
         private HardCancelDownTimer hardCancelDownTimer = null;
@@ -949,7 +956,7 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
         private void cancel() {
             List<ActiveDescriptor<?>> localQueue;
             ReentrantLock localQueueLock;
-            
+            Condition localQueueCondition;
             try {
                 lock.lock();
                 if (cancelled) return; // idempotent
@@ -959,18 +966,19 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                 
                 localQueue = queue;
                 localQueueLock = queueLock;
+                localQueueCondition = queueCondition;
             } finally {
                 lock.unlock();
             }
                 
             try {
-                localQueueLock.lock();
+                queueLock.lock();
                 if (localQueue.isEmpty()) return;
                 
-                hardCancelDownTimer = new HardCancelDownTimer(this, localQueue, localQueueLock);
+                hardCancelDownTimer = new HardCancelDownTimer(this, localQueue, localQueueLock, localQueueCondition);
                 timer.schedule(hardCancelDownTimer, cancelTimeout, cancelTimeout);
             } finally {
-                localQueueLock.unlock();
+                queueLock.unlock();
             }
         }
         
@@ -1019,6 +1027,7 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                         asyncContext.jobDone();
                         
                         done = true;
+                        lockCondition.signalAll();
                         
                         return;
                     }
@@ -1037,9 +1046,13 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                 
                 // But we don't call the proceedTo until all those services are gone
                 List<ActiveDescriptor<?>> localQueue = asyncContext.getOrderedListOfServicesAtLevel(workingOn);
+                ReentrantLock localQueueLock = new ReentrantLock();
+                Condition localQueueCondition = localQueueLock.newCondition();
                 try {
                     lock.lock();
                     queue = localQueue;
+                    queueLock = localQueueLock;
+                    queueCondition = localQueueCondition;
                 } finally {
                     lock.unlock();
                 }
@@ -1048,14 +1061,14 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                 try {
                     queueLock.lock();
                     for (;;) {
-                        DownQueueRunner currentRunner = new DownQueueRunner(queueLock, queue, this, locator);
+                        DownQueueRunner currentRunner = new DownQueueRunner(queueLock, queueCondition, queue, this, locator);
                         executor.execute(currentRunner);
                     
                         lastError = null;
                         for (;;) {
                             while (!queue.isEmpty() && (lastError == null) && (downHardCancelled == false)) {
                                 try {
-                                    queue.wait();
+                                    queueCondition.await();
                                 }
                                 catch (InterruptedException ie) {
                                     throw new RuntimeException(ie);
@@ -1093,6 +1106,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                 try {
                     lock.lock();
                     queue = Collections.emptyList();
+                    queueLock = new ReentrantLock();
+                    queueCondition = queueLock.newCondition();
                 } finally {
                     lock.unlock();
                 }
@@ -1126,7 +1141,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                 
                     done = true;
                 }
-
+                
+                lockCondition.signalAll();
             } finally {
                 lock.unlock();
             }
@@ -1142,7 +1158,7 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                 while (totalWaitTimeMillis > 0L && !done && !repurposed) {
                     long startTime = System.currentTimeMillis();
                     
-                    this.wait(totalWaitTimeMillis);
+                    lockCondition.await(totalWaitTimeMillis, TimeUnit.MILLISECONDS);
                     
                     long elapsedTime = System.currentTimeMillis() - startTime;
                     totalWaitTimeMillis -= elapsedTime;
@@ -1161,32 +1177,35 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
     private static class HardCancelDownTimer extends TimerTask {
         private final DownAllTheWay parent;
         private final List<ActiveDescriptor<?>> queue;
-        private final ReentrantLock queueLock;
+        private final ReentrantLock localQueueLock;
+        private final Condition localQueueCondition;
         
         private int lastQueueSize;
         
-        private HardCancelDownTimer(DownAllTheWay parent, List<ActiveDescriptor<?>> queue, ReentrantLock queueLock) {
+        private HardCancelDownTimer(DownAllTheWay parent, List<ActiveDescriptor<?>> queue, ReentrantLock localQueueLock, Condition localQueueCondition) {
             this.parent = parent;
             this.queue = queue;
-            this.queueLock = queueLock;
+            this.localQueueLock = localQueueLock;
+            this.localQueueCondition = localQueueCondition;
             lastQueueSize = queue.size();
         }
 
         @Override
         public void run() {
             try {
-                queueLock.lock();
+                localQueueLock.lock();
                 int currentSize = queue.size();
                 if (currentSize == 0) return;
                 
                 if (currentSize == lastQueueSize) {
                     parent.downHardCancelled = true;
+                    localQueueCondition.signal();
                 }
                 else {
                     lastQueueSize = currentSize;
                 }
             } finally {
-                queueLock.unlock();
+                localQueueLock.unlock();
             }
         }
     }
@@ -1370,16 +1389,19 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
     
     private static class DownQueueRunner implements Runnable {
         private final ReentrantLock queueLock;
+        private final Condition queueCondition;
         private final List<ActiveDescriptor<?>> queue;
         private final DownAllTheWay parent;
         private final ServiceLocator locator;
         private boolean caput;
         
         private DownQueueRunner(ReentrantLock queueLock,
+                Condition queueCondition,
                 List<ActiveDescriptor<?>> queue,
                 DownAllTheWay parent,
                 ServiceLocator locator) {
             this.queueLock = queueLock;
+            this.queueCondition = queueCondition;
             this.queue = queue;
             this.parent = parent;
             this.locator = locator;
@@ -1394,6 +1416,7 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                     if (caput) return;
                     
                     if (queue.isEmpty()) {
+                        queueCondition.signal();
                         return;
                     }
                     job = queue.remove(0);
@@ -1409,6 +1432,7 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                         queueLock.lock();
                         parent.lastError = th;
                         parent.lastErrorDescriptor = job;
+                        queueCondition.signal();
                     } finally {
                         queueLock.unlock();
                     }
