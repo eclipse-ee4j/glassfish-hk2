@@ -23,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.glassfish.hk2.api.ActiveDescriptor;
@@ -64,6 +65,7 @@ import org.jvnet.hk2.annotations.Contract;
 public abstract class OperationContext<T extends Annotation> implements Context<T> {
     private SingleOperationManager<T> manager;
     private final ReentrantLock lock = new ReentrantLock();
+    private final Condition condition = lock.newCondition();
     private final HashMap<OperationHandleImpl<T>, LinkedHashMap<ActiveDescriptor<?>, Object>> operationMap =
             new HashMap<OperationHandleImpl<T>, LinkedHashMap<ActiveDescriptor<?>, Object>>();
     private final HashSet<ActiveDescriptor<?>> creating = new HashSet<ActiveDescriptor<?>>();
@@ -141,8 +143,7 @@ public abstract class OperationContext<T extends Annotation> implements Context<
             // retVal is null, and this is not an explicit null, so must actually do the creation
             while (creating.contains(activeDescriptor)) {
                 try {
-                    // FIXME Find other way to replace wait()
-                    Thread.sleep(1);
+                    condition.await();
                 }
                 catch (InterruptedException e) {
                     throw new RuntimeException(e);
@@ -181,6 +182,7 @@ public abstract class OperationContext<T extends Annotation> implements Context<
                 }
                 
                 creating.remove(activeDescriptor);
+                condition.signalAll();
             } finally {
                 lock.unlock();
             }
