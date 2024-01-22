@@ -259,8 +259,8 @@ public class LRUHybridCache<K,V> implements Computable<K, HybridCacheEntry<V>> {
                 LRUHybridCache<K,V>.OriginThreadAwareFuture ft =
                         new LRUHybridCache.OriginThreadAwareFuture(this, key);
 
+                prunningLock.lock();
                 try {
-                    prunningLock.lock();
                     if (cache.size() + 1 > maxCacheSize) {
                         removeLRUItem();
                     }

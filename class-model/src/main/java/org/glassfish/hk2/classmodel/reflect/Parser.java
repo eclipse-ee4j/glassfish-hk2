@@ -79,8 +79,8 @@ public class Parser implements Closeable {
                  context.logger.log(Level.FINE, "Await iterating at " + System.currentTimeMillis() + " waiting for " + futures.size());
             }
             Future<Result> f;
+            futuresLock.lock();
             try {
-                futuresLock.lock();
                 f = futures.pop();
             } catch(EmptyStackException e) {
                 // it's ok, another thread took the load from us.
@@ -290,8 +290,8 @@ public class Parser implements Closeable {
                     }
                 }
             });
+            futuresLock.lock();
             try {
-                futuresLock.lock();
                 futures.add(future);
             } finally {
                 futuresLock.unlock();
@@ -306,8 +306,8 @@ public class Parser implements Closeable {
     }
 
     private Types getResult(URI uri) {
+        thislock.lock();
         try {
-            thislock.lock();
             return processedURI.get(uri.getSchemeSpecificPart());
         } finally {
             thislock.unlock();
@@ -315,8 +315,8 @@ public class Parser implements Closeable {
     }
                                
     private void saveResult(URI uri, Types types) {
+        thislock.lock();
         try {
-            thislock.lock();
             this.processedURI.put(uri.getPath(), types);
         } finally {
             thislock.unlock();

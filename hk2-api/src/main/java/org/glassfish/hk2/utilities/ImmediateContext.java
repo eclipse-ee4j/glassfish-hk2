@@ -80,8 +80,8 @@ public class ImmediateContext implements Context<Immediate>{
             ServiceHandle<?> root) {
         U retVal = null;
         
+        lock.lock();
         try {
-            lock.lock();
             HandleAndService has = currentImmediateServices.get(activeDescriptor);
             if (has != null) {
                 return (U) has.getService();
@@ -118,8 +118,8 @@ public class ImmediateContext implements Context<Immediate>{
             retVal = activeDescriptor.create(root);
         }
         finally {
+            lock.lock();
             try {
-                lock.lock();
                 ServiceHandle<?> discoveredRoot = null;
                 if (root != null) {
                     if (root.getActiveDescriptor().equals(activeDescriptor)) {
@@ -148,8 +148,8 @@ public class ImmediateContext implements Context<Immediate>{
      */
     @Override
     public boolean containsKey(ActiveDescriptor<?> descriptor) {
+        lock.lock();
         try {
-            lock.lock();
             return currentImmediateServices.containsKey(descriptor);
         } finally {
             lock.unlock();
@@ -173,8 +173,8 @@ public class ImmediateContext implements Context<Immediate>{
             errorHandlers = locator.getAllServices(ImmediateErrorHandler.class);
         }
         
+        lock.lock();
         try {
-            lock.lock();
             HandleAndService has = currentImmediateServices.remove(descriptor);
             Object instance = has.getService();
         
@@ -215,8 +215,8 @@ public class ImmediateContext implements Context<Immediate>{
     public void shutdown() {
         List<ImmediateErrorHandler> errorHandlers = locator.getAllServices(ImmediateErrorHandler.class);
         
+        lock.lock();
         try {
-            lock.lock();
             for (Map.Entry<ActiveDescriptor<?>, HandleAndService> entry :
                 new HashSet<Map.Entry<ActiveDescriptor<?>, HandleAndService>>(currentImmediateServices.entrySet())) {
                 HandleAndService has = entry.getValue();
@@ -271,8 +271,8 @@ public class ImmediateContext implements Context<Immediate>{
         LinkedHashSet<ActiveDescriptor<?>> newFullSet = new LinkedHashSet<ActiveDescriptor<?>>(inScopeAndInThisLocator);
         LinkedHashSet<ActiveDescriptor<?>> addMe = new LinkedHashSet<ActiveDescriptor<?>>();
         
+        lock.lock();
         try {
-            lock.lock();
             // First thing to do is wait until all the things in-flight have gone
             while (creating.size() > 0) {
                 try {

@@ -224,8 +224,8 @@ public abstract class BaseHK2JAXBBean implements XmlHk2ConfigurationBean, Serial
         
         if (changeControl == null) {
             if (active) {
+                lock.lock();
                 try {
-                    lock.lock();
                     nBeanLikeMap.setValue(propNamespace, propName, propValue);
                 } finally {
                     lock.unlock();
@@ -440,8 +440,8 @@ public abstract class BaseHK2JAXBBean implements XmlHk2ConfigurationBean, Serial
         
         if (changeControl == null) {
             if (active) {
+                lock.lock();
                 try {
-                    lock.lock();
                     isSet = nBeanLikeMap.isSet(propNamespace, propName);
                     retVal = nBeanLikeMap.getValue(propNamespace, propName);
                 } finally {
@@ -942,8 +942,8 @@ public abstract class BaseHK2JAXBBean implements XmlHk2ConfigurationBean, Serial
     public boolean _hasProperty(String propNamespace, String propName) {
         if (changeControl == null) {
             if (active) {
+                lock.lock();
                 try {
-                    lock.lock();
                     return nBeanLikeMap.isSet(propNamespace, propName);
                 } finally {
                     lock.unlock();
@@ -969,8 +969,8 @@ public abstract class BaseHK2JAXBBean implements XmlHk2ConfigurationBean, Serial
     public Map<String, Object> _getBeanLikeMap() {
         if (changeControl == null) {
             if (active) {
+                lock.lock();
                 try {
-                    lock.lock();
                     return Collections.unmodifiableMap(nBeanLikeMap.getBeanLikeMap(namespaceToPrefixMap));
                 } finally {
                     lock.unlock();
@@ -991,8 +991,8 @@ public abstract class BaseHK2JAXBBean implements XmlHk2ConfigurationBean, Serial
     public Map<QName, Object> _getQNameMap() {
         if (changeControl == null) {
             if (active) {
+                lock.lock();
                 try {
-                    lock.lock();
                     return Collections.unmodifiableMap(nBeanLikeMap.getQNameMap());
                 } finally {
                     lock.unlock();
@@ -1318,8 +1318,8 @@ public abstract class BaseHK2JAXBBean implements XmlHk2ConfigurationBean, Serial
     public boolean _isSet(String propNamespace, String propName) {
         if (changeControl == null) {
             if (active) {
+                lock.lock();
                 try {
-                    lock.lock();
                     return nBeanLikeMap.isSet(propNamespace, propName);
                 } finally {
                     lock.unlock();

@@ -107,8 +107,8 @@ public class MultiException extends HK2RuntimeException {
      * not return null, but may return an empty object
      */
     public List<Throwable> getErrors() {
+        lock.lock();
         try {
-            lock.lock();
             return new LinkedList<Throwable>(throwables);
         } finally {
             lock.unlock();
@@ -121,8 +121,8 @@ public class MultiException extends HK2RuntimeException {
      * @param error The exception to add
      */
     public void addError(Throwable error) {
+        lock.lock();
         try {
-            lock.lock();
             throwables.add(error);
         } finally {
             lock.unlock();

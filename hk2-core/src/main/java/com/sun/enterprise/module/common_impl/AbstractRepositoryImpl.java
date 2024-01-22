@@ -192,8 +192,8 @@ public abstract class AbstractRepositoryImpl implements Repository {
      * @return true if the listener was added successfully
      */
     public boolean addListener(RepositoryChangeListener listener) {
+        lock.lock();
         try {
-            lock.lock();
             if (listeners==null) {
                 listeners = new ArrayList<RepositoryChangeListener>();
             }
@@ -210,8 +210,8 @@ public abstract class AbstractRepositoryImpl implements Repository {
      * @return true if the listener was successfully unregistered
      */
     public boolean removeListener(RepositoryChangeListener listener) {
+        lock.lock();
         try {
-            lock.lock();
             if (listeners==null) {
                 return false;
             }

@@ -126,8 +126,8 @@ public class ArrayTypeAltClassImpl implements AltClass {
      */
     @Override
     public String getName() {
+        lock.lock();
         try {
-            lock.lock();
             if (name != null) return name;
             
             calculateNames();
@@ -143,8 +143,8 @@ public class ArrayTypeAltClassImpl implements AltClass {
      */
     @Override
     public String getSimpleName() {
+        lock.lock();
         try {
-            lock.lock();
             if (simpleName != null) return simpleName;
             
             calculateNames();

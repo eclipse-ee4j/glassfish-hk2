@@ -49,8 +49,8 @@ public abstract class ExtensibleTypeImpl<T extends ExtensibleType> extends TypeI
     }
     
     public TypeProxy<?> setParent(final TypeProxy<?> parent) {
+        lock.lock();
         try {
-            lock.lock();
             if (null == this.parent) { 
                 this.parent = parent;
             }

@@ -254,8 +254,8 @@ public class DynamicConfigurationImpl implements DynamicConfiguration {
      */
     @Override
     public void commit() throws MultiException {
+        lock.lock();
         try {
-            lock.lock();
             checkState();
             
             committed = true;
@@ -267,8 +267,8 @@ public class DynamicConfigurationImpl implements DynamicConfiguration {
     }
     
     private void checkState() {
+        lock.lock();
         try {
-            lock.lock();
             if (committed) throw new IllegalStateException();
         } finally {
             lock.unlock();

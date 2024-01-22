@@ -290,8 +290,8 @@ public class SystemDescriptor<T> implements ActiveDescriptor<T>, Closeable {
      */
     @Override
     public void setCache(T cacheMe) {
+        cacheLock.lock();
         try {
-            cacheLock.lock();
             cachedValue = cacheMe;
             cacheSet = true;
         } finally {
@@ -304,8 +304,8 @@ public class SystemDescriptor<T> implements ActiveDescriptor<T>, Closeable {
      */
     @Override
     public void releaseCache() {
+        cacheLock.lock();
         try {
-            cacheLock.lock();
             cacheSet = false;
             cachedValue = null;
         } finally {
@@ -322,8 +322,8 @@ public class SystemDescriptor<T> implements ActiveDescriptor<T>, Closeable {
         // reified it is never un-reified
         if (reified) return true;
 
+        lock.lock();
         try {
-            lock.lock();
             return reified;
         } finally {
             lock.unlock();
@@ -561,8 +561,8 @@ public class SystemDescriptor<T> implements ActiveDescriptor<T>, Closeable {
     private void checkState() {
         if (reified) return;
 
+        lock.lock();
         try {
-            lock.lock();
             if (!reified) throw new IllegalStateException();
         } finally {
             lock.unlock();
@@ -659,8 +659,8 @@ public class SystemDescriptor<T> implements ActiveDescriptor<T>, Closeable {
     /* package */ void reify(Class<?> implClass, Collector collector) {
         if (reified) return;
 
+        lock.lock();
         try {
-            lock.lock();
             if (reified) return;
 
             while (reifying) {
@@ -687,8 +687,8 @@ public class SystemDescriptor<T> implements ActiveDescriptor<T>, Closeable {
             internalReify(implClass, collector);
         }
         finally {
+            lock.lock();
             try {
-                lock.lock();
                 reifying = false;
                 notReifyingCondition.signalAll();
 
@@ -837,8 +837,8 @@ public class SystemDescriptor<T> implements ActiveDescriptor<T>, Closeable {
     public boolean close() {
         if (closed) return true;
         
+        lock.lock();
         try {
-            lock.lock();
             if (closed) return true;
             
             closed = true;

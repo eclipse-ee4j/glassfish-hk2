@@ -77,8 +77,8 @@ public class ConfiguredByContext implements Context<ConfiguredBy> {
     @SuppressWarnings("unchecked")
     private <U> U internalFindOrCreate(ActiveDescriptor<U> activeDescriptor,
             ServiceHandle<?> root) {
+        lock.lock();
         try {
-            lock.lock();
             U retVal = (U) db.get(activeDescriptor);
             if (retVal != null) return retVal;
 
@@ -100,8 +100,8 @@ public class ConfiguredByContext implements Context<ConfiguredBy> {
      */
     @Override
     public boolean containsKey(ActiveDescriptor<?> descriptor) {
+        lock.lock();
         try {
-            lock.lock();
             return db.containsKey(descriptor);
         } finally {
             lock.unlock();
@@ -114,8 +114,8 @@ public class ConfiguredByContext implements Context<ConfiguredBy> {
     @SuppressWarnings("unchecked")
     @Override
     public void destroyOne(ActiveDescriptor<?> descriptor) {
+        lock.lock();
         try {
-            lock.lock();
             Object destroyMe = db.remove(descriptor);
             if (destroyMe == null) return;
 
@@ -147,8 +147,8 @@ public class ConfiguredByContext implements Context<ConfiguredBy> {
      */
     @Override
     public void shutdown() {
+        lock.lock();
         try {
-            lock.lock();
             Set<ActiveDescriptor<?>> activeDescriptors = new HashSet<>(db.keySet());
             for (ActiveDescriptor<?> killMe : activeDescriptors) {
                 destroyOne(killMe);
@@ -164,8 +164,8 @@ public class ConfiguredByContext implements Context<ConfiguredBy> {
     }
 
     /* package */ Object findOnly(ActiveDescriptor<?> descriptor) {
+        lock.lock();
         try {
-            lock.lock();
             return db.get(descriptor);
         } finally {
             lock.unlock();

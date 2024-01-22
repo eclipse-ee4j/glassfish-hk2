@@ -141,8 +141,8 @@ public final class ModuleImpl implements HK2Module {
      */
     /*package*/ ModuleClassLoader getPrivateClassLoader() {
         if (privateCL==null) {
+            lock.lock();
             try {
-                lock.lock();
                 if(privateCL==null) {
                     URI[] locations = moduleDef.getLocations();
                     URL[] urlLocations = new URL[locations.length];
@@ -287,8 +287,8 @@ public final class ModuleImpl implements HK2Module {
      * cannot be satisfied
      */
     public void resolve() throws ResolveError {
+        lock.lock();
         try {
-            lock.lock();
          // already resolved ?
             if (state==ModuleState.ERROR)
                 throw new ResolveError("Module " + getName() + " is in ERROR state");

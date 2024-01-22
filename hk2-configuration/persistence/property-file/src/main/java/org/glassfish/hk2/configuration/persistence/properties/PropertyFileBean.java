@@ -60,8 +60,8 @@ public class PropertyFileBean {
      * @return A copy of the type name to bean class mapping
      */
     public Map<String, Class<?>> getTypeMapping() {
+        lock.lock();
         try {
-            lock.lock();
             return new HashMap<String, Class<?>>(mapping);
         } finally {
             lock.unlock();
@@ -76,8 +76,8 @@ public class PropertyFileBean {
      * May not be null
      */
     public void addTypeMapping(String typeName, Class<?> beanClass) {
+        lock.lock();
         try {
-            lock.lock();
             mapping.put(typeName, beanClass);
         } finally {
             lock.unlock();
@@ -93,8 +93,8 @@ public class PropertyFileBean {
      * was no type mapping with the given name
      */
     public Class<?> removeTypeMapping(String typeName) {
+        lock.lock();
         try {
-            lock.lock();
             return mapping.remove(typeName);
         } finally {
             lock.unlock();
@@ -110,8 +110,8 @@ public class PropertyFileBean {
      * was no type mapping with the given name
      */
     public Class<?> getTypeMapping(String typeName) {
+        lock.lock();
         try {
-            lock.lock();
             return mapping.get(typeName);
         } finally {
             lock.unlock();

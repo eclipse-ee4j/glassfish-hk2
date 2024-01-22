@@ -81,8 +81,8 @@ public abstract class OperationContext<T extends Annotation> implements Context<
         LinkedList<OperationHandleImpl<T>> closingOperationStack;
         boolean closingOperation;
         
+        lock.lock();
         try {
-            lock.lock();
             localManager = manager;
             closingOperationStack = closingOperations.get(Thread.currentThread().getId());
             closingOperation = (closingOperationStack != null && !closingOperationStack.isEmpty());
@@ -97,8 +97,8 @@ public abstract class OperationContext<T extends Annotation> implements Context<
         
         OperationHandleImpl<T> operation = localManager.getCurrentOperationOnThisThread();
         if (operation == null) {
+            lock.lock();
             try {
-                lock.lock();
                 if (!closingOperation) {
                     throw new IllegalStateException("There is no current operation of type " +
                             getScope().getName() + " on thread " + Thread.currentThread().getId());
@@ -111,8 +111,8 @@ public abstract class OperationContext<T extends Annotation> implements Context<
         }
         
         LinkedHashMap<ActiveDescriptor<?>, Object> serviceMap;
+        lock.lock();
         try {
-            lock.lock();
             serviceMap = operationMap.get(operation);
             if (serviceMap == null) {
                 if (closingOperation || shuttingDown) {
@@ -174,8 +174,8 @@ public abstract class OperationContext<T extends Annotation> implements Context<
             success = true;
         }
         finally {
+            lock.lock();
             try {
-                lock.lock();
                 if (success) {
                     serviceMap.put(activeDescriptor, retVal);
                 }
@@ -195,8 +195,8 @@ public abstract class OperationContext<T extends Annotation> implements Context<
     @Override
     public boolean containsKey(ActiveDescriptor<?> descriptor) {
         SingleOperationManager<T> localManager;
+        lock.lock();
         try {
-            lock.lock();
             localManager = manager;
         } finally {
             lock.unlock();
@@ -206,8 +206,8 @@ public abstract class OperationContext<T extends Annotation> implements Context<
         OperationHandleImpl<T> operation = localManager.getCurrentOperationOnThisThread();
         if (operation == null) return false;
         
+        lock.lock();
         try {
-            lock.lock();
             HashMap<ActiveDescriptor<?>, Object> serviceMap;
             
             serviceMap = operationMap.get(operation);
@@ -226,8 +226,8 @@ public abstract class OperationContext<T extends Annotation> implements Context<
     @SuppressWarnings("unchecked")
     @Override
     public void destroyOne(ActiveDescriptor<?> descriptor) {
+        lock.lock();
         try {
-            lock.lock();
             for (HashMap<ActiveDescriptor<?>, Object> serviceMap : operationMap.values()) {
                 Object killMe = serviceMap.remove(descriptor);
                 if (killMe == null) continue;
@@ -245,8 +245,8 @@ public abstract class OperationContext<T extends Annotation> implements Context<
         HashMap<ActiveDescriptor<?>, Object> serviceMap;
         LinkedList<OperationHandleImpl<T>> stack;
         
+        lock.lock();
         try {
-            lock.lock();
             stack = closingOperations.get(tid);
             if (stack == null) {
                 stack = new LinkedList<OperationHandleImpl<T>>();
@@ -284,8 +284,8 @@ public abstract class OperationContext<T extends Annotation> implements Context<
             }
         }
         finally {
+            lock.lock();
             try {
-                lock.lock();
                 operationMap.remove(operation);
             
                 stack.removeFirst();
@@ -304,8 +304,8 @@ public abstract class OperationContext<T extends Annotation> implements Context<
     @Override
     public void shutdown() {
         Set<OperationHandleImpl<T>> toShutDown;
+        lock.lock();
         try {
-            lock.lock();
             shuttingDown = true;
             toShutDown = operationMap.keySet();
         } finally {
@@ -318,8 +318,8 @@ public abstract class OperationContext<T extends Annotation> implements Context<
             }
         }
         finally {
+            lock.lock();
             try {
-                lock.lock();
                 operationMap.clear();
             } finally {
                 lock.unlock();

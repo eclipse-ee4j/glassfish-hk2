@@ -210,8 +210,8 @@ public class ServiceLocatorFactoryImpl extends ServiceLocatorFactory {
     }
     
     private static String getGeneratedName() {
+        sLock.lock();
         try {
-            sLock.lock();
             return GENERATED_NAME_PREFIX + name_count++;
         } finally {
             sLock.unlock();
@@ -247,8 +247,8 @@ public class ServiceLocatorFactoryImpl extends ServiceLocatorFactory {
             Logger.getLogger().debug("ServiceFactoryImpl given create of " + name + " with parent " + parent +
                     " with generator " + generator + " and policy " + policy, new Throwable());
         }
+        lock.lock();
         try {
-            lock.lock();
             ServiceLocator retVal;
 
             if (name == null) {
@@ -306,8 +306,8 @@ public class ServiceLocatorFactoryImpl extends ServiceLocatorFactory {
     public void addListener(ServiceLocatorListener listener) {
         if (listener == null) throw new IllegalArgumentException();
         
+        lock.lock();
         try {
-            lock.lock();
             if (listeners.contains(listener)) return;
             
             try {
@@ -331,8 +331,8 @@ public class ServiceLocatorFactoryImpl extends ServiceLocatorFactory {
     public void removeListener(ServiceLocatorListener listener) {
         if (listener == null) throw new IllegalArgumentException();
         
+        lock.lock();
         try {
-            lock.lock();
             listeners.remove(listener);
         } finally {
             lock.unlock();

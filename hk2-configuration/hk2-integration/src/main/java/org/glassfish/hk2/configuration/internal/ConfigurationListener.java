@@ -330,8 +330,8 @@ public class ConfigurationListener implements BeanDatabaseUpdateListener {
         
         List<ActiveDescriptor<?>> progenitors = locator.getDescriptors(new NoNameTypeFilter(locator, null, null));
         
+        progenitorLock.lock();
         try {
-            progenitorLock.lock();
             allProgenitors.addAll(progenitors);
         } finally {
             progenitorLock.unlock();
@@ -527,8 +527,8 @@ public class ConfigurationListener implements BeanDatabaseUpdateListener {
         final DynamicConfiguration config = configurationService.createDynamicConfiguration();
         final LinkedList<ActiveDescriptor<?>> addedList = new LinkedList<ActiveDescriptor<?>>();
         final LinkedList<ActiveDescriptor<?>> removedList = new LinkedList<ActiveDescriptor<?>>();
+        progenitorLock.lock();
         try {
-            progenitorLock.lock();
             HashSet<ActiveDescriptor<?>> removed = new HashSet<ActiveDescriptor<?>>(allProgenitors);
             
             progenitors = locator.getDescriptors(new NoNameTypeFilter(locator, null, null));

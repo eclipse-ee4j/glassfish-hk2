@@ -93,8 +93,8 @@ public class UnkeyedDiff {
     }
     
     public Differences compute() {
+        lock.lock();
         try {
-            lock.lock();
             if (computed) return finalSolution;
             
             Differences retVal = null;

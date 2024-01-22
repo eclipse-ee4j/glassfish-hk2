@@ -224,8 +224,8 @@ public abstract class AbstractModulesRegistryImpl implements ModulesRegistry {
      * @param weight int value from 1 to 100 to specify the search order
      */
     public void addRepository(Repository repository, int weight) {
+        lock.lock();
         try {
-            lock.lock();
             // check that we don't already have this repository
             for (Repository repo : repositories.values()) {
                 if (repo.getLocation().equals(repository.getLocation())) {
@@ -248,8 +248,8 @@ public abstract class AbstractModulesRegistryImpl implements ModulesRegistry {
      * @param repository new repository to attach to this registry
      */
     public void addRepository(Repository repository) {
+        lock.lock();
         try {
-            lock.lock();
             repositories.put(100+repositories.size(), repository);
         } finally {
             lock.unlock();
@@ -264,8 +264,8 @@ public abstract class AbstractModulesRegistryImpl implements ModulesRegistry {
      * @param name name of the repository to remove
      */
     public void removeRepository(String name) {
+        lock.lock();
         try {
-            lock.lock();
             for (Integer weight : repositories.keySet()) {
                 Repository repo = repositories.get(weight);
                 if (repo.getName().equals(name)) {
@@ -285,8 +285,8 @@ public abstract class AbstractModulesRegistryImpl implements ModulesRegistry {
      * @return the repository or null if not found
      */
     public Repository getRepository(String name) {
+        lock.lock();
         try {
-            lock.lock();
             for (Integer weight : repositories.keySet()) {
                 Repository repo = repositories.get(weight);
                 if (repo.getName().equals(name)) {
@@ -560,8 +560,8 @@ public abstract class AbstractModulesRegistryImpl implements ModulesRegistry {
      * <code>HK2Module</code> instances.
      */
     public HK2Module add(ModuleDefinition info) throws ResolveError {
+        lock.lock();
         try {
-            lock.lock();
             return add(info, true);
         } finally {
             lock.unlock();

@@ -114,8 +114,8 @@ public class ChildDataModel implements Serializable {
     }
     
     public void setLoader(ClassLoader myLoader) {
+        lock.lock();
         try {
-            lock.lock();
             this.myLoader = myLoader;
         } finally {
             lock.unlock();
@@ -123,8 +123,8 @@ public class ChildDataModel implements Serializable {
     }
     
     public Class<?> getChildTypeAsClass() {
+        lock.lock();
         try {
-            lock.lock();
             if (childTypeAsClass != null) return childTypeAsClass;
             
             childTypeAsClass = TYPE_MAP.get(childType);
@@ -140,8 +140,8 @@ public class ChildDataModel implements Serializable {
     }
     
     public Class<?> getChildListTypeAsClass() {
+        lock.lock();
         try {
-            lock.lock();
             if (childListType == null) return null;
             if (childListTypeAsClass != null) return childListTypeAsClass;
             

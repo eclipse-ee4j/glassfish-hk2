@@ -39,8 +39,8 @@ class ParameterizedInterfaceModelImpl implements ParameterizedInterfaceModel {
     }
 
     void addParameterizedType(ParameterizedInterfaceModel type) {
-        try {
-            lock.lock();
+        lock.lock();
+            try {
             parameterizedTypes.add(type);
         } finally {
             lock.unlock();

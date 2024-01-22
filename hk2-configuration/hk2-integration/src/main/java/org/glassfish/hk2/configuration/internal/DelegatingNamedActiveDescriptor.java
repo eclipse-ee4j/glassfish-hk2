@@ -197,8 +197,8 @@ public class DelegatingNamedActiveDescriptor implements
      */
     @Override
     public Object getCache() {
+        lock.lock();
         try {
-            lock.lock();
             return cache;
         } finally {
             lock.unlock();
@@ -210,8 +210,8 @@ public class DelegatingNamedActiveDescriptor implements
      */
     @Override
     public boolean isCacheSet() {
+        lock.lock();
         try {
-            lock.lock();
             return isSet;
         } finally {
             lock.unlock();
@@ -223,8 +223,8 @@ public class DelegatingNamedActiveDescriptor implements
      */
     @Override
     public void setCache(Object cacheMe) {
+        lock.lock();
         try {
-            lock.lock();
             isSet = true;
             cache = cacheMe;
         } finally {
@@ -238,8 +238,8 @@ public class DelegatingNamedActiveDescriptor implements
      */
     @Override
     public void releaseCache() {
+        lock.lock();
         try {
-            lock.lock();
             cache = null;
             isSet = false;
         } finally {

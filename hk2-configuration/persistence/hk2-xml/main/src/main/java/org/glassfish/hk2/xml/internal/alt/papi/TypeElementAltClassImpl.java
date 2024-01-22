@@ -82,8 +82,8 @@ public class TypeElementAltClassImpl implements AltClass {
      */
     @Override
     public List<AltAnnotation> getAnnotations() {
+        lock.lock();
         try {
-            lock.lock();
             if (annotations != null) return annotations;
             
             List<? extends AnnotationMirror> annoMirrors = processingEnv.getElementUtils().getAllAnnotationMirrors(clazz);
@@ -172,8 +172,8 @@ public class TypeElementAltClassImpl implements AltClass {
      */
     @Override
     public List<AltMethod> getMethods() {
+        lock.lock();
         try {
-            lock.lock();
             if (methods != null) return methods;
             
             List<? extends Element> innerElements = processingEnv.getElementUtils().getAllMembers(clazz);

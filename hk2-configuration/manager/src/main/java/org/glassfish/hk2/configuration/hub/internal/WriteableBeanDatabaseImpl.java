@@ -66,8 +66,8 @@ public class WriteableBeanDatabaseImpl implements WriteableBeanDatabase {
      */
     @Override
     public Set<Type> getAllTypes() {
+        lock.lock();
         try {
-            lock.lock();
             return Collections.unmodifiableSet(new HashSet<Type>(types.values()));
         } finally {
             lock.unlock();
@@ -87,8 +87,8 @@ public class WriteableBeanDatabaseImpl implements WriteableBeanDatabase {
      */
     @Override
     public Type getType(String type) {
+        lock.lock();
         try {
-            lock.lock();
             return types.get(type);
         } finally {
             lock.unlock();
@@ -100,8 +100,8 @@ public class WriteableBeanDatabaseImpl implements WriteableBeanDatabase {
      */
     @Override
     public Instance getInstance(String type, String instanceKey) {
+        lock.lock();
         try {
-            lock.lock();
             Type t = getType(type);
             if (t == null) return null;
             
@@ -120,8 +120,8 @@ public class WriteableBeanDatabaseImpl implements WriteableBeanDatabase {
      */
     @Override
     public WriteableType addType(String typeName) {
+        lock.lock();
         try {
-            lock.lock();
             if (typeName == null) throw new IllegalArgumentException();
             checkState();
             
@@ -147,8 +147,8 @@ public class WriteableBeanDatabaseImpl implements WriteableBeanDatabase {
      */
     @Override
     public Type removeType(String typeName) {
+        lock.lock();
         try {
-            lock.lock();
             if (typeName == null) throw new IllegalArgumentException();
             checkState();
             
@@ -180,8 +180,8 @@ public class WriteableBeanDatabaseImpl implements WriteableBeanDatabase {
      */
     @Override
     public WriteableType getWriteableType(String typeName) {
+        lock.lock();
         try {
-            lock.lock();
             checkState();
             return types.get(typeName);
         } finally {
@@ -194,8 +194,8 @@ public class WriteableBeanDatabaseImpl implements WriteableBeanDatabase {
      */
     @Override
     public WriteableType findOrAddWriteableType(String typeName) {
+        lock.lock();
         try {
-            lock.lock();
             if (typeName == null) throw new IllegalArgumentException();
             checkState();
             
@@ -216,8 +216,8 @@ public class WriteableBeanDatabaseImpl implements WriteableBeanDatabase {
     @Override
     public void commit() {
         Object defaultCommit;
+        lock.lock();
         try {
-            lock.lock();
             defaultCommit = commitMessage;
         } finally {
             lock.unlock();
@@ -231,8 +231,8 @@ public class WriteableBeanDatabaseImpl implements WriteableBeanDatabase {
      */
     @Override
     public void commit(Object commitMessage) {
+        lock.lock();
         try {
-            lock.lock();
             checkState();
         
             committed = true;
@@ -255,8 +255,8 @@ public class WriteableBeanDatabaseImpl implements WriteableBeanDatabase {
     }
     
     /* package */ void addChange(Change change) {
+        lock.lock();
         try {
-            lock.lock();
             changes.add(change);
         } finally {
             lock.unlock();
@@ -276,8 +276,8 @@ public class WriteableBeanDatabaseImpl implements WriteableBeanDatabase {
      */
     @Override
     public void dumpDatabase(PrintStream output) {
+        lock.lock();
         try {
-            lock.lock();
             Utilities.dumpDatabase(this, output);
         } finally {
             lock.unlock();
@@ -305,8 +305,8 @@ public class WriteableBeanDatabaseImpl implements WriteableBeanDatabase {
      */
     @Override
     public Object getCommitMessage() {
+        lock.lock();
         try {
-            lock.lock();
             return commitMessage;
         } finally {
             lock.unlock();
@@ -318,8 +318,8 @@ public class WriteableBeanDatabaseImpl implements WriteableBeanDatabase {
      */
     @Override
     public void setCommitMessage(Object commitMessage) {
+        lock.lock();
         try {
-            lock.lock();
             this.commitMessage = commitMessage;
         } finally {
             lock.unlock();
@@ -339,8 +339,8 @@ public class WriteableBeanDatabaseImpl implements WriteableBeanDatabase {
                 TwoPhaseTransactionData dynamicConfiguration)
                 throws MultiException {
             Object defaultCommit;
+            WriteableBeanDatabaseImpl.this.lock.lock();
             try {
-                WriteableBeanDatabaseImpl.this.lock.lock();
                 checkState();
                 
                 committed = true;
@@ -364,8 +364,8 @@ public class WriteableBeanDatabaseImpl implements WriteableBeanDatabase {
             this.completedListeners = null;
             
             Object defaultCommit;
+            WriteableBeanDatabaseImpl.this.lock.lock();
             try {
-                WriteableBeanDatabaseImpl.this.lock.lock();
                 defaultCommit = commitMessage;
             } finally {
                 WriteableBeanDatabaseImpl.this.lock.unlock();
@@ -391,8 +391,8 @@ public class WriteableBeanDatabaseImpl implements WriteableBeanDatabase {
             this.completedListeners = null;
             
             Object defaultCommit;
+            WriteableBeanDatabaseImpl.this.lock.lock();
             try {
-                WriteableBeanDatabaseImpl.this.lock.lock();
                 defaultCommit = commitMessage;
             } finally {
                 WriteableBeanDatabaseImpl.this.lock.unlock();

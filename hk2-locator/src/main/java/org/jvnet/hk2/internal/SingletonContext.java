@@ -146,8 +146,8 @@ public class SingletonContext implements Context<Singleton> {
         for (ActiveDescriptor<?> one : all) {
             if (one.getScope() == null || !one.getScope().equals(Singleton.class.getName())) continue;
 
+            lock.lock();
             try {
-                lock.lock();
                 if (one.getCache() == null) continue;
             } finally {
                 lock.unlock();

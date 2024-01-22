@@ -76,8 +76,8 @@ public class MethodAltMethodImpl implements AltMethod {
      */
     @Override
     public List<AltClass> getParameterTypes() {
+        lock.lock();
         try {
-            lock.lock();
             if (parameterTypes != null) return parameterTypes;
             
             Class<?> pTypes[] = method.getParameterTypes();
@@ -151,8 +151,8 @@ public class MethodAltMethodImpl implements AltMethod {
      */
     @Override
     public List<AltAnnotation> getAnnotations() {
+        lock.lock();
         try {
-            lock.lock();
             if (altAnnotations != null) return altAnnotations;
             
             Annotation annotations[] = method.getAnnotations();

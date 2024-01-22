@@ -181,8 +181,8 @@ public class ParsingContext {
     Map<URI, TypeBuilder> builders = new HashMap<URI, TypeBuilder>();
 
     public TypeBuilder getTypeBuilder(URI definingURI) {
+        lock.lock();
         try {
-            lock.lock();
             TypeBuilder builder = builders.get(definingURI);
             if (builder==null) {
                 builder = new TypesImpl(types, definingURI);

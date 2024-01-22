@@ -80,8 +80,8 @@ public class TypeProxy<T extends Type> {
     }
 
     public void addFieldRef(FieldModel field) {
+        lock.lock();
         try {
-            lock.lock();
             fieldRefs.add(field);
         } finally {
             lock.unlock();
@@ -93,8 +93,8 @@ public class TypeProxy<T extends Type> {
     }
 
     public void addSubTypeRef(Type subType) {
+        lock.lock();
         try {
-            lock.lock();
             subTypeRefs.add(subType);
         } finally {
             lock.unlock();
@@ -106,8 +106,8 @@ public class TypeProxy<T extends Type> {
     }
 
     public void addImplementation(ClassModel classModel) {
+        lock.lock();
         try {
-            lock.lock();
             implementations.add(classModel);
         } finally {
             lock.unlock();

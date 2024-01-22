@@ -72,8 +72,8 @@ public class ElementAltMethodImpl implements AltMethod {
      */
     @Override
     public AltClass getReturnType() {
+        lock.lock();
         try {
-            lock.lock();
             if (returnType != null) return returnType;
             
             ExecutableType executable = (ExecutableType) method.asType();
@@ -93,8 +93,8 @@ public class ElementAltMethodImpl implements AltMethod {
      */
     @Override
     public List<AltClass> getParameterTypes() {
+        lock.lock();
         try {
-            lock.lock();
             if (parameters != null) return parameters;
             
             ExecutableType executable = (ExecutableType) method.asType();
@@ -167,8 +167,8 @@ public class ElementAltMethodImpl implements AltMethod {
      */
     @Override
     public AltAnnotation getAnnotation(String annotation) {
+        lock.lock();
         try {
-            lock.lock();
             if (annotations == null) {
                 getAnnotations();
             }
@@ -184,8 +184,8 @@ public class ElementAltMethodImpl implements AltMethod {
      */
     @Override
     public List<AltAnnotation> getAnnotations() {
+        lock.lock();
         try {
-            lock.lock();
             if (annotations != null) {
                 return Collections.unmodifiableList(new ArrayList<AltAnnotation>(annotations.values()));
             }

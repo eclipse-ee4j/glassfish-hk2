@@ -163,8 +163,8 @@ public class AsyncRunLevelContext {
         Integer localModeOverride;
         long tid = -1L;
         
+        lock.lock();
         try {
-            lock.lock();
             localModeOverride = modeOverride;
             
             retVal = (U) backingMap.get(activeDescriptor);
@@ -315,8 +315,8 @@ public class AsyncRunLevelContext {
             throw new RuntimeException(th);
         }
         finally {
+            lock.lock();
             try {
-                lock.lock();
                 boolean hardCancelled = hardCancelledDescriptors.remove(activeDescriptor);
                 
                 if (retVal != null) {
@@ -374,8 +374,8 @@ public class AsyncRunLevelContext {
      * @return true if already created, false otherwise
      */
     public boolean containsKey(ActiveDescriptor<?> descriptor) {
+        lock.lock();
         try {
-            lock.lock();
             return backingMap.containsKey(descriptor);
         } finally {
             lock.unlock();
@@ -383,8 +383,8 @@ public class AsyncRunLevelContext {
     }
     
     /* package */ boolean wouldBlockRightNow(ActiveDescriptor<?> desc) {
+        lock.lock();
         try {
-            lock.lock();
             return creatingDescriptors.containsKey(desc);
         } finally {
             lock.unlock();
@@ -411,8 +411,8 @@ public class AsyncRunLevelContext {
     @SuppressWarnings("unchecked")
     public void destroyOne(ActiveDescriptor<?> descriptor) {
         Object retVal = null;
+        lock.lock();
         try {
-            lock.lock();
             retVal = backingMap.remove(descriptor);
             if (retVal == null) return;
         } finally {
@@ -446,8 +446,8 @@ public class AsyncRunLevelContext {
 
     
     /* package */ int getCurrentLevel() {
+        lock.lock();
         try {
-            lock.lock();
             return currentLevel;
         } finally {
             lock.unlock();
@@ -455,8 +455,8 @@ public class AsyncRunLevelContext {
     }
     
     /* package */ void levelCancelled() {
+        lock.lock();
         try {
-            lock.lock();
             wasCancelled = true;
         } finally {
             lock.unlock();
@@ -464,8 +464,8 @@ public class AsyncRunLevelContext {
     }
 
     /* package */ void setCurrentLevel(int currentLevel) {
+        lock.lock();
         try {
-            lock.lock();
             this.currentLevel = currentLevel;
         } finally {
             lock.unlock();
@@ -473,8 +473,8 @@ public class AsyncRunLevelContext {
     }
     
     /* package */ void setPolicy(RunLevelController.ThreadingPolicy policy) {
+        lock.lock();
         try {
-            lock.lock();
             this.policy = policy;
         } finally {
             lock.unlock();
@@ -482,8 +482,8 @@ public class AsyncRunLevelContext {
     }
     
     /* package */ void setExecutor(Executor executor) {
+        lock.lock();
         try {
-            lock.lock();
             if (executor == null) {
                 this.executor = DEFAULT_EXECUTOR;
             }
@@ -496,8 +496,8 @@ public class AsyncRunLevelContext {
     }
     
     /* package */ Executor getExecutor() {
+        lock.lock();
         try {
-            lock.lock();
             return executor;
         } finally {
             lock.unlock();
@@ -505,8 +505,8 @@ public class AsyncRunLevelContext {
     }
     
     /* package */ RunLevelController.ThreadingPolicy getPolicy() {
+        lock.lock();
         try {
-            lock.lock();
             return policy;
         } finally {
             lock.unlock();
@@ -514,8 +514,8 @@ public class AsyncRunLevelContext {
     }
     
     /* package */ List<ActiveDescriptor<?>> getOrderedListOfServicesAtLevel(int level) {
+        lock.lock();
         try {
-            lock.lock();
             LinkedList<ActiveDescriptor<?>> retVal = new LinkedList<ActiveDescriptor<?>>();
             
             while (!orderedCreationList.isEmpty()) {
@@ -544,8 +544,8 @@ public class AsyncRunLevelContext {
      */
     public RunLevelFuture proceedTo(int level) throws CurrentlyRunningException {
         CurrentTaskFutureWrapper localTask;
+        lock.lock();
         try {
-            lock.lock();
             boolean fullyThreaded = policy.equals(RunLevelController.ThreadingPolicy.FULLY_THREADED);
             
             if (currentTask != null) {
@@ -574,8 +574,8 @@ public class AsyncRunLevelContext {
     }
     
     /* package */ void jobDone() {
+        lock.lock();
         try {
-            lock.lock();
             currentTask = null;
         } finally {
             lock.unlock();
@@ -588,8 +588,8 @@ public class AsyncRunLevelContext {
      * @return The current task, may be null if there is no current task
      */
     public RunLevelFuture getCurrentFuture() {
+        lock.lock();
         try {
-            lock.lock();
             return currentTask;
         } finally {
             lock.unlock();
@@ -597,8 +597,8 @@ public class AsyncRunLevelContext {
     }
     
     /* package */ void setMaximumThreads(int maximum) {
+        lock.lock();
         try {
-            lock.lock();
             if (maximum < 1) {
                 maxThreads = 1;
             }
@@ -611,8 +611,8 @@ public class AsyncRunLevelContext {
     }
     
     /* package */ int getMaximumThreads() {
+        lock.lock();
         try {
-            lock.lock();
             return maxThreads;
         } finally {
             lock.unlock();
@@ -620,8 +620,8 @@ public class AsyncRunLevelContext {
     }
     
     /* package */ void clearErrors() {
+        lock.lock();
         try {
-            lock.lock();
             levelErrorMap.clear();
             wasCancelled = false;
         } finally {
@@ -630,8 +630,8 @@ public class AsyncRunLevelContext {
     }
     
     /* package */ void setCancelTimeout(long cancelTimeout) {
+        lock.lock();
         try {
-            lock.lock();
             this.cancelTimeout = cancelTimeout;
         } finally {
             lock.unlock();
@@ -639,8 +639,8 @@ public class AsyncRunLevelContext {
     }
     
     /* package */ long getCancelTimeout() {
+        lock.lock();
         try {
-            lock.lock();
             return cancelTimeout;
         } finally {
             lock.unlock();
@@ -648,8 +648,8 @@ public class AsyncRunLevelContext {
     }
     
     /* package */ Integer getModeOverride() {
+        lock.lock();
         try {
-            lock.lock();
             return modeOverride;
         } finally {
             lock.unlock();
@@ -657,8 +657,8 @@ public class AsyncRunLevelContext {
     }
     
     /* package */ void setModeOverride(Integer modeOverride) {
+        lock.lock();
         try {
-            lock.lock();
             this.modeOverride = modeOverride;
         } finally {
             lock.unlock();

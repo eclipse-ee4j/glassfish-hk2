@@ -33,8 +33,8 @@ public class HK2Factory extends AbstractFactory {
     private static final ReentrantLock lock = new ReentrantLock();
 
     public static void initialize() {
+        lock.lock();
         try {
-            lock.lock();
             if (Instance != null) {
                 LogHelper.getDefaultLogger().fine("Singleton already initialized as " + getInstance());
             }

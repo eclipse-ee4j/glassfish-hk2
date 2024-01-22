@@ -49,8 +49,8 @@ public class OperationManagerImpl implements OperationManager {
     @Override
     public <T extends Annotation> OperationHandle<T> createOperation(T scope) {
         SingleOperationManager<T> manager;
+        lock.lock();
         try {
-            lock.lock();
             manager = (SingleOperationManager<T>) children.get(scope.annotationType());
         
             if (manager == null) {
@@ -82,8 +82,8 @@ public class OperationManagerImpl implements OperationManager {
     @Override
     public <T extends Annotation> Set<OperationHandle<T>> getCurrentOperations(T scope) {
         SingleOperationManager<T> manager;
+        lock.lock();
         try {
-            lock.lock();
             manager = (SingleOperationManager<T>) children.get(scope.annotationType());
             if (manager == null) return Collections.emptySet();
         } finally {
@@ -100,8 +100,8 @@ public class OperationManagerImpl implements OperationManager {
     @Override
     public <T extends Annotation> OperationHandle<T> getCurrentOperation(T scope) {
         SingleOperationManager<T> manager;
+        lock.lock();
         try {
-            lock.lock();
             manager = (SingleOperationManager<T>) children.get(scope.annotationType());
             if (manager == null) return null;  
         } finally {
@@ -117,8 +117,8 @@ public class OperationManagerImpl implements OperationManager {
     @Override
     public void shutdownAllOperations(Annotation scope) {
         SingleOperationManager<?> manager;
+        lock.lock();
         try {
-            lock.lock();
             manager = children.remove(scope.annotationType());
             if (manager == null) return;
             

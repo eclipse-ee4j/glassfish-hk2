@@ -79,8 +79,8 @@ public class ValidatorUtilities {
      * @return A javax bean validator for validating constraints
      */
     public static Validator getValidator() {
+        slock.lock();
         try {
-            slock.lock();
             if (validator == null) {
                 validator = AccessController.doPrivileged(new PrivilegedAction<Validator>() {
 

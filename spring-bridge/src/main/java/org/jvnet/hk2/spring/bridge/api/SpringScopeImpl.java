@@ -39,8 +39,8 @@ public class SpringScopeImpl implements Scope {
      * @param locator The (non-null) locator to use for this scope
      */
     public void setServiceLocator(ServiceLocator locator) {
+        lock.lock();
         try {
-            lock.lock();
             this.locator = locator;
         } finally {
             lock.unlock();
@@ -55,8 +55,8 @@ public class SpringScopeImpl implements Scope {
      * locator will be used
      */
     public void setServiceLocatorName(String name) {
+        lock.lock();
         try {
-            lock.lock();
             locator = ServiceLocatorFactory.getInstance().create(name);
         } finally {
             lock.unlock();
@@ -70,8 +70,8 @@ public class SpringScopeImpl implements Scope {
      * @return The {@link ServiceLocator} to be used with this scope
      */
     public ServiceLocator getServiceLocator() {
+        lock.lock();
         try {
-            lock.lock();
             return locator;
         } finally {
             lock.unlock();
@@ -79,8 +79,8 @@ public class SpringScopeImpl implements Scope {
     }
     
     private ServiceHandle<?> getServiceFromName(String id) {
+        lock.lock();
         try {
-            lock.lock();
             if (locator == null) throw new IllegalStateException(
                     "ServiceLocator must be set");
             

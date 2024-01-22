@@ -49,8 +49,8 @@ public class TypeImpl extends AnnotatedElementImpl implements Type {
     }
 
     void addDefiningURI(URI uri) {
+        lock.lock();
         try {
-            lock.lock();
             definingURIs.add(uri);
             try {
                 File file = new File(uri);
@@ -76,8 +76,8 @@ public class TypeImpl extends AnnotatedElementImpl implements Type {
     }
 
     void addMethod(MethodModelImpl m) {
+        lock.lock();
         try {
-            lock.lock();
             methods.add(m);
         } finally {
             lock.unlock();

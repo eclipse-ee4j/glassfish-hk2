@@ -54,8 +54,8 @@ public class TypesImpl implements TypeBuilder {
         Class<? extends Type> requestedType = getType(access);
 
         TypeProxy<Type> typeProxy = types.getHolder(name, requestedType);
+        typeProxy.lock.lock();
         try {
-            typeProxy.lock.lock();
             final Type type = typeProxy.get();
             TypeImpl result;
             if (null == type) {

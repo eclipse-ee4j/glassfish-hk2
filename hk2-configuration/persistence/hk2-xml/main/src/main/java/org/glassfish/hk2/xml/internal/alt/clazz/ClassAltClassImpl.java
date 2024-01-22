@@ -89,8 +89,8 @@ public class ClassAltClassImpl implements AltClass {
      */
     @Override
     public List<AltAnnotation> getAnnotations() {
+        lock.lock();
         try {
-            lock.lock();
             if (annotations != null) return annotations;
             
             Annotation annotationz[] = clazz.getAnnotations();
@@ -112,8 +112,8 @@ public class ClassAltClassImpl implements AltClass {
      */
     @Override
     public List<AltMethod> getMethods() {
+        lock.lock();
         try {
-            lock.lock();
             if (methods != null) return methods;
             
             Set<MethodWrapper> wrappers = helper.getAllMethods(clazz);

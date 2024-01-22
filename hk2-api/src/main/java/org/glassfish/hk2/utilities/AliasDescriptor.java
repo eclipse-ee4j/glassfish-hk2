@@ -230,8 +230,8 @@ public class AliasDescriptor<T> extends AbstractActiveDescriptor<T> {
      */
     @Override
     public Set<Annotation> getQualifierAnnotations() {
+        lock.lock();
         try {
-            lock.lock();
             ensureInitialized();
 
             if (qualifiers == null) {
@@ -248,8 +248,8 @@ public class AliasDescriptor<T> extends AbstractActiveDescriptor<T> {
     
     @Override
     public Set<String> getQualifiers() {
+        lock.lock();
         try {
-            lock.lock();
             if (qualifierNames != null) return qualifierNames;
             
             qualifierNames = new HashSet<String>(descriptor.getQualifiers());
@@ -301,8 +301,8 @@ public class AliasDescriptor<T> extends AbstractActiveDescriptor<T> {
      */
     @SuppressWarnings("unchecked")
     private void ensureInitialized() {
+        lock.lock();
         try {
-            lock.lock();
             if (!initialized) {
                 // reify the underlying descriptor if needed
                 if (!descriptor.isReified()) {
@@ -350,8 +350,8 @@ public class AliasDescriptor<T> extends AbstractActiveDescriptor<T> {
     @Override
     public int hashCode() {
         int retVal;
+        lock.lock();
         try {
-            lock.lock();
             retVal = descriptor.hashCode();
         } finally {
             lock.unlock();

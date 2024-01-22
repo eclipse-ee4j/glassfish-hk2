@@ -37,8 +37,8 @@ public class AbstractCountingListener implements BeanDatabaseUpdateListener {
     private int commitCalled;
     
     public int getNumPreparesCalled() {
+        lock.lock();
         try {
-            lock.lock();
             return prepareCalled;
         } finally {
             lock.unlock();
@@ -46,8 +46,8 @@ public class AbstractCountingListener implements BeanDatabaseUpdateListener {
     }
     
     public int getNumCommitsCalled() {
+        lock.lock();
         try {
-            lock.lock();
             return commitCalled;
         } finally {
             lock.unlock();
@@ -55,8 +55,8 @@ public class AbstractCountingListener implements BeanDatabaseUpdateListener {
     }
     
     public int getNumRollbackCalled() {
+        lock.lock();
         try {
-            lock.lock();
             return rollbackCalled;
         } finally {
             lock.unlock();
@@ -79,8 +79,8 @@ public class AbstractCountingListener implements BeanDatabaseUpdateListener {
     public void prepareDatabaseChange(BeanDatabase currentDatabase,
             BeanDatabase proposedDatabase, Object commitMessage,
             List<Change> changes) {
+        lock.lock();
         try {
-            lock.lock();
             prepareCalled++;
             prepareAction();
         } finally {

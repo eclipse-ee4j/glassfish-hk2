@@ -60,8 +60,8 @@ public class HubImpl implements Hub {
      */
     @Override
     public BeanDatabase getCurrentDatabase() {
+        lock.lock();
         try {
-            lock.lock();
             return currentDatabase;
         } finally {
             lock.unlock();
@@ -73,8 +73,8 @@ public class HubImpl implements Hub {
      */
     @Override
     public WriteableBeanDatabase getWriteableDatabaseCopy() {
+        lock.lock();
         try {
-            lock.lock();
             return new WriteableBeanDatabaseImpl(this, currentDatabase);
         } finally {
             lock.unlock();
@@ -84,8 +84,8 @@ public class HubImpl implements Hub {
     private int inTransaction = 0;
     
     /* package */ LinkedList<BeanDatabaseUpdateListener> prepareCurrentDatabase(WriteableBeanDatabaseImpl writeableDatabase, Object commitMessage, List<Change> changes) {
+        lock.lock();
         try {
-            lock.lock();
             if (inTransaction > 0) {
                 throw new IllegalStateException("This Hub is already in a transaction");
             }
@@ -130,8 +130,8 @@ public class HubImpl implements Hub {
     
     /* package */ void activateCurrentDatabase(WriteableBeanDatabaseImpl writeableDatabase, Object commitMessage, List<Change> changes,
             LinkedList<BeanDatabaseUpdateListener> completedListeners) {
+        lock.lock();
         try {
-            lock.lock();
             inTransaction--;
             if (inTransaction < 0) inTransaction = 0;
             
@@ -167,8 +167,8 @@ public class HubImpl implements Hub {
     
     /* package */ void rollbackCurrentDatabase(WriteableBeanDatabaseImpl writeableDatabase, Object commitMessage, List<Change> changes,
             LinkedList<BeanDatabaseUpdateListener> completedListeners) {
+        lock.lock();
         try {
-            lock.lock();
             inTransaction--;
             if (inTransaction < 0) inTransaction = 0;
             

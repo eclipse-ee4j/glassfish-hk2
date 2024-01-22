@@ -40,8 +40,8 @@ public class InstantiationServiceImpl implements InstantiationService {
      */
     @Override
     public InstantiationData getInstantiationData() {
+        lock.lock();
         try {
-            lock.lock();
             long tid = Thread.currentThread().getId();
             
             LinkedList<Injectee> threadStack = injecteeStack.get(tid);
@@ -70,8 +70,8 @@ public class InstantiationServiceImpl implements InstantiationService {
     }
     
     public void pushInjecteeParent(Injectee injectee) {
+        lock.lock();
         try {
-            lock.lock();
             long tid = Thread.currentThread().getId();
             
             LinkedList<Injectee> threadStack = injecteeStack.get(tid);
@@ -87,8 +87,8 @@ public class InstantiationServiceImpl implements InstantiationService {
     }
     
     public void popInjecteeParent() {
+        lock.lock();
         try {
-            lock.lock();
             long tid = Thread.currentThread().getId();
             
             LinkedList<Injectee> threadStack = injecteeStack.get(tid);

@@ -127,8 +127,8 @@ public class ParentedModel implements Serializable {
     
     @SuppressWarnings("unchecked")
     public XmlAdapter<?, ?> getAdapterObject() {
+        lock.lock();
         try {
-            lock.lock();
             if (myLoader == null) {
                 throw new IllegalStateException("Cannot call getChildModel before the classloader has been determined");
             }
@@ -158,8 +158,8 @@ public class ParentedModel implements Serializable {
     }
     
     public ModelImpl getChildModel() {
+        lock.lock();
         try {
-            lock.lock();
             if (myLoader == null) {
                 throw new IllegalStateException("Cannot call getChildModel before the classloader has been determined");
             }
@@ -185,8 +185,8 @@ public class ParentedModel implements Serializable {
     }
     
     public void setRuntimeInformation(JAUtilities jaUtilities, ClassLoader myLoader) {
+        lock.lock();
         try {
-            lock.lock();
             this.jaUtilities = jaUtilities;
             this.myLoader = myLoader;
         } finally {

@@ -259,8 +259,8 @@ public class PerLocatorUtilities {
     }
     
     public void releaseCaches() {
+        lock.lock();
         try {
-            lock.lock();
             hasInjectCache.removeAll();
             if (proxyUtilities != null) {
                 proxyUtilities.releaseCache();
@@ -280,8 +280,8 @@ public class PerLocatorUtilities {
     public ProxyUtilities getProxyUtilities() {
         if (proxyUtilities != null) return proxyUtilities;
         
+        lock.lock();
         try {
-            lock.lock();
             if (proxyUtilities != null) return proxyUtilities;
             
             proxyUtilities = new ProxyUtilities();

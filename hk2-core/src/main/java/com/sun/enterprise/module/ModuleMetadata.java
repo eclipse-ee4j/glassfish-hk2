@@ -53,8 +53,8 @@ public final class ModuleMetadata implements Serializable {
     }
 
     public void addDescriptors(String serviceLocatorName, Collection<Descriptor> descriptorsToAdd) {
+        lock.lock();
         try {
-            lock.lock();
             List<Descriptor> descriptorList = descriptors.get(serviceLocatorName);
 
             if (descriptorList == null) {

@@ -393,8 +393,8 @@ public class PropertyFileHandleImpl implements PropertyFileHandle {
             extractData(sFullKey, value, allBeans);
         }
         
+        lock.lock();
         try {
-            lock.lock();
             if (!open) {
                 throw new IllegalStateException("This handle has been closed");
             }
@@ -480,8 +480,8 @@ public class PropertyFileHandleImpl implements PropertyFileHandle {
      */
     @Override
     public void dispose() {
+        lock.lock();
         try {
-            lock.lock();
             if (!open) return;
             open = false;
             

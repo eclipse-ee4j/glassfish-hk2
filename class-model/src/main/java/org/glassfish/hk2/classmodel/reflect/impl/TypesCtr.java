@@ -92,8 +92,8 @@ public class TypesCtr implements Types {
             TypeProxy<Type> tmp = unknownTypesStorage.get(name);
             // in our unknown type pool ?
             if (tmp!=null) {
+                unknownTypesStorageLock.lock();
                 try {
-                    unknownTypesStorageLock.lock();
                     typeProxy = unknownTypesStorage.remove(name);
                     if (typeProxy == null) { 
                         typeProxy = tmp; 

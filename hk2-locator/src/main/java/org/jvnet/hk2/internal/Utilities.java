@@ -2257,8 +2257,8 @@ public class Utilities {
      * @return true if the system can create proxies, false otherwise
      */
     public static boolean proxiesAvailable() {
+        lock.lock();
         try {
-            lock.lock();
             if (proxiesAvailable != null) {
                 return proxiesAvailable;
             }

@@ -70,8 +70,8 @@ public class CrossOverDescriptor<T> extends AbstractActiveDescriptor<T> {
     }
     
     private void checkState() {
+        lock.lock();
         try {
-            lock.lock();
             if (remoteReified) return;
             remoteReified = true;
             

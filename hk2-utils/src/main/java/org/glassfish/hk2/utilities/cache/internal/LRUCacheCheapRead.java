@@ -65,8 +65,8 @@ public class LRUCacheCheapRead<K,V> extends LRUCache<K,V> {
     @Override
     public CacheEntry put(K key, V value) {
         CacheEntryImpl<K, V> entry = new CacheEntryImpl<K, V>(key, value, this);
+        prunningLock.lock();
         try {
-            prunningLock.lock();
             if (cache.size() + 1 > maxCacheSize) {
                 removeLRUItem();
             }

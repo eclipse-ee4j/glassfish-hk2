@@ -56,8 +56,8 @@ public class BeanDatabaseImpl implements BeanDatabase {
      */
     @Override
     public Set<Type> getAllTypes() {
+        lock.lock();
         try {
-            lock.lock();
             return Collections.unmodifiableSet(new HashSet<Type>(types.values()));
         } finally {
             lock.unlock();
@@ -69,8 +69,8 @@ public class BeanDatabaseImpl implements BeanDatabase {
      */
     @Override
     public Instance getInstance(String type, String instanceKey) {
+        lock.lock();
         try {
-            lock.lock();
             Type t = getType(type);
             if (t == null) return null;
 
@@ -85,8 +85,8 @@ public class BeanDatabaseImpl implements BeanDatabase {
      */
     @Override
     public Type getType(String type) {
+        lock.lock();
         try {
-            lock.lock();
             return types.get(type);
         } finally {
             lock.unlock();

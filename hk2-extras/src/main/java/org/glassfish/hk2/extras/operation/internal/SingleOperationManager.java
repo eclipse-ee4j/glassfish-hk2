@@ -81,8 +81,8 @@ public class SingleOperationManager<T extends Annotation> {
     
     public OperationHandleImpl<T> createOperation() {
         
+        operationLock.lock();
         try {
-            operationLock.lock();
             if (closed) {
                 throw new IllegalStateException("This manager has been closed");
             }
@@ -156,8 +156,8 @@ public class SingleOperationManager<T extends Annotation> {
     public OperationHandleImpl<T> getCurrentOperationOnThisThread() {
         long threadId = Thread.currentThread().getId();
         
+        operationLock.lock();
         try {
-            operationLock.lock();
             if (closed) return null;
             return getCurrentOperationOnThisThread(threadId);
         } finally {
@@ -168,8 +168,8 @@ public class SingleOperationManager<T extends Annotation> {
     /* package */ Set<OperationHandle<T>> getAllOperations() {
         HashSet<OperationHandle<T>> retVal = new HashSet<OperationHandle<T>>();
         
+        operationLock.lock();
         try {
-            operationLock.lock();
             if (closed) return Collections.emptySet();
             
             retVal.addAll(openScopes.values());
@@ -181,8 +181,8 @@ public class SingleOperationManager<T extends Annotation> {
     }
     
     /* package */ void shutdown() {
+        operationLock.lock();
         try {
-            operationLock.lock();
             if (closed) return;
             closed = true;
             

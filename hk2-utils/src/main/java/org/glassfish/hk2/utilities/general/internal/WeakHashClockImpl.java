@@ -119,8 +119,8 @@ public class WeakHashClockImpl<K,V> implements WeakHashClock<K,V> {
     public void put(final K key, final V value) {
         if (key == null || value == null) throw new IllegalArgumentException("key " + key + " or value " + value + " is null");
         
+        lock.lock();
         try {
-            lock.lock();
             if (isWeak) {
                 removeStale();
             }
@@ -147,8 +147,8 @@ public class WeakHashClockImpl<K,V> implements WeakHashClock<K,V> {
         
         DoubleNode<K,V> node;
         if (isWeak) {
+            lock.lock();
             try {
-                lock.lock();
                 removeStale();
         
                 node = byKey.get(key);
@@ -172,8 +172,8 @@ public class WeakHashClockImpl<K,V> implements WeakHashClock<K,V> {
     public V remove(K key) {
         if (key == null) return null;
         
+        lock.lock();
         try {
-            lock.lock();
             DoubleNode<K,V> node;
             if (isWeak) {
                 removeStale();
@@ -199,8 +199,8 @@ public class WeakHashClockImpl<K,V> implements WeakHashClock<K,V> {
      */
     @Override
     public void releaseMatching(CacheKeyFilter<K> filter) {
+        lock.lock();
         try {
-            lock.lock();
             if (filter == null) return;
             
             if (isWeak) {
@@ -232,8 +232,8 @@ public class WeakHashClockImpl<K,V> implements WeakHashClock<K,V> {
     @Override
     public int size() {
         if (isWeak) {
+            lock.lock();
             try {
-                lock.lock();
                 removeStale();
         
                 return byKey.size();
@@ -277,8 +277,8 @@ public class WeakHashClockImpl<K,V> implements WeakHashClock<K,V> {
      */
     @Override
     public Entry<K, V> next() {
+        lock.lock();
         try {
-            lock.lock();
             DoubleNode<K,V> hardenedNode = moveDotNoWeak();
             if (hardenedNode == null) return null;
             try {
@@ -319,8 +319,8 @@ public class WeakHashClockImpl<K,V> implements WeakHashClock<K,V> {
      */
     @Override
     public void clear() {
+        lock.lock();
         try {
-            lock.lock();
             if (isWeak) {
                 byKey.clear();
             }
@@ -339,8 +339,8 @@ public class WeakHashClockImpl<K,V> implements WeakHashClock<K,V> {
      */
     @Override
     public void clearStaleReferences() {
+        lock.lock();
         try {
-            lock.lock();
             removeStale();
         } finally {
             lock.unlock();
@@ -377,8 +377,8 @@ public class WeakHashClockImpl<K,V> implements WeakHashClock<K,V> {
     
     @Override
     public String toString() {
+        lock.lock();
         try {
-            lock.lock();
             StringBuffer sb = new StringBuffer("WeakHashClockImpl({");
             
             boolean first = true;

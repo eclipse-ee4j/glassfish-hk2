@@ -264,8 +264,8 @@ public class ModelImpl implements Model {
     }
     
     public Set<String> getAllXmlWrappers() {
+        slock.lock();
         try {
-            slock.lock();
             if (allXmlWrappers != null) return allXmlWrappers;
             allXmlWrappers = new LinkedHashSet<String>();
             
@@ -286,8 +286,8 @@ public class ModelImpl implements Model {
     }
     
     public Set<QName> getUnKeyedChildren() {
+        slock.lock();
         try {
-            slock.lock();
             if (unKeyedChildren != null) return unKeyedChildren;
             
             unKeyedChildren = new HashSet<QName>();
@@ -304,8 +304,8 @@ public class ModelImpl implements Model {
     }
     
     public Set<QName> getKeyedChildren() {
+        slock.lock();
         try {
-            slock.lock();
             if (keyedChildren != null) return keyedChildren;
             
             keyedChildren = new HashSet<QName>();
@@ -322,8 +322,8 @@ public class ModelImpl implements Model {
     }
     
     public void setJAUtilities(JAUtilities jaUtilities, ClassLoader myLoader) {
+        slock.lock();
         try {
-            slock.lock();
             if (this.jaUtilities != null) return;
             this.jaUtilities = jaUtilities;
             this.myLoader = myLoader;
@@ -343,8 +343,8 @@ public class ModelImpl implements Model {
     public String getDefaultChildValue(String propNamespace, String propName) {
         QName propQName = QNameUtilities.createQName(propNamespace, propName);
         
+        slock.lock();
         try {
-            slock.lock();
             ChildDataModel cd = nonChildProperty.get(propQName);
             if (cd == null) return null;
             return cd.getDefaultAsString();
@@ -356,8 +356,8 @@ public class ModelImpl implements Model {
     public ModelPropertyType getModelPropertyType(String propNamespace, String propName) {
         QName propQName = QNameUtilities.createQName(propNamespace, propName);
         
+        slock.lock();
         try {
-            slock.lock();
             if (nonChildProperty.containsKey(propQName)) return ModelPropertyType.FLAT_PROPERTY;
             if (childrenByName.containsKey(propQName)) return ModelPropertyType.TREE_ROOT;
             
@@ -370,8 +370,8 @@ public class ModelImpl implements Model {
     public Class<?> getNonChildType(String propNamespace, String propName) {
         QName propQName = QNameUtilities.createQName(propNamespace, propName);
         
+        slock.lock();
         try {
-            slock.lock();
             ChildDataModel cd = nonChildProperty.get(propQName);
             if (cd == null) return null;
             
@@ -384,8 +384,8 @@ public class ModelImpl implements Model {
     public ParentedModel getChild(String propNamespace, String propName) {
         QName propQName = QNameUtilities.createQName(propNamespace, propName);
         
+        slock.lock();
         try {
-            slock.lock();
             return childrenByName.get(propQName);
         } finally {
             slock.unlock();
@@ -396,8 +396,8 @@ public class ModelImpl implements Model {
     public Class<?> getOriginalInterfaceAsClass() {
         if (originalInterfaceAsClass != null) return originalInterfaceAsClass;
         
+        slock.lock();
         try {
-            slock.lock();
             if (originalInterfaceAsClass != null) return originalInterfaceAsClass;
             
             originalInterfaceAsClass = GeneralUtilities.loadClass(myLoader, originalInterface);
@@ -412,8 +412,8 @@ public class ModelImpl implements Model {
     public Class<?> getProxyAsClass() {
         if (translatedClassAsClass != null) return translatedClassAsClass;
         
+        slock.lock();
         try {
-            slock.lock();
             if (translatedClassAsClass != null) return translatedClassAsClass;
             
             translatedClassAsClass = GeneralUtilities.loadClass(myLoader, translatedClass);
@@ -425,8 +425,8 @@ public class ModelImpl implements Model {
     }
     
     public Collection<ParentedModel> getAllChildren() {
+        slock.lock();
         try {
-            slock.lock();
             return Collections.unmodifiableCollection(childrenByName.values());
         } finally {
             slock.unlock();
@@ -434,8 +434,8 @@ public class ModelImpl implements Model {
     }
     
     public Map<QName, ParentedModel> getChildrenProperties() {
+        slock.lock();
         try {
-            slock.lock();
             return Collections.unmodifiableMap(childrenByName);
         } finally {
             slock.unlock();
@@ -481,8 +481,8 @@ public class ModelImpl implements Model {
     }
     
     public String getJavaNameFromKey(String key, ClassReflectionHelper reflectionHelper) {
+        lock.lock();
         try {
-            lock.lock();
             if (keyToJavaNameMap == null) {
                 keyToJavaNameMap = new LinkedHashMap<String, String>();
             }

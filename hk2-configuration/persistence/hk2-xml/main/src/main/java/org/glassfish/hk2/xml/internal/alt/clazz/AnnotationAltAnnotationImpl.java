@@ -78,8 +78,8 @@ public class AnnotationAltAnnotationImpl implements AltAnnotation {
      */
     @Override
     public String getStringValue(String methodName) {
+        lock.lock();
         try {
-            lock.lock();
             if (values == null) getAnnotationValues();
             
             if (XmlElementImpl.class.equals(annotation.getClass()) &&
@@ -99,8 +99,8 @@ public class AnnotationAltAnnotationImpl implements AltAnnotation {
      */
     @Override
     public boolean getBooleanValue(String methodName) {
+        lock.lock();
         try {
-            lock.lock();
             if (values == null) getAnnotationValues();
             
             return (Boolean) values.get(methodName);
@@ -111,8 +111,8 @@ public class AnnotationAltAnnotationImpl implements AltAnnotation {
     
     @Override
     public String[] getStringArrayValue(String methodName) {
+        lock.lock();
         try {
-            lock.lock();
             if (values == null) getAnnotationValues();
             
             return (String[]) values.get(methodName);
@@ -140,8 +140,8 @@ public class AnnotationAltAnnotationImpl implements AltAnnotation {
      */
     @Override
     public Map<String, Object> getAnnotationValues() {
+        lock.lock();
         try {
-            lock.lock();
             if (values != null) return values;
             
             Map<String, Object> retVal = new TreeMap<String, Object>();

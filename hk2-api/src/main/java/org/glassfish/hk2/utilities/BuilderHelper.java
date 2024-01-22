@@ -714,8 +714,8 @@ public class BuilderHelper {
             
             @Override
             public void setServiceData(Object serviceData) {
+                lock.lock();
                 try {
-                    lock.lock();
                     this.serviceData = serviceData;
                 } finally {
                     lock.unlock();
@@ -724,8 +724,8 @@ public class BuilderHelper {
 
             @Override
             public Object getServiceData() {
+                lock.lock();
                 try {
-                    lock.lock();
                     return serviceData;
                 } finally {
                     lock.unlock();

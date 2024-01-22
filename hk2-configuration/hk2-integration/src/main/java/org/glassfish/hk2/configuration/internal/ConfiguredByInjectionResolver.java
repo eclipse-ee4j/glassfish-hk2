@@ -98,8 +98,8 @@ public class ConfiguredByInjectionResolver implements
      */
     @Override
     public Object resolve(Injectee injectee, ServiceHandle<?> root) {
+        lock.lock();
         try {
-            lock.lock();
             ActiveDescriptor<?> injecteeParent = injectee.getInjecteeDescriptor();
             if (injecteeParent == null) return systemResolver.resolve(injectee, root);
             
@@ -153,8 +153,8 @@ public class ConfiguredByInjectionResolver implements
     }
     
     /* package */ BeanInfo addBean(ActiveDescriptor<?> descriptor, Object bean, String type, Object metadata) {
+        lock.lock();
         try {
-            lock.lock();
             BeanInfo retVal = new BeanInfo(type, descriptor.getName(), bean, metadata);
             beanMap.put(descriptor, retVal);
             return retVal;
@@ -165,8 +165,8 @@ public class ConfiguredByInjectionResolver implements
     
     /* package */ void removeBean(ActiveDescriptor<?> descriptor) {
         
+        lock.lock();
         try {
-            lock.lock();
             beanMap.remove(descriptor);
         } finally {
             lock.unlock();

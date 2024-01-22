@@ -94,8 +94,8 @@ public class WeakCARCacheImpl<K,V> implements WeakCARCache<K, V> {
             return value;
         }
         
+        lock.lock();
         try {
-            lock.lock();
             value = getValueFromT(key);
             if (value != null) {
                 hits.getAndIncrement();
@@ -217,8 +217,8 @@ public class WeakCARCacheImpl<K,V> implements WeakCARCache<K, V> {
      */
     @Override
     public int getKeySize() {
+        lock.lock();
         try {
-            lock.lock();
             return t1.size() + t2.size() + b1.size() + b2.size();
         } finally {
             lock.unlock();
@@ -230,8 +230,8 @@ public class WeakCARCacheImpl<K,V> implements WeakCARCache<K, V> {
      */
     @Override
     public int getValueSize() {
+        lock.lock();
         try {
-            lock.lock();
             return t1.size() + t2.size();
         } finally {
             lock.unlock();
@@ -243,8 +243,8 @@ public class WeakCARCacheImpl<K,V> implements WeakCARCache<K, V> {
      */
     @Override
     public void clear() {
+        lock.lock();
         try {
-            lock.lock();
             t1.clear();
             t2.clear();
             b1.clear();
@@ -280,8 +280,8 @@ public class WeakCARCacheImpl<K,V> implements WeakCARCache<K, V> {
      */
     @Override
     public boolean remove(K key) {
+        lock.lock();
         try {
-            lock.lock();
             if (t1.remove(key) == null) {
                 if (t2.remove(key) == null) {
                     if (!b1.remove(key)) {
@@ -305,8 +305,8 @@ public class WeakCARCacheImpl<K,V> implements WeakCARCache<K, V> {
      */
     @Override
     public void releaseMatching(CacheKeyFilter<K> filter) {
+        lock.lock();
         try {
-            lock.lock();
             if (filter == null) return;
             
             b2.releaseMatching(filter);
@@ -323,8 +323,8 @@ public class WeakCARCacheImpl<K,V> implements WeakCARCache<K, V> {
      */
     @Override
     public void clearStaleReferences() {
+        lock.lock();
         try {
-            lock.lock();
             t1.clearStaleReferences();
             t2.clearStaleReferences();
             b1.clearStaleReferences();

@@ -119,8 +119,8 @@ public class ClassLoaderProxy extends URLClassLoader {
      * {@link #findClass(String)} except the classloader punch-in hack.
      */
     /*package*/ Class findClassDirect(String name) throws ClassNotFoundException {
+        lock.lock();
         try {
-            lock.lock();
             Class c = findLoadedClass(name);
             if(c!=null) return c;
             try {

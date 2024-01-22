@@ -45,8 +45,8 @@ public class AnnotatedElementImpl implements AnnotatedElement {
     }
 
     void addAnnotation(AnnotationModel annotation) {
+        lock.lock();
         try {
-            lock.lock();
             annotations.add(annotation);
         } finally {
             lock.unlock();

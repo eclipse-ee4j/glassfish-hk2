@@ -35,8 +35,8 @@ public class ClassModelImpl extends ExtensibleTypeImpl<ClassModel> implements Cl
     }
     
     void addField(FieldModel field) {
+        lock.lock();
         try {
-            lock.lock();
             fields.add(field);
         } finally {
             lock.unlock();

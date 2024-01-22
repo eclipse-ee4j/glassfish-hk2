@@ -206,10 +206,10 @@ public class DescriptorImpl implements Descriptor, Externalizable {
 	
 	@Override
 	public Set<String> getAdvertisedContracts() {
+	    lock.lock();
 	    try {
-	        lock.lock();
-	            if (contracts == null) return EMPTY_CONTRACTS_SET;
-	                return Collections.unmodifiableSet(contracts);
+	       if (contracts == null) return EMPTY_CONTRACTS_SET;
+	           return Collections.unmodifiableSet(contracts);
 	    } finally {
 	        lock.unlock();
 	    }
@@ -220,8 +220,8 @@ public class DescriptorImpl implements Descriptor, Externalizable {
 	 * @param addMe The contract to add.  May not be null
 	 */
 	public void addAdvertisedContract(String addMe) {
+	    lock.lock();
             try {
-                lock.lock();
                 if (addMe == null) return;
                 if (contracts == null) contracts = new LinkedHashSet<String>();
                 contracts.add(addMe);
@@ -236,8 +236,8 @@ public class DescriptorImpl implements Descriptor, Externalizable {
 	 * @return true if removeMe was removed from the set
 	 */
 	public boolean removeAdvertisedContract(String removeMe) {
+	    lock.lock();
             try {
-                lock.lock();
                 if (removeMe == null || contracts == null) return false;
                 return contracts.remove(removeMe);
             } finally {
@@ -247,8 +247,8 @@ public class DescriptorImpl implements Descriptor, Externalizable {
 
 	@Override
 	public String getImplementation() {
+	    lock.lock();
             try {
-                lock.lock();
                 return implementation;
             } finally {
                 lock.unlock();
@@ -260,8 +260,8 @@ public class DescriptorImpl implements Descriptor, Externalizable {
 	 * @param implementation The implementation this descriptor should have
 	 */
     public void setImplementation(String implementation) {
+        lock.lock();
         try {
-            lock.lock();
             this.implementation = implementation;
         } finally {
             lock.unlock();
@@ -270,8 +270,8 @@ public class DescriptorImpl implements Descriptor, Externalizable {
 
 	@Override
 	public String getScope() {
+	    lock.lock();
 	    try {
-	        lock.lock();
 	        return scope;
 	    } finally {
 	        lock.unlock();
@@ -283,8 +283,8 @@ public class DescriptorImpl implements Descriptor, Externalizable {
 	 * @param scope The scope of this descriptor
 	 */
 	public void setScope(String scope) {
+	    lock.lock();
             try {
-                lock.lock();
                 this.scope = scope;
             } finally {
                 lock.unlock();
@@ -293,8 +293,8 @@ public class DescriptorImpl implements Descriptor, Externalizable {
 
 	@Override
 	public String getName() {
+	    lock.lock();
             try {
-                lock.lock();
                 return name;
             } finally {
                 lock.unlock();
@@ -306,8 +306,8 @@ public class DescriptorImpl implements Descriptor, Externalizable {
 	 * @param name The name for this descriptor
 	 */
 	public void setName(String name) {
+	    lock.lock();
             try {
-                lock.lock();
                 this.name = name;
             } finally {
                 lock.unlock();
@@ -316,8 +316,8 @@ public class DescriptorImpl implements Descriptor, Externalizable {
 
 	@Override
 	public Set<String> getQualifiers() {
+	    lock.lock();
             try {
-                lock.lock();
                 if (qualifiers == null) return EMPTY_QUALIFIER_SET;
                 return Collections.unmodifiableSet(qualifiers);
             } finally {
@@ -331,8 +331,8 @@ public class DescriptorImpl implements Descriptor, Externalizable {
 	 * @param addMe The fully qualified class name of the qualifier to add.  May not be null
 	 */
 	public void addQualifier(String addMe) {
+	    lock.lock();
             try {
-                lock.lock();
                 if (addMe == null) return;
                 if (qualifiers == null) qualifiers = new LinkedHashSet<String>();
                 qualifiers.add(addMe);
@@ -348,8 +348,8 @@ public class DescriptorImpl implements Descriptor, Externalizable {
 	 * @return true if the given qualifier was removed
 	 */
 	public boolean removeQualifier(String removeMe) {
+	    lock.lock();
             try {
-                lock.lock();
                 if (removeMe == null) return false;
                 if (qualifiers == null) return false;
                 return qualifiers.remove(removeMe);
@@ -360,8 +360,8 @@ public class DescriptorImpl implements Descriptor, Externalizable {
 
     @Override
     public DescriptorType getDescriptorType() {
+        lock.lock();
         try {
-            lock.lock();
             return descriptorType;
         } finally {
             lock.unlock();
@@ -373,8 +373,8 @@ public class DescriptorImpl implements Descriptor, Externalizable {
      * @param descriptorType The descriptor type.  May not be null
      */
     public void setDescriptorType(DescriptorType descriptorType) {
+        lock.lock();
         try {
-            lock.lock();
             if (descriptorType == null) throw new IllegalArgumentException();
             this.descriptorType = descriptorType;
         } finally {
@@ -384,8 +384,8 @@ public class DescriptorImpl implements Descriptor, Externalizable {
     
     @Override
     public DescriptorVisibility getDescriptorVisibility() {
+        lock.lock();
         try {
-            lock.lock();
             return descriptorVisibility;
         } finally {
             lock.unlock();
@@ -397,8 +397,8 @@ public class DescriptorImpl implements Descriptor, Externalizable {
      * @param descriptorVisibility The visibility this descriptor should have
      */
     public void setDescriptorVisibility(DescriptorVisibility descriptorVisibility) {
+        lock.lock();
         try {
-            lock.lock();
             if (descriptorVisibility == null) throw new IllegalArgumentException();
             this.descriptorVisibility = descriptorVisibility;
         } finally {
@@ -408,8 +408,8 @@ public class DescriptorImpl implements Descriptor, Externalizable {
 
 	@Override
 	public Map<String, List<String>> getMetadata() {
+	    lock.lock();
 	    try {
-	        lock.lock();
 	        if (metadatas == null) return EMPTY_METADATAS_MAP;
 	            return Collections.unmodifiableMap(metadatas);
 	    } finally {
@@ -427,8 +427,8 @@ public class DescriptorImpl implements Descriptor, Externalizable {
 	 * should have
 	 */
 	public void setMetadata(Map<String, List<String>> metadata) {
+	    lock.lock();
             try {
-                lock.lock();
                 if (metadatas == null) {
                     metadatas = new LinkedHashMap<String, List<String>>();
                 }
@@ -450,8 +450,8 @@ public class DescriptorImpl implements Descriptor, Externalizable {
 	 * to add to the metadata map
 	 */
 	public void addMetadata(Map<String, List<String>> metadata) {
+	    lock.lock();
             try {
-                lock.lock();
                 if (metadatas == null) metadatas = new LinkedHashMap<String, List<String>>();
                 
                 metadatas.putAll(ReflectionHelper.deepCopyMetadata(metadata));
@@ -468,8 +468,8 @@ public class DescriptorImpl implements Descriptor, Externalizable {
 	 * @param value The value to add.  May not be null
 	 */
 	public void addMetadata(String key, String value) {
+	    lock.lock();
             try {
-                lock.lock();
                 if (metadatas == null) metadatas = new LinkedHashMap<String, List<String>>();
                 ReflectionHelper.addMetadata(metadatas, key, value);
             } finally {
@@ -486,8 +486,8 @@ public class DescriptorImpl implements Descriptor, Externalizable {
 	 * @return true if the value was removed
 	 */
 	public boolean removeMetadata(String key, String value) {
+	    lock.lock();
             try {
-                lock.lock();
                 if (metadatas == null) return false;
                 return ReflectionHelper.removeMetadata(metadatas, key, value);
             } finally {
@@ -502,8 +502,8 @@ public class DescriptorImpl implements Descriptor, Externalizable {
 	 * @return true if any value was removed
 	 */
 	public boolean removeAllMetadata(String key) {
+	    lock.lock();
             try {
-                lock.lock();
                 if (metadatas == null) return false;
                 return ReflectionHelper.removeAllMetadata(metadatas, key);
             } finally {
@@ -515,8 +515,8 @@ public class DescriptorImpl implements Descriptor, Externalizable {
      * Removes all metadata values
      */
     public void clearMetadata() {
+        lock.lock();
         try {
-            lock.lock();
             metadatas = null;
         } finally {
             lock.unlock();
@@ -528,8 +528,8 @@ public class DescriptorImpl implements Descriptor, Externalizable {
      */
     @Override
     public HK2Loader getLoader() {
+        lock.lock();
         try {
-            lock.lock();
             return loader;
         } finally {
             lock.unlock();
@@ -541,8 +541,8 @@ public class DescriptorImpl implements Descriptor, Externalizable {
      * @param loader The loader to use with this descriptor
      */
     public void setLoader(HK2Loader loader) {
+        lock.lock();
         try {
-            lock.lock();
             this.loader = loader;
         } finally {
             lock.unlock();
@@ -551,8 +551,8 @@ public class DescriptorImpl implements Descriptor, Externalizable {
 
     @Override
     public int getRanking() {
+        lock.lock();
         try {
-            lock.lock();
             return rank;
         } finally {
             lock.unlock();
@@ -564,8 +564,8 @@ public class DescriptorImpl implements Descriptor, Externalizable {
      */
     @Override
     public int setRanking(int ranking) {
+        lock.lock();
         try {
-            lock.lock();
             int retVal = rank;
             rank = ranking;
             return retVal;
@@ -576,12 +576,12 @@ public class DescriptorImpl implements Descriptor, Externalizable {
 	
 	@Override
 	public Long getServiceId() {
-	        try {
-	            lock.lock();
-	            return id;
-	        } finally {
-	            lock.unlock();
-	        }
+	    lock.lock();
+	    try {
+	        return id;
+	    } finally {
+	        lock.unlock();
+	    }
 	}
 	
 	/**
@@ -589,8 +589,8 @@ public class DescriptorImpl implements Descriptor, Externalizable {
 	 * @param id the service id for this descriptor
 	 */
 	public void setServiceId(Long id) {
+	    lock.lock();
 	    try {
-	        lock.lock();
 	        this.id = id;
 	    } finally {
 	        lock.unlock();
@@ -649,8 +649,8 @@ public class DescriptorImpl implements Descriptor, Externalizable {
 	
 	@Override
 	public Long getLocatorId() {
+	    lock.lock();
 	    try {
-	        lock.lock();
 	        return locatorId;
 	    } finally {
 	        lock.unlock();
@@ -662,8 +662,8 @@ public class DescriptorImpl implements Descriptor, Externalizable {
 	 * @param locatorId the locator id for this descriptor
 	 */
 	public void setLocatorId(Long locatorId) {
+	    lock.lock();
             try {
-                lock.lock();
                 this.locatorId = locatorId;
             } finally {
                 lock.unlock();
@@ -882,15 +882,15 @@ public class DescriptorImpl implements Descriptor, Externalizable {
 	}
 	
 	public String toString() {
+	    lock.lock();
 	    try {
-	        lock.lock();
-    	            StringBuffer sb = new StringBuffer("Descriptor(");
+	        StringBuffer sb = new StringBuffer("Descriptor(");
     	        
-    	            pretty(sb, this);
+	        pretty(sb, this);
     	        
-    	            sb.append(")");
+	        sb.append(")");
     	        
-    	            return sb.toString();
+	        return sb.toString();
 	    } finally {
 	        lock.unlock();
 	    }

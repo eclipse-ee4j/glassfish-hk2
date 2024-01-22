@@ -67,8 +67,8 @@ public class OperationHandleImpl<T extends Annotation> implements OperationHandl
      */
     @Override
     public OperationState getState() {
+        operationLock.lock();
         try {
-            operationLock.lock();
             return state;
         } finally {
             operationLock.unlock();
@@ -83,8 +83,8 @@ public class OperationHandleImpl<T extends Annotation> implements OperationHandl
     }
     
     private void checkState() {
+        operationLock.lock();
         try {
-            operationLock.lock();
             if (OperationState.CLOSED.equals(state)) {
                 throw new IllegalStateException(this + " is closed");
             }
@@ -98,8 +98,8 @@ public class OperationHandleImpl<T extends Annotation> implements OperationHandl
      */
     @Override
     public Set<Long> getActiveThreads() {
+        operationLock.lock();
         try {
-            operationLock.lock();
             return Collections.unmodifiableSet(activeThreads);
         } finally {
             operationLock.unlock();
@@ -111,8 +111,8 @@ public class OperationHandleImpl<T extends Annotation> implements OperationHandl
      */
     @Override
     public void suspend(long threadId) {
+        operationLock.lock();
         try {
-            operationLock.lock();
             if (OperationState.CLOSED.equals(state)) return;
             
             parent.disassociateThread(threadId, this);
@@ -141,8 +141,8 @@ public class OperationHandleImpl<T extends Annotation> implements OperationHandl
      */
     @Override
     public void resume(long threadId) throws IllegalStateException {
+        operationLock.lock();
         try {
-            operationLock.lock();
             checkState();
             
             if (activeThreads.contains(threadId)) return;
@@ -181,8 +181,8 @@ public class OperationHandleImpl<T extends Annotation> implements OperationHandl
         // outside the lock
         parent.disposeAllOperationServices(this);
         
+        operationLock.lock();
         try {
-            operationLock.lock();
             for (long threadId : activeThreads) {
                 parent.disassociateThread(threadId, this);
             }
@@ -207,8 +207,8 @@ public class OperationHandleImpl<T extends Annotation> implements OperationHandl
      */
     @Override
     public Object getOperationData() {
+        lock.lock();
         try {
-            lock.lock();
             return userData;
         } finally {
             lock.unlock();
@@ -220,8 +220,8 @@ public class OperationHandleImpl<T extends Annotation> implements OperationHandl
      */
     @Override
     public void setOperationData(Object data) {
+        lock.lock();
         try {
-            lock.lock();
             userData = data;
         } finally {
             lock.unlock();

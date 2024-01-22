@@ -69,8 +69,8 @@ public class WriteableTypeImpl implements WriteableType {
      */
     @Override
     public Map<String, Instance> getInstances() {
+        lock.lock();
         try {
-            lock.lock();
             return Collections.unmodifiableMap(beanMap);
         } finally {
             lock.unlock();
@@ -82,8 +82,8 @@ public class WriteableTypeImpl implements WriteableType {
      */
     @Override
     public Instance getInstance(String key) {
+        lock.lock();
         try {
-            lock.lock();
             return beanMap.get(key);
         } finally {
             lock.unlock();
@@ -95,8 +95,8 @@ public class WriteableTypeImpl implements WriteableType {
      */
     @Override
     public Instance addInstance(String key, Object bean) {
+        lock.lock();
         try {
-            lock.lock();
             return addInstance(key, bean, null);
         } finally {
             lock.unlock();
@@ -108,8 +108,8 @@ public class WriteableTypeImpl implements WriteableType {
      */
     @Override
     public Instance addInstance(String key, Object bean, Object metadata) {
+        lock.lock();
         try {
-            lock.lock();
             if (key == null || bean == null) throw new IllegalArgumentException();
             
             InstanceImpl ii = new InstanceImpl(bean, metadata);
@@ -134,8 +134,8 @@ public class WriteableTypeImpl implements WriteableType {
      */
     @Override
     public Instance removeInstance(String key) {
+        lock.lock();
         try {
-            lock.lock();
             if (key == null) throw new IllegalArgumentException();
             
             Instance removedValue = beanMap.remove(key);
@@ -160,8 +160,8 @@ public class WriteableTypeImpl implements WriteableType {
     @Override
     public PropertyChangeEvent[] modifyInstance(String key, Object newBean,
             PropertyChangeEvent... propChanges) {
+        lock.lock();
         try {
-            lock.lock();
             if (key == null || newBean == null) throw new IllegalArgumentException();
             
             Instance oldInstance = beanMap.get(key);
@@ -204,8 +204,8 @@ public class WriteableTypeImpl implements WriteableType {
      */
     @Override
     public Object getMetadata() {
+        lock.lock();
         try {
-            lock.lock();
             return metadata;
         } finally {
             lock.unlock();
@@ -217,8 +217,8 @@ public class WriteableTypeImpl implements WriteableType {
      */
     @Override
     public void setMetadata(Object metadata) {
+        lock.lock();
         try {
-            lock.lock();
             this.metadata = metadata;
         } finally {
             lock.unlock();

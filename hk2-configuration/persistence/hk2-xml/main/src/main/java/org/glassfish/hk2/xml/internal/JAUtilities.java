@@ -146,8 +146,8 @@ public class JAUtilities {
     }
     
     public void convertRootAndLeaves(Class<?> root, boolean mustConvertAll) {
+        lock.lock();
         try {
-            lock.lock();
             long currentTime = 0L;
             if (DEBUG_GENERATION_TIMING) {
                 computer.numGenerated = 0;

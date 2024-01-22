@@ -59,8 +59,8 @@ public class AnnotationMirrorAltAnnotationImpl implements AltAnnotation {
      */
     @Override
     public String annotationType() {
+        lock.lock();
         try {
-            lock.lock();
             if (type != null) return type;
             
             DeclaredType dt = annotation.getAnnotationType();
@@ -95,8 +95,8 @@ public class AnnotationMirrorAltAnnotationImpl implements AltAnnotation {
     
     @Override
     public String[] getStringArrayValue(String methodName) {
+        lock.lock();
         try {
-            lock.lock();
             getAnnotationValues();
             
             Object retVal = values.get(methodName);
@@ -129,8 +129,8 @@ public class AnnotationMirrorAltAnnotationImpl implements AltAnnotation {
      */
     @Override
     public Map<String, Object> getAnnotationValues() {
+        lock.lock();
         try {
-            lock.lock();
             if (values != null) return values;
             
             Map<? extends ExecutableElement, ? extends AnnotationValue> rawValues =

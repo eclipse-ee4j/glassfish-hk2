@@ -47,8 +47,8 @@ public class ClassModelTestsUtils {
 
     public static Types getTypes() throws IOException, InterruptedException {
 
+        lock.lock();
         try {
-            lock.lock();
             if (types == null) {
                 File userDir = new File(System.getProperty("user.dir"));
                 File modelDir = new File(userDir, "target" + File.separator + "test-classes");

@@ -404,8 +404,8 @@ public class PBufParser implements XmlServiceParser {
         String protoName = getSimpleName(originalInterface);
         
         Descriptors.Descriptor descriptor;
+        lockProtos.lock();
         try {
-            lockProtos.lock();
             descriptor = allProtos.get(originalAsClass);
         } finally {
             lockProtos.unlock();
@@ -430,8 +430,8 @@ public class PBufParser implements XmlServiceParser {
         String protoName = getSimpleName(originalInterface);
         
         Descriptors.Descriptor descriptor;
+        lockProtos.lock();
         try {
-            lockProtos.lock();
             descriptor = allProtos.get(originalAsClass);
         } finally {
             lockProtos.unlock();
@@ -524,8 +524,8 @@ public class PBufParser implements XmlServiceParser {
     }
     
     private void convertAllModels(ModelImpl model, Set<Descriptors.FileDescriptor> protoFiles) throws Exception {
+        lockProtos.lock();
         try {
-            lockProtos.lock();
             Class<?> modelClass = model.getOriginalInterfaceAsClass();
             Descriptors.Descriptor dd = allProtos.get(modelClass);
             if (dd != null) {
@@ -836,8 +836,8 @@ public class PBufParser implements XmlServiceParser {
     
     private String convertEnumToDescriptor(ChildDataModel childDataModel,
             Set<Descriptors.FileDescriptor> knownFiles) throws Exception {
+        lockEnums.lock();
         try {
-            lockEnums.lock();
             Class<?> expectedType = childDataModel.getChildTypeAsClass();
             if (allEnums.containsKey(expectedType)) {
                 return "." + expectedType.getName();
@@ -897,8 +897,8 @@ public class PBufParser implements XmlServiceParser {
         
         if (expectedType.isEnum()) {
             Descriptors.EnumDescriptor enumDescriptor;
+            lockEnums.lock();
             try {
-                lockEnums.lock();
                 enumDescriptor = allEnums.get(expectedType);
             } finally {
                 lockEnums.unlock();
@@ -941,8 +941,8 @@ public class PBufParser implements XmlServiceParser {
         
         if (expectedType.isEnum()) {
             Descriptors.EnumDescriptor enumDescriptor;
+            lockEnums.lock();
             try {
-                lockEnums.lock();
                 enumDescriptor = allEnums.get(expectedType);
             } finally {
                 lockEnums.unlock();

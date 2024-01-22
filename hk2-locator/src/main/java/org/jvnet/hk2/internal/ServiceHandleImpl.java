@@ -69,8 +69,8 @@ public class ServiceHandleImpl<T> implements ServiceHandle<T> {
     }
     
     private Injectee getLastInjectee() {
+        lock.lock();
         try {
-            lock.lock();
             return (injectees.isEmpty()) ? null : injectees.getLast() ;
         } finally {
             lock.unlock();
@@ -85,8 +85,8 @@ public class ServiceHandleImpl<T> implements ServiceHandle<T> {
             }
         }
         
+        lock.lock();
         try {
-            lock.lock();
             if (serviceDestroyed) throw new IllegalStateException("Service has been disposed");
             
             if (serviceSet) return service;
@@ -143,8 +143,8 @@ public class ServiceHandleImpl<T> implements ServiceHandle<T> {
         if (!root.isReified()) return;
         
         List<ServiceHandleImpl<?>> localSubHandles;
+        lock.lock();
         try {
-            lock.lock();
             serviceActive = isActive();
             
             if (serviceDestroyed) return;
@@ -185,8 +185,8 @@ public class ServiceHandleImpl<T> implements ServiceHandle<T> {
     
     @Override
     public void setServiceData(Object serviceData) {
+        lock.lock();
         try {
-            lock.lock();
             this.serviceData = serviceData;
         } finally {
             lock.unlock();
@@ -196,8 +196,8 @@ public class ServiceHandleImpl<T> implements ServiceHandle<T> {
 
     @Override
     public Object getServiceData() {
+        lock.lock();
         try {
-            lock.lock();
             return serviceData;
         } finally {
             lock.unlock();
@@ -206,8 +206,8 @@ public class ServiceHandleImpl<T> implements ServiceHandle<T> {
     
     @Override
     public List<ServiceHandle<?>> getSubHandles() {
+        lock.lock();
         try {
-            lock.lock();
             return new ArrayList<ServiceHandle<?>>(subHandles);
         } finally {
             lock.unlock();
@@ -215,8 +215,8 @@ public class ServiceHandleImpl<T> implements ServiceHandle<T> {
     }
     
     public void pushInjectee(Injectee push) {
+        lock.lock();
         try {
-            lock.lock();
             injectees.add(push);
         } finally {
             lock.unlock();
@@ -224,8 +224,8 @@ public class ServiceHandleImpl<T> implements ServiceHandle<T> {
     }
     
     public void popInjectee() {
+        lock.lock();
         try {
-            lock.lock();
             injectees.removeLast();
         } finally {
             lock.unlock();
@@ -238,8 +238,8 @@ public class ServiceHandleImpl<T> implements ServiceHandle<T> {
      * @param subHandle A handle to add for proper destruction
      */
     public void addSubHandle(ServiceHandleImpl<?> subHandle) {
+        lock.lock();
         try {
-            lock.lock();
             subHandles.add(subHandle);
         } finally {
             lock.unlock();

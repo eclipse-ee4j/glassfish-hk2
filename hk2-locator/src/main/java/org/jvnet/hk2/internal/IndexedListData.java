@@ -39,8 +39,8 @@ public class IndexedListData {
     public Collection<SystemDescriptor<?>> getSortedList() {
         if (sorted) return unsortedList;
         
+        lock.lock();
         try {
-            lock.lock();
             if (sorted) return unsortedList;
         
             if (unsortedList.size() <= 1) {
@@ -58,8 +58,8 @@ public class IndexedListData {
     }
     
     public void addDescriptor(SystemDescriptor<?> descriptor) {
+        lock.lock();
         try {
-            lock.lock();
             unsortedList.add(descriptor);
             
             if (unsortedList.size() > 1) {
@@ -76,8 +76,8 @@ public class IndexedListData {
     }
     
     public void removeDescriptor(SystemDescriptor<?> descriptor) {
+        lock.lock();
         try {
-            lock.lock();
             ListIterator<SystemDescriptor<?>> iterator = unsortedList.listIterator();
             while (iterator.hasNext()) {
                 SystemDescriptor<?> candidate = iterator.next();
@@ -101,8 +101,8 @@ public class IndexedListData {
     }
     
     public boolean isEmpty() {
+        lock.lock();
         try {
-            lock.lock();
             return unsortedList.isEmpty();
         } finally {
             lock.unlock();
@@ -113,8 +113,8 @@ public class IndexedListData {
      * Called by a SystemDescriptor when its ranking has changed
      */
     public void unSort() {
+        lock.lock();
         try {
-            lock.lock();
             if (unsortedList.size() > 1) {
                 sorted = false;
             }
@@ -124,8 +124,8 @@ public class IndexedListData {
     }
     
     public void clear() {
+        lock.lock();
         try {
-            lock.lock();
             for (SystemDescriptor<?> descriptor : unsortedList) {
                 descriptor.removeList(this);
             }
@@ -137,8 +137,8 @@ public class IndexedListData {
     }
     
     public int size() {
+        lock.lock();
         try {
-            lock.lock();
             return unsortedList.size();
         } finally {
             lock.unlock();

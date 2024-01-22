@@ -60,8 +60,8 @@ final class ModuleClassLoader extends ClassLoaderProxy {
 
 
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+        lock.lock();
         try {
-            lock.lock();
             initialize(name);
             return super.loadClass(name, resolve);
         } finally {
@@ -138,8 +138,8 @@ final class ModuleClassLoader extends ClassLoaderProxy {
      */
     private void initialize(String name) {
         if (initialized)    return;
+        lock.lock();
         try {
-            lock.lock();
             if(!initialized) {
                 // if we are preparing, we should just not initiate initialization.
                 if (module.getState().equals(ModuleState.PREPARING)) {

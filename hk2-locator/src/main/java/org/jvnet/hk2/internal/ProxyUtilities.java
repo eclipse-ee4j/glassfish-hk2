@@ -92,8 +92,8 @@ public class ProxyUtilities {
         });
         
         DelegatingClassLoader initDelegatingLoader;
+        lock.lock();
         try {
-            lock.lock();
             initDelegatingLoader = superClassToDelegator.get(loader);
             if (initDelegatingLoader == null) {
                 initDelegatingLoader = AccessController.doPrivileged(new PrivilegedAction<DelegatingClassLoader>() {
@@ -135,8 +135,8 @@ public class ProxyUtilities {
             @SuppressWarnings("unchecked")
             @Override
             public T run() {
+                proxyCreationLock.lock();
                 try {
-                    proxyCreationLock.lock();
                     ProxyFactory.ClassLoaderProvider originalProvider = ProxyFactory.classLoaderProvider;
                     ProxyFactory.classLoaderProvider = new ProxyFactory.ClassLoaderProvider() {
                         
@@ -225,8 +225,8 @@ public class ProxyUtilities {
     }
     
     public void releaseCache() {
+        lock.lock();
         try {
-            lock.lock();
             superClassToDelegator.clear();
         } finally {
             lock.unlock();

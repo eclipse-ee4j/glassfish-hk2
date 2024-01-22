@@ -58,8 +58,8 @@ public class BankingServiceImpl implements BankingService {
     private final Map<String, OperationHandle<WithdrawalScope>> withdrawers = new HashMap<String, OperationHandle<WithdrawalScope>>();
     
     private OperationHandle<DepositScope> getDepositBankHandle(String bank) {
+        lock.lock();
         try {
-            lock.lock();
             OperationHandle<DepositScope> depositor = depositors.get(bank);
             if (depositor == null) {
                 // create and start it
@@ -74,8 +74,8 @@ public class BankingServiceImpl implements BankingService {
     }
     
     private OperationHandle<WithdrawalScope> getWithdrawerBankHandle(String bank) {
+        lock.lock();
         try {
-            lock.lock();
             OperationHandle<WithdrawalScope> withdrawer = withdrawers.get(bank);
             if (withdrawer == null) {
                 // create and start it
@@ -95,8 +95,8 @@ public class BankingServiceImpl implements BankingService {
     @Override
     public int transferFunds(String withdrawlBank, long withdrawlAccount,
             String depositorBank, long depositAccount, int funds) {
+        lock.lock();
         try {
-            lock.lock();
             OperationHandle<DepositScope> depositor = getDepositBankHandle(depositorBank);
             OperationHandle<WithdrawalScope> withdrawer = getWithdrawerBankHandle(withdrawlBank);
             

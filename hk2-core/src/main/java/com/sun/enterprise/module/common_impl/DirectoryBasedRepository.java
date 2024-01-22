@@ -78,8 +78,8 @@ public class DirectoryBasedRepository extends AbstractRepositoryImpl {
 
     @Override
     public boolean addListener(RepositoryChangeListener listener) {
+        lock.lock();
         try {
-            lock.lock();
             final boolean returnValue = super.addListener(listener);
             if (returnValue && timer==null) {
                 initializeSubDirectories();
@@ -89,8 +89,8 @@ public class DirectoryBasedRepository extends AbstractRepositoryImpl {
                     private final ReentrantLock lock = new ReentrantLock();
                     long lastModified = repository.lastModified();
                     public void run() {
+                        lock.lock();
                         try {
-                            lock.lock();
                             if (lastModified<repository.lastModified()) {
                                 lastModified = repository.lastModified();
                                 // something has changed, look into this...
@@ -156,8 +156,8 @@ public class DirectoryBasedRepository extends AbstractRepositoryImpl {
     }
 
     private void directoryChanged() {
+        lock.lock();
         try {
-            lock.lock();
             // not the most efficient implementation, could be revisited later
             HashMap<ModuleId, ModuleDefinition> newModuleDefs =
                     new HashMap<ModuleId, ModuleDefinition>();

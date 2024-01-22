@@ -117,8 +117,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
         UpAllTheWay localUpAllTheWay;
         DownAllTheWay localDownAllTheWay;
         
+        lock.lock();
         try {
-            lock.lock();
             localUpAllTheWay = upAllTheWay;
             localDownAllTheWay = downAllTheWay;
         } finally {
@@ -153,8 +153,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
     
     @Override
     public boolean isUp() {
+        lock.lock();
         try {
-            lock.lock();
             if (upAllTheWay != null) return true;
             return false;
         } finally {
@@ -164,8 +164,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
     
     @Override
     public boolean isDown() {
+        lock.lock();
         try {
-            lock.lock();
             if (downAllTheWay != null) return true;
             return false;
         } finally {
@@ -209,8 +209,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
      */
     @Override
     public boolean isCancelled() {
+        lock.lock();
         try {
-            lock.lock();
             return cancelled;
         } finally {
             lock.unlock();
@@ -222,8 +222,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
      */
     @Override
     public boolean isDone() {
+        lock.lock();
         try {
-            lock.lock();
             return done;
         } finally {
             lock.unlock();
@@ -232,8 +232,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
     
     @Override
     public int getProposedLevel() {
+        lock.lock();
         try {
-            lock.lock();
             return proposedLevel;
         } finally {
             lock.unlock();
@@ -244,8 +244,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
     public int changeProposedLevel(int proposedLevel) {
         int oldProposedVal;
         boolean needGo = false;
+        lock.lock();
         try {
-            lock.lock();
             if (done) throw new IllegalStateException("Cannot change the proposed level of a future that is already complete");
             if (!inCallback) throw new IllegalStateException(
                     "changeProposedLevel must only be called from inside a RunLevelListener callback method");
@@ -302,8 +302,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
     }
     
     private void setInCallback(boolean inCallback) {
+        lock.lock();
         try {
-            lock.lock();
             this.inCallback = inCallback;
         } finally {
             lock.unlock();
@@ -330,8 +330,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
     public Object get(long timeout, TimeUnit unit) throws InterruptedException,
             ExecutionException, TimeoutException {
         AllTheWay allTheWay = null;
+        lock.lock();
         try {
-            lock.lock();
             if (upAllTheWay != null) {
                 allTheWay = upAllTheWay;
             }
@@ -349,8 +349,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
             try {
                 result = allTheWay.waitForResult(timeout, unit);
                 if (result == null) {
+                    lock.lock();
                     try {
-                        lock.lock();
                         if (upAllTheWay != null) {
                             allTheWay = upAllTheWay;
                         }
@@ -368,8 +368,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                     throw new TimeoutException();
                 }
                 
+                lock.lock();
                 try {
-                    lock.lock();
                     done = true;
                 } finally {
                     lock.unlock();
@@ -378,8 +378,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                 return null;
             }
             catch (MultiException me) {
+                lock.lock();
                 try {
-                    lock.lock();
                     done = true;
                 } finally {
                     lock.unlock();
@@ -522,8 +522,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
         }
         
         private void cancel() {
+            lock.lock();
             try {
-                lock.lock();
                 cancelled = true;
                 asyncContext.levelCancelled();
                 currentJob.cancel();
@@ -536,8 +536,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
         public Boolean waitForResult(long timeout, TimeUnit unit) throws InterruptedException, MultiException {
             long totalWaitTimeMillis = TimeUnit.MILLISECONDS.convert(timeout, unit);
             
+            lock.lock();
             try {
-                lock.lock();
                 while (totalWaitTimeMillis > 0L && !done && !repurposed) {
                     long startTime = System.currentTimeMillis();
                     
@@ -560,8 +560,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
         }
         
         private void setGoingTo(int goingTo, boolean repurposed) {
+            lock.lock();
             try {
-                lock.lock();
                 this.goingTo = goingTo;
                 if (repurposed) {
                     this.repurposed = true;
@@ -573,8 +573,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
         
         private void go() {
             if (useThreads) {
+                lock.lock();
                 try {
-                    lock.lock();
                     workingOn++;
                     if (workingOn > goingTo) {
                         if (!repurposed) {
@@ -604,8 +604,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                 
             workingOn++;
             while (workingOn <= goingTo) {
+                lock.lock();
                 try {
-                    lock.lock();
                     if (done) break;
                     
                     currentJob = new UpOneLevel(workingOn,
@@ -623,9 +623,9 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                 
                 workingOn++;
             }
-             
+            
+            lock.lock();
             try {
-                lock.lock();
                 if (done) return;
                 
                 if (!repurposed) {
@@ -648,8 +648,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                 
                 downer.run();
                 
+                lock.lock();
                 try {
-                    lock.lock();
                     done = true;
                     this.exception = accumulatedExceptions;
                     condition.signalAll();;
@@ -663,8 +663,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
             }
             
             DownAllTheWay downer = null;
+            lock.lock();
             try {
-                lock.lock();
                 if (cancelled) {
                     downer = new DownAllTheWay(workingOn - 1, null, null);
                 }
@@ -677,8 +677,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                 
                 invokeOnCancelled(future, workingOn - 1, listeners);
                 
+                lock.lock();
                 try {
-                    lock.lock();
                     done = true;
                     condition.signalAll();
                         
@@ -735,8 +735,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
         }
         
         private void cancel() {
+            lock.lock();
             try {
-                lock.lock();
                 cancelled = true;
                 hardCanceller = new CancelTimer(this);
                 timer.schedule(hardCanceller, cancelTimeout);
@@ -746,18 +746,18 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
         }
         
         private void hardCancel() {
+            asyncContext.lock.lock();
             try {
-                asyncContext.lock.lock();
+                lock.lock();
                 try {
-                    lock.lock();
                     hardCancelled = true;
                 } finally {
                     lock.unlock();
                 }
                 
                 HashSet<ServiceHandle<?>> poisonMe;
+                queueLock.lock();
                 try {
-                    queueLock.lock();
                     poisonMe = new HashSet<ServiceHandle<?>>(outstandingHandles);
                     outstandingHandles.clear();
                 } finally {
@@ -848,8 +848,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
         }
         
         private void fail(Throwable th, Descriptor descriptor) {
+            lock.lock();
             try {
-                lock.lock();
                 if (hardCancelled) return;
                 
                 ErrorInformation info = invokeOnError(currentTaskFuture, th,
@@ -871,8 +871,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
         
         private void jobComplete() {
             boolean complete = false;
+            lock.lock();
             try {
-                lock.lock();
                 if (hardCancelled) return;
                 
                 completedJobs++;
@@ -957,8 +957,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
             List<ActiveDescriptor<?>> localQueue;
             ReentrantLock localQueueLock;
             Condition localQueueCondition;
+            lock.lock();
             try {
-                lock.lock();
                 if (cancelled) return; // idempotent
                 cancelled = true;
                 
@@ -970,9 +970,9 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
             } finally {
                 lock.unlock();
             }
-                
+            
+            queueLock.lock();
             try {
-                queueLock.lock();
                 if (localQueue.isEmpty()) return;
                 
                 hardCancelDownTimer = new HardCancelDownTimer(this, localQueue, localQueueLock, localQueueCondition);
@@ -983,8 +983,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
         }
         
         private void setGoingTo(int goingTo, boolean repurposed) {
+            lock.lock();
             try {
-                lock.lock();
                 this.goingTo = goingTo;
                 if (repurposed) {
                     this.repurposed = true;
@@ -995,8 +995,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
         }
         
         private int getGoingTo() {
+            lock.lock();
             try {
-                lock.lock();
                 return goingTo;
             } finally {
                 lock.unlock();
@@ -1008,8 +1008,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
             while (workingOn > getGoingTo()) {
                 boolean runOnCancelled;
                 boolean localCancelled;
+                lock.lock();
                 try {
-                    lock.lock();
                     localCancelled = cancelled;
                     runOnCancelled = cancelled && (future != null);
                 } finally {
@@ -1021,8 +1021,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                     invokeOnCancelled(future, workingOn, listeners);
                 }
                 
+                lock.lock();
                 try {
-                    lock.lock();
                     if (localCancelled) {
                         asyncContext.jobDone();
                         
@@ -1048,8 +1048,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                 List<ActiveDescriptor<?>> localQueue = asyncContext.getOrderedListOfServicesAtLevel(workingOn);
                 ReentrantLock localQueueLock = new ReentrantLock();
                 Condition localQueueCondition = localQueueLock.newCondition();
+                lock.lock();
                 try {
-                    lock.lock();
                     queue = localQueue;
                     queueLock = localQueueLock;
                     queueCondition = localQueueCondition;
@@ -1058,8 +1058,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                 }
                 
                 ErrorInformation errorInfo = null;
+                queueLock.lock();
                 try {
-                    queueLock.lock();
                     for (;;) {
                         DownQueueRunner currentRunner = new DownQueueRunner(queueLock, queueCondition, queue, this, locator);
                         executor.execute(currentRunner);
@@ -1103,8 +1103,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                     queueLock.unlock();
                 }
                 
+                lock.lock();
                 try {
-                    lock.lock();
                     queue = Collections.emptyList();
                     queueLock = new ReentrantLock();
                     queueCondition = queueLock.newCondition();
@@ -1113,8 +1113,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                 }
                 
                 if (errorInfo != null && ErrorInformation.ErrorAction.GO_TO_NEXT_LOWER_LEVEL_AND_STOP.equals(errorInfo.getAction())) {
+                    lock.lock();
                     try {
-                        lock.lock();
                         goingTo = workingOn;
                     } finally {
                         lock.unlock();
@@ -1134,8 +1134,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                 return;
             }
             
+            lock.lock();
             try {
-                lock.lock();
                 if (!repurposed) {
                     asyncContext.jobDone();
                 
@@ -1153,8 +1153,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
         public Boolean waitForResult(long timeout, TimeUnit unit) throws InterruptedException, MultiException {
             long totalWaitTimeMillis = TimeUnit.MILLISECONDS.convert(timeout, unit);
             
+            lock.lock();
             try {
-                lock.lock();
                 while (totalWaitTimeMillis > 0L && !done && !repurposed) {
                     long startTime = System.currentTimeMillis();
                     
@@ -1192,8 +1192,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
 
         @Override
         public void run() {
+            localQueueLock.lock();
             try {
-                localQueueLock.lock();
                 int currentSize = queue.size();
                 if (currentSize == 0) return;
                 
@@ -1243,8 +1243,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
             for (;;) {
                 ServiceHandle<?> job;
                 boolean block;
+                queueLock.lock();
                 try {
-                    queueLock.lock();
                     if (runningHandle != null) parent.jobFinished(runningHandle);
                     
                     if (wouldHaveBlocked != null) {
@@ -1348,8 +1348,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
             boolean completed = true;
             try {
                 boolean ok;
+                parentLock.lock();
                 try {
-                    parentLock.lock();
                     ok = (!parent.cancelled && (parent.accumulatedExceptions == null));
                 } finally {
                     parentLock.unlock();
@@ -1411,8 +1411,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
         public void run() {
             for (;;) {
                 ActiveDescriptor<?> job = null;
+                queueLock.lock();
                 try {
-                    queueLock.lock();
                     if (caput) return;
                     
                     if (queue.isEmpty()) {
@@ -1428,8 +1428,8 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                     locator.getServiceHandle(job).destroy();
                 }
                 catch (Throwable th) {
+                    queueLock.lock();
                     try {
-                        queueLock.lock();
                         parent.lastError = th;
                         parent.lastErrorDescriptor = job;
                         queueCondition.signal();

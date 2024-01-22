@@ -47,8 +47,8 @@ public class InstanceImpl implements Instance {
      */
     @Override
     public Object getMetadata() {
+        lock.lock();
         try {
-            lock.lock();
             return metadata;
         } finally {
             lock.unlock();

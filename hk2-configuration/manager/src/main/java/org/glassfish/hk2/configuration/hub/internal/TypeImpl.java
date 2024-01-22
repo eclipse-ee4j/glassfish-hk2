@@ -77,8 +77,8 @@ public class TypeImpl implements Type {
      */
     @Override
     public Object getMetadata() {
+        lock.lock();
         try {
-            lock.lock();
             return metadata;
         } finally {
             lock.unlock();
@@ -90,8 +90,8 @@ public class TypeImpl implements Type {
      */
     @Override
     public void setMetadata(Object metadata) {
+        lock.lock();
         try {
-            lock.lock();
             this.metadata = metadata;
         } finally {
             lock.unlock();

@@ -193,8 +193,8 @@ public class ServiceLocatorImpl implements ServiceLocator {
     private ServiceLocatorState state = ServiceLocatorState.RUNNING;
 
     private static long getAndIncrementLocatorId() {
+       sLock.lock();
        try {
-           sLock.lock();
             return currentLocatorId++;
         } finally {
             sLock.unlock();
@@ -879,8 +879,8 @@ public class ServiceLocatorImpl implements ServiceLocator {
         try {
             if (state.equals(ServiceLocatorState.SHUTDOWN)) return;
 
+            childrenLock.lock();
             try {
-                childrenLock.lock();
                 for (Iterator<ServiceLocatorImpl> childIterator = children.keySet().iterator(); childIterator.hasNext();) {
                     ServiceLocatorImpl child = childIterator.next();
                     childIterator.remove();
@@ -945,8 +945,8 @@ public class ServiceLocatorImpl implements ServiceLocator {
             contextCache.clear();
             perLocatorUtilities.shutdown();
             
+            childrenLock.lock();
             try {
-                childrenLock.lock();
                 children.clear();
             } finally {
                 childrenLock.unlock();
@@ -1956,8 +1956,8 @@ public class ServiceLocatorImpl implements ServiceLocator {
             }
         }
 
+        allResolversLock.lock();
         try {
-            allResolversLock.lock();
             allResolvers.clear();
             allResolvers.putAll(newResolvers);
         } finally {
@@ -2001,8 +2001,8 @@ public class ServiceLocatorImpl implements ServiceLocator {
     private void reupClassAnalyzers() {
         List<ServiceHandle<?>> allAnalyzers = protectedGetAllServiceHandles(ClassAnalyzer.class);
 
+        classAnalyzerLock.lock();
         try {
-            classAnalyzerLock.lock();
             classAnalyzers.clear();
 
             for (ServiceHandle<?> handle : allAnalyzers) {
@@ -2088,8 +2088,8 @@ public class ServiceLocatorImpl implements ServiceLocator {
 
     private void getAllChildren(LinkedList<ServiceLocatorImpl> allMyChildren) {
         LinkedList<ServiceLocatorImpl> addMe;
+        childrenLock.lock();
         try {
-            childrenLock.lock();
             addMe = new LinkedList<ServiceLocatorImpl>(children.keySet());
         } finally {
             childrenLock.unlock();
@@ -2389,8 +2389,8 @@ public class ServiceLocatorImpl implements ServiceLocator {
     }
 
     private void addChild(ServiceLocatorImpl child) {
+        childrenLock.lock();
         try {
-            childrenLock.lock();
             children.put(child, null);
         } finally {
             childrenLock.unlock();
@@ -2398,8 +2398,8 @@ public class ServiceLocatorImpl implements ServiceLocator {
     }
 
     private void removeChild(ServiceLocatorImpl child) {
+        childrenLock.lock();
         try {
-            childrenLock.lock();
             children.remove(child);
         } finally {
             childrenLock.unlock();
@@ -2425,8 +2425,8 @@ public class ServiceLocatorImpl implements ServiceLocator {
 
     @Override
     public String getDefaultClassAnalyzerName() {
+        classAnalyzerLock.lock();
         try {
-            classAnalyzerLock.lock();
             return defaultClassAnalyzer;
         } finally {
             classAnalyzerLock.unlock();
@@ -2435,8 +2435,8 @@ public class ServiceLocatorImpl implements ServiceLocator {
 
     @Override
     public void setDefaultClassAnalyzerName(String defaultClassAnalyzer) {
+        classAnalyzerLock.lock();
         try {
-            classAnalyzerLock.lock();
             if (defaultClassAnalyzer == null) {
                 this.defaultClassAnalyzer = ClassAnalyzer.DEFAULT_IMPLEMENTATION_NAME;
             }
@@ -2473,8 +2473,8 @@ public class ServiceLocatorImpl implements ServiceLocator {
 
     /* package */ ClassAnalyzer getAnalyzer(String name, Collector collector) {
         ClassAnalyzer retVal;
+        classAnalyzerLock.lock();
         try {
-            classAnalyzerLock.lock();
             if (name == null) {
                 name = defaultClassAnalyzer ;
             }
