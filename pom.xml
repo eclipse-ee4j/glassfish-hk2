@@ -788,6 +788,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <java.util.logging.config.file>logging.properties</java.util.logging.config.file>
+                        <net.bytebuddy.experimental>true</net.bytebuddy.experimental>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
