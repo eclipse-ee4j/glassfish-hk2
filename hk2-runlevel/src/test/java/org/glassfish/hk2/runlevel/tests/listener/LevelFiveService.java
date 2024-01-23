@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -16,6 +16,9 @@
 
 package org.glassfish.hk2.runlevel.tests.listener;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import javax.annotation.PreDestroy;
 
 import org.glassfish.hk2.runlevel.RunLevel;
@@ -29,17 +32,22 @@ import org.glassfish.hk2.runlevel.RunLevel;
  */
 @RunLevel(5)
 public class LevelFiveService {
-    private boolean preDestroyCalled = false;
-    
+
+    private final CountDownLatch latch = new CountDownLatch(1);
+    private AtomicBoolean preDestroyCalled = new AtomicBoolean(false);
+
     @SuppressWarnings("unused")
     @PreDestroy
     private void preDestroy() {
-        preDestroyCalled = true;
-        
+        preDestroyCalled.set(true);
+        latch.countDown();
     }
     
     /* package */ boolean isPreDestroyCalled() {
-        return preDestroyCalled;
+        return preDestroyCalled.get();
     }
 
+    /* package */ CountDownLatch latch() {
+        return latch;
+    }
 }

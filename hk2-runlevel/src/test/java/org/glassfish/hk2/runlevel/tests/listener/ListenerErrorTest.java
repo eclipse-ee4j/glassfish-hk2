@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -15,6 +15,8 @@
  */
 
 package org.glassfish.hk2.runlevel.tests.listener;
+
+import java.util.concurrent.TimeUnit;
 
 import org.glassfish.hk2.api.Descriptor;
 import org.glassfish.hk2.api.MultiException;
@@ -165,9 +167,10 @@ public class ListenerErrorTest {
     /**
      * Ensures the user can halt the downward level progression if a service
      * failed when going down
+     * @throws InterruptedException 
      */
     @Test
-    public void testHaltLevelRegressionOnError() {
+    public void testHaltLevelRegressionOnError() throws InterruptedException {
         ServiceLocator locator = Utilities.getServiceLocator(LevelFiveDownErrorService.class,
                 LevelFiveService.class,
                 OnProgressLevelChangerListener.class);
@@ -192,16 +195,19 @@ public class ListenerErrorTest {
         OnProgressLevelChangerListener listener = locator.getService(OnProgressLevelChangerListener.class);
         
         Assert.assertEquals(4, listener.getLatestOnProgress());
-        
+
+        levelFiveService.latch().await(100, TimeUnit.MILLISECONDS);
+
         Assert.assertTrue(levelFiveService.isPreDestroyCalled());
     }
     
     /**
      * Ensures the user can halt the downward level progression if a service
      * failed when going down
+     * @throws InterruptedException 
      */
     @Test
-    public void testHaltLevelRegressionOnErrorNoThreads() {
+    public void testHaltLevelRegressionOnErrorNoThreads() throws InterruptedException {
         ServiceLocator locator = Utilities.getServiceLocator(LevelFiveDownErrorService.class,
                 LevelFiveService.class,
                 OnProgressLevelChangerListener.class);
@@ -228,6 +234,8 @@ public class ListenerErrorTest {
         
         Assert.assertEquals(4, listener.getLatestOnProgress());
         
+        levelFiveService.latch().await(100, TimeUnit.MILLISECONDS);
+
         Assert.assertTrue(levelFiveService.isPreDestroyCalled());
     }
     
