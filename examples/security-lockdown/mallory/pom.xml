@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.glassfish.hk2</groupId>
         <artifactId>security-lockdown-example</artifactId>
-        <version>3.0.6</version>
+        <version>3.0.7-SNAPSHOT</version>
     </parent>
 
     <artifactId>security-lockdown-example-mallory</artifactId>
