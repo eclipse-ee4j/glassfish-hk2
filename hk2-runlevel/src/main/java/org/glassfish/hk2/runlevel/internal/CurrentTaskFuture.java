@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to Eclipse Foundation.
  * Copyright (c) 2013, 2018 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -1246,7 +1247,7 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                 List<ActiveDescriptor<?>> queue,
                 DownAllTheWay parent,
                 ServiceLocator locator) {
-            this.queueLock = queue;
+            this.queueLock = queueLock;
             this.queue = queue;
             this.parent = parent;
             this.locator = locator;
@@ -1255,7 +1256,7 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
         @Override
         public void run() {
             for (;;) {
-                ActiveDescriptor<?> job = null;
+                ActiveDescriptor<?> job;
                 synchronized (queueLock) {
                     if (caput) return;
                     
@@ -1263,23 +1264,24 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                         queueLock.notify();
                         return;
                     }
-                    job = queue.remove(0);
+                    job = queue.get(0);
                 }
                 
                 try {
                     locator.getServiceHandle(job).destroy();
-                }
-                catch (Throwable th) {
+                } catch (Throwable th) {
                     synchronized (queueLock) {
                         parent.lastError = th;
                         parent.lastErrorDescriptor = job;
                         queueLock.notify();
                     }
+                } finally {
+                    synchronized (queueLock) {
+                        queue.remove(job);
+                    }
                 }
             }
-            
         }
-        
     }
     
     /* package */ final static boolean isWouldBlock(Throwable th) {
