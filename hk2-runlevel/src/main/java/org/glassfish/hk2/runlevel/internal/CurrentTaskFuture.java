@@ -1410,7 +1410,7 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
         @Override
         public void run() {
             for (;;) {
-                ActiveDescriptor<?> job = null;
+                ActiveDescriptor<?> job;
                 queueLock.lock();
                 try {
                     if (caput) return;
@@ -1419,20 +1419,26 @@ public class CurrentTaskFuture implements ChangeableRunLevelFuture {
                         queueCondition.signal();
                         return;
                     }
-                    job = queue.remove(0);
+                    job = queue.get(0);
                 } finally {
                     queueLock.unlock();
                 }
                 
                 try {
                     locator.getServiceHandle(job).destroy();
-                }
-                catch (Throwable th) {
+                } catch (Throwable th) {
                     queueLock.lock();
                     try {
                         parent.lastError = th;
                         parent.lastErrorDescriptor = job;
                         queueCondition.signal();
+                    } finally {
+                        queueLock.unlock();
+                    }
+                } finally {
+                    queueLock.lock();
+                    try {
+                        queue.remove(job);
                     } finally {
                         queueLock.unlock();
                     }
