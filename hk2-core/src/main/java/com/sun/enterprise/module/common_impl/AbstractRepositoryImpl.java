@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -24,6 +24,7 @@ import com.sun.enterprise.module.ManifestConstants;
 import java.io.*;
 import java.net.URI;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
@@ -37,6 +38,7 @@ import java.util.jar.Manifest;
  * @author Sanjeeb.Sahoo@Sun.COM
  */
 public abstract class AbstractRepositoryImpl implements Repository {
+    private final ReentrantLock lock = new ReentrantLock();
     private final String name;
     private final URI location;
     private Map<ModuleId, ModuleDefinition> moduleDefs;
@@ -189,11 +191,16 @@ public abstract class AbstractRepositoryImpl implements Repository {
      * @param listener implementation listening to this repository changes
      * @return true if the listener was added successfully
      */
-    public synchronized boolean addListener(RepositoryChangeListener listener) {
-        if (listeners==null) {
-            listeners = new ArrayList<RepositoryChangeListener>();
+    public boolean addListener(RepositoryChangeListener listener) {
+        lock.lock();
+        try {
+            if (listeners==null) {
+                listeners = new ArrayList<RepositoryChangeListener>();
+            }
+            return listeners.add(listener);
+        } finally {
+            lock.unlock();
         }
-        return listeners.add(listener);
     }
 
     /**
@@ -202,11 +209,16 @@ public abstract class AbstractRepositoryImpl implements Repository {
      * @param listener the previously registered listener
      * @return true if the listener was successfully unregistered
      */
-    public synchronized boolean removeListener(RepositoryChangeListener listener) {
-        if (listeners==null) {
-            return false;
+    public boolean removeListener(RepositoryChangeListener listener) {
+        lock.lock();
+        try {
+            if (listeners==null) {
+                return false;
+            }
+            return listeners.remove(listener);
+        } finally {
+            lock.unlock();
         }
-        return listeners.remove(listener);
     }
 
     /**

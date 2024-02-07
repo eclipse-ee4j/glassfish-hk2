@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.inject.Named;
 
@@ -187,7 +188,7 @@ public class DelegatingNamedActiveDescriptor implements
         return null;
     }
     
-    private Object lock = new Object();
+    private final ReentrantLock lock = new ReentrantLock();
     private Object cache;
     private boolean isSet = false;
 
@@ -196,8 +197,11 @@ public class DelegatingNamedActiveDescriptor implements
      */
     @Override
     public Object getCache() {
-        synchronized (lock) {
+        lock.lock();
+        try {
             return cache;
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -206,8 +210,11 @@ public class DelegatingNamedActiveDescriptor implements
      */
     @Override
     public boolean isCacheSet() {
-        synchronized (lock) {
+        lock.lock();
+        try {
             return isSet;
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -216,9 +223,12 @@ public class DelegatingNamedActiveDescriptor implements
      */
     @Override
     public void setCache(Object cacheMe) {
-        synchronized (lock) {
+        lock.lock();
+        try {
             isSet = true;
             cache = cacheMe;
+        } finally {
+            lock.unlock();
         }
 
     }
@@ -228,9 +238,12 @@ public class DelegatingNamedActiveDescriptor implements
      */
     @Override
     public void releaseCache() {
-        synchronized (lock) {
+        lock.lock();
+        try {
             cache = null;
             isSet = false;
+        } finally {
+            lock.unlock();
         }
 
     }

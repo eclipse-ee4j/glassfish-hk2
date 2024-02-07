@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -21,6 +21,7 @@ import java.lang.annotation.Annotation;
 import java.util.Comparator;
 import java.util.List;
 import java.util.TreeSet;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.inject.Singleton;
 
@@ -41,6 +42,7 @@ import org.glassfish.hk2.utilities.reflection.Logger;
 @Singleton
 public class SingletonContext implements Context<Singleton> {
     private int generationNumber = Integer.MIN_VALUE;
+    private final ReentrantLock lock = new ReentrantLock();
     private final ServiceLocatorImpl locator;
 
     private final Cache<ContextualInput<Object>, Object> valueCache =
@@ -144,8 +146,11 @@ public class SingletonContext implements Context<Singleton> {
         for (ActiveDescriptor<?> one : all) {
             if (one.getScope() == null || !one.getScope().equals(Singleton.class.getName())) continue;
 
-            synchronized (this) {
+            lock.lock();
+            try {
                 if (one.getCache() == null) continue;
+            } finally {
+                lock.unlock();
             }
 
             if (one.getLocatorId() == null || one.getLocatorId().longValue() != myLocatorId) continue;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -21,6 +21,7 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.WeakHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.inject.Inject;
 
@@ -39,6 +40,7 @@ import org.jvnet.hk2.annotations.Service;
  *
  */
 public class PerLocatorUtilities {
+    private final ReentrantLock lock = new ReentrantLock();
     /** Must not be static, otherwise it can leak when using thread pools */
     private final Hk2ThreadLocal<WeakHashMap<Class<?>, String>> threadLocalAutoAnalyzerNameCache =
             new Hk2ThreadLocal<WeakHashMap<Class<?>, String>>() {
@@ -256,10 +258,15 @@ public class PerLocatorUtilities {
         return hard;
     }
     
-    public synchronized void releaseCaches() {
-        hasInjectCache.removeAll();
-        if (proxyUtilities != null) {
-            proxyUtilities.releaseCache();
+    public void releaseCaches() {
+        lock.lock();
+        try {
+            hasInjectCache.removeAll();
+            if (proxyUtilities != null) {
+                proxyUtilities.releaseCache();
+            }
+        } finally {
+            lock.unlock();
         }
     }
     
@@ -273,12 +280,15 @@ public class PerLocatorUtilities {
     public ProxyUtilities getProxyUtilities() {
         if (proxyUtilities != null) return proxyUtilities;
         
-        synchronized (this) {
+        lock.lock();
+        try {
             if (proxyUtilities != null) return proxyUtilities;
             
             proxyUtilities = new ProxyUtilities();
             
             return proxyUtilities;
+        } finally {
+            lock.unlock();
         }
     }
 }

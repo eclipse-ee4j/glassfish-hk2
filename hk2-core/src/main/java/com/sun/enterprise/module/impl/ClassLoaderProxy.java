@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -22,6 +22,7 @@ import java.net.URLClassLoader;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.locks.ReentrantLock;
 import java.io.IOException;
 
 /**
@@ -31,6 +32,7 @@ import java.io.IOException;
  */
 public class ClassLoaderProxy extends URLClassLoader {
 
+    private final ReentrantLock lock = new ReentrantLock();
     private final List<ClassLoader> surrogates = new CopyOnWriteArrayList<ClassLoader>();
     private final List<ClassLoaderFacade> facadeSurrogates = new CopyOnWriteArrayList<ClassLoaderFacade>();
 
@@ -116,13 +118,18 @@ public class ClassLoaderProxy extends URLClassLoader {
     /**
      * {@link #findClass(String)} except the classloader punch-in hack.
      */
-    /*package*/ synchronized Class findClassDirect(String name) throws ClassNotFoundException {
-        Class c = findLoadedClass(name);
-        if(c!=null) return c;
+    /*package*/ Class findClassDirect(String name) throws ClassNotFoundException {
+        lock.lock();
         try {
-            return super.findClass(name);
-        } catch (NoClassDefFoundError e) {
-            throw new ClassNotFoundException(e.getMessage());
+            Class c = findLoadedClass(name);
+            if(c!=null) return c;
+            try {
+                return super.findClass(name);
+            } catch (NoClassDefFoundError e) {
+                throw new ClassNotFoundException(e.getMessage());
+            }
+        } finally {
+            lock.unlock();
         }
     }
 

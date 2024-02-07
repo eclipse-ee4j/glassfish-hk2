@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.Context;
@@ -42,7 +43,7 @@ public class ServiceHandleImpl<T> implements ServiceHandle<T> {
     private ActiveDescriptor<T> root;
     private final ServiceLocatorImpl locator;
     private final LinkedList<Injectee> injectees = new LinkedList<Injectee>();
-    private final Object lock = new Object();
+    private final ReentrantLock lock = new ReentrantLock();
     
     private boolean serviceDestroyed = false;
     private boolean serviceSet = false;
@@ -68,8 +69,11 @@ public class ServiceHandleImpl<T> implements ServiceHandle<T> {
     }
     
     private Injectee getLastInjectee() {
-        synchronized (lock) {
+        lock.lock();
+        try {
             return (injectees.isEmpty()) ? null : injectees.getLast() ;
+        } finally {
+            lock.unlock();
         }
     }
     
@@ -81,7 +85,8 @@ public class ServiceHandleImpl<T> implements ServiceHandle<T> {
             }
         }
         
-        synchronized (lock) {
+        lock.lock();
+        try {
             if (serviceDestroyed) throw new IllegalStateException("Service has been disposed");
             
             if (serviceSet) return service;
@@ -95,6 +100,8 @@ public class ServiceHandleImpl<T> implements ServiceHandle<T> {
             serviceSet = true;
         
             return service;
+        } finally {
+            lock.unlock();
         }
         
     }
@@ -136,7 +143,8 @@ public class ServiceHandleImpl<T> implements ServiceHandle<T> {
         if (!root.isReified()) return;
         
         List<ServiceHandleImpl<?>> localSubHandles;
-        synchronized (lock) {
+        lock.lock();
+        try {
             serviceActive = isActive();
             
             if (serviceDestroyed) return;
@@ -146,6 +154,8 @@ public class ServiceHandleImpl<T> implements ServiceHandle<T> {
             
             localSubHandles = new ArrayList<ServiceHandleImpl<?>>(subHandles);
             subHandles.clear();
+        } finally {
+            lock.unlock();
         }
         
         if (root.getScopeAnnotation().equals(PerLookup.class)) {
@@ -175,35 +185,50 @@ public class ServiceHandleImpl<T> implements ServiceHandle<T> {
     
     @Override
     public void setServiceData(Object serviceData) {
-        synchronized (lock) {
+        lock.lock();
+        try {
             this.serviceData = serviceData;
+        } finally {
+            lock.unlock();
         }
         
     }
 
     @Override
     public Object getServiceData() {
-        synchronized (lock) {
+        lock.lock();
+        try {
             return serviceData;
+        } finally {
+            lock.unlock();
         }
     }
     
     @Override
     public List<ServiceHandle<?>> getSubHandles() {
-        synchronized (lock) {
+        lock.lock();
+        try {
             return new ArrayList<ServiceHandle<?>>(subHandles);
+        } finally {
+            lock.unlock();
         }
     }
     
     public void pushInjectee(Injectee push) {
-        synchronized (lock) {
+        lock.lock();
+        try {
             injectees.add(push);
+        } finally {
+            lock.unlock();
         }
     }
     
     public void popInjectee() {
-        synchronized (lock) {
+        lock.lock();
+        try {
             injectees.removeLast();
+        } finally {
+            lock.unlock();
         }
     }
     
@@ -213,8 +238,11 @@ public class ServiceHandleImpl<T> implements ServiceHandle<T> {
      * @param subHandle A handle to add for proper destruction
      */
     public void addSubHandle(ServiceHandleImpl<?> subHandle) {
-        synchronized (lock) {
+        lock.lock();
+        try {
             subHandles.add(subHandle);
+        } finally {
+            lock.unlock();
         }
     }
     

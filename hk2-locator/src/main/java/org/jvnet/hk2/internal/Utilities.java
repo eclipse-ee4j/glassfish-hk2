@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -43,6 +43,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -109,6 +110,7 @@ import org.jvnet.hk2.annotations.Service;
  */
 public class Utilities {
     private final static String USE_SOFT_REFERENCE_PROPERTY = "org.jvnet.hk2.properties.useSoftReference";
+    private final static ReentrantLock lock = new ReentrantLock();
     final static boolean USE_SOFT_REFERENCE;
     static {
         USE_SOFT_REFERENCE = AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
@@ -2254,24 +2256,29 @@ public class Utilities {
      * 
      * @return true if the system can create proxies, false otherwise
      */
-    public synchronized static boolean proxiesAvailable() {
-        if (proxiesAvailable != null) {
-            return proxiesAvailable;
-        }
-        
-        ClassLoader loader = Utilities.class.getClassLoader();
-        if (loader == null) {
-            loader = ClassLoader.getSystemClassLoader();
-        }
-        
+    public static boolean proxiesAvailable() {
+        lock.lock();
         try {
-            loader.loadClass("javassist.util.proxy.MethodHandler");
-            proxiesAvailable = true;
-            return true;
-        }
-        catch (Throwable th) {
-            proxiesAvailable = false;
-            return false;
+            if (proxiesAvailable != null) {
+                return proxiesAvailable;
+            }
+            
+            ClassLoader loader = Utilities.class.getClassLoader();
+            if (loader == null) {
+                loader = ClassLoader.getSystemClassLoader();
+            }
+            
+            try {
+                loader.loadClass("javassist.util.proxy.MethodHandler");
+                proxiesAvailable = true;
+                return true;
+            }
+            catch (Throwable th) {
+                proxiesAvailable = false;
+                return false;
+            }
+        } finally {
+            lock.unlock();
         }
     }
     

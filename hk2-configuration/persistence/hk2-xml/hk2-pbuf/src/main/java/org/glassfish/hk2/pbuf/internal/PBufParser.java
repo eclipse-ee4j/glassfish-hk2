@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -75,6 +76,8 @@ import com.google.protobuf.InvalidProtocolBufferException;
 @Named(PBufUtilities.PBUF_SERVICE_NAME)
 @Visibility(DescriptorVisibility.LOCAL)
 public class PBufParser implements XmlServiceParser {
+    private final ReentrantLock lockProtos = new ReentrantLock();
+    private final ReentrantLock lockEnums = new ReentrantLock();
     private final HashMap<Class<?>, Descriptors.Descriptor> allProtos = new HashMap<Class<?>, Descriptors.Descriptor>();
     private final HashMap<Class<?>, Descriptors.EnumDescriptor> allEnums = new HashMap<Class<?>, Descriptors.EnumDescriptor>();
     
@@ -401,8 +404,11 @@ public class PBufParser implements XmlServiceParser {
         String protoName = getSimpleName(originalInterface);
         
         Descriptors.Descriptor descriptor;
-        synchronized (allProtos) {
+        lockProtos.lock();
+        try {
             descriptor = allProtos.get(originalAsClass);
+        } finally {
+            lockProtos.unlock();
         }
         if (descriptor == null) {
             throw new IOException("Unknown model: " + originalInterface + " with protoName=" + protoName);
@@ -424,8 +430,11 @@ public class PBufParser implements XmlServiceParser {
         String protoName = getSimpleName(originalInterface);
         
         Descriptors.Descriptor descriptor;
-        synchronized (allProtos) {
+        lockProtos.lock();
+        try {
             descriptor = allProtos.get(originalAsClass);
+        } finally {
+            lockProtos.unlock();
         }
         
         if (descriptor == null) {
@@ -515,7 +524,8 @@ public class PBufParser implements XmlServiceParser {
     }
     
     private void convertAllModels(ModelImpl model, Set<Descriptors.FileDescriptor> protoFiles) throws Exception {
-        synchronized (allProtos) {
+        lockProtos.lock();
+        try {
             Class<?> modelClass = model.getOriginalInterfaceAsClass();
             Descriptors.Descriptor dd = allProtos.get(modelClass);
             if (dd != null) {
@@ -538,6 +548,8 @@ public class PBufParser implements XmlServiceParser {
             protoFiles.add(converted.getFile());
         
             allProtos.put(modelClass, converted);
+        } finally {
+            lockProtos.unlock();
         }
     }
     
@@ -824,7 +836,8 @@ public class PBufParser implements XmlServiceParser {
     
     private String convertEnumToDescriptor(ChildDataModel childDataModel,
             Set<Descriptors.FileDescriptor> knownFiles) throws Exception {
-        synchronized (allEnums) {
+        lockEnums.lock();
+        try {
             Class<?> expectedType = childDataModel.getChildTypeAsClass();
             if (allEnums.containsKey(expectedType)) {
                 return "." + expectedType.getName();
@@ -868,6 +881,8 @@ public class PBufParser implements XmlServiceParser {
             allEnums.put(expectedType, fD);
         
             return "." + enumTypeName;
+        } finally {
+            lockEnums.unlock();
         }
     }
     
@@ -882,8 +897,11 @@ public class PBufParser implements XmlServiceParser {
         
         if (expectedType.isEnum()) {
             Descriptors.EnumDescriptor enumDescriptor;
-            synchronized (allEnums) {
+            lockEnums.lock();
+            try {
                 enumDescriptor = allEnums.get(expectedType);
+            } finally {
+                lockEnums.unlock();
             }
             
             if (enumDescriptor == null) {
@@ -923,8 +941,11 @@ public class PBufParser implements XmlServiceParser {
         
         if (expectedType.isEnum()) {
             Descriptors.EnumDescriptor enumDescriptor;
-            synchronized (allEnums) {
+            lockEnums.lock();
+            try {
                 enumDescriptor = allEnums.get(expectedType);
+            } finally {
+                lockEnums.unlock();
             }
             
             if (enumDescriptor == null) {
