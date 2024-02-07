@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -31,6 +31,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 import jakarta.inject.Singleton;
 
@@ -80,6 +81,7 @@ public class DescriptorImpl implements Descriptor, Externalizable {
     private final static Set<String> EMPTY_QUALIFIER_SET = Collections.emptySet();
     private final static Map<String, List<String>> EMPTY_METADATAS_MAP = Collections.emptyMap();
 	
+        private final ReentrantLock lock = new ReentrantLock();
 	private Set<String> contracts;
 	private String implementation;
 	private String name;
@@ -203,19 +205,29 @@ public class DescriptorImpl implements Descriptor, Externalizable {
 	}
 	
 	@Override
-	public synchronized Set<String> getAdvertisedContracts() {
-	    if (contracts == null) return EMPTY_CONTRACTS_SET;
-		return Collections.unmodifiableSet(contracts);
+	public Set<String> getAdvertisedContracts() {
+	    lock.lock();
+	    try {
+	       if (contracts == null) return EMPTY_CONTRACTS_SET;
+	           return Collections.unmodifiableSet(contracts);
+	    } finally {
+	        lock.unlock();
+	    }
 	}
 	
 	/**
 	 * Adds an advertised contract to the set of contracts advertised by this descriptor
 	 * @param addMe The contract to add.  May not be null
 	 */
-	public synchronized void addAdvertisedContract(String addMe) {
-	    if (addMe == null) return;
-	    if (contracts == null) contracts = new LinkedHashSet<String>();
-	    contracts.add(addMe);
+	public void addAdvertisedContract(String addMe) {
+	    lock.lock();
+            try {
+                if (addMe == null) return;
+                if (contracts == null) contracts = new LinkedHashSet<String>();
+                contracts.add(addMe);
+            } finally {
+                lock.unlock();
+            }
 	}
 	
 	/**
@@ -223,54 +235,94 @@ public class DescriptorImpl implements Descriptor, Externalizable {
 	 * @param removeMe The contract to remove.  May not be null
 	 * @return true if removeMe was removed from the set
 	 */
-	public synchronized boolean removeAdvertisedContract(String removeMe) {
-	    if (removeMe == null || contracts == null) return false;
-	    return contracts.remove(removeMe);
+	public boolean removeAdvertisedContract(String removeMe) {
+	    lock.lock();
+            try {
+                if (removeMe == null || contracts == null) return false;
+                return contracts.remove(removeMe);
+            } finally {
+                lock.unlock();
+            }
 	}
 
 	@Override
-	public synchronized String getImplementation() {
-		return implementation;
+	public String getImplementation() {
+	    lock.lock();
+            try {
+                return implementation;
+            } finally {
+                lock.unlock();
+            }
 	}
 	
 	/**
 	 * Sets the implementation
 	 * @param implementation The implementation this descriptor should have
 	 */
-    public synchronized void setImplementation(String implementation) {
-        this.implementation = implementation;
+    public void setImplementation(String implementation) {
+        lock.lock();
+        try {
+            this.implementation = implementation;
+        } finally {
+            lock.unlock();
+        }
     }
 
 	@Override
-	public synchronized String getScope() {
-		return scope;
+	public String getScope() {
+	    lock.lock();
+	    try {
+	        return scope;
+	    } finally {
+	        lock.unlock();
+	    }
 	}
 	
 	/**
 	 * Sets the scope this descriptor should have
 	 * @param scope The scope of this descriptor
 	 */
-	public synchronized void setScope(String scope) {
-	    this.scope = scope;
+	public void setScope(String scope) {
+	    lock.lock();
+            try {
+                this.scope = scope;
+            } finally {
+                lock.unlock();
+            }
 	}
 
 	@Override
-	public synchronized String getName() {
-		return name;
+	public String getName() {
+	    lock.lock();
+            try {
+                return name;
+            } finally {
+                lock.unlock();
+            }
 	}
 	
 	/**
 	 * Sets the name this descriptor should have
 	 * @param name The name for this descriptor
 	 */
-	public synchronized void setName(String name) {
-	    this.name = name;
+	public void setName(String name) {
+	    lock.lock();
+            try {
+                this.name = name;
+            } finally {
+                lock.unlock();
+            }
 	}
 
 	@Override
-	public synchronized Set<String> getQualifiers() {
-	    if (qualifiers == null) return EMPTY_QUALIFIER_SET;
-		return Collections.unmodifiableSet(qualifiers);
+	public Set<String> getQualifiers() {
+	    lock.lock();
+            try {
+                if (qualifiers == null) return EMPTY_QUALIFIER_SET;
+                return Collections.unmodifiableSet(qualifiers);
+            } finally {
+                lock.unlock();
+            }
 	}
 	
 	/**
@@ -278,10 +330,15 @@ public class DescriptorImpl implements Descriptor, Externalizable {
 	 * 
 	 * @param addMe The fully qualified class name of the qualifier to add.  May not be null
 	 */
-	public synchronized void addQualifier(String addMe) {
-	    if (addMe == null) return;
-	    if (qualifiers == null) qualifiers = new LinkedHashSet<String>();
-	    qualifiers.add(addMe);
+	public void addQualifier(String addMe) {
+	    lock.lock();
+            try {
+                if (addMe == null) return;
+                if (qualifiers == null) qualifiers = new LinkedHashSet<String>();
+                qualifiers.add(addMe);
+            } finally {
+                lock.unlock();
+            }
 	}
 	
 	/**
@@ -290,44 +347,74 @@ public class DescriptorImpl implements Descriptor, Externalizable {
 	 * @param removeMe The fully qualifier class name of the qualifier to remove.  May not be null
 	 * @return true if the given qualifier was removed
 	 */
-	public synchronized boolean removeQualifier(String removeMe) {
-	    if (removeMe == null) return false;
-	    if (qualifiers == null) return false;
-	    return qualifiers.remove(removeMe);
+	public boolean removeQualifier(String removeMe) {
+	    lock.lock();
+            try {
+                if (removeMe == null) return false;
+                if (qualifiers == null) return false;
+                return qualifiers.remove(removeMe);
+            } finally {
+                lock.unlock();
+            }
 	}
 
     @Override
-    public synchronized DescriptorType getDescriptorType() {
-        return descriptorType;
+    public DescriptorType getDescriptorType() {
+        lock.lock();
+        try {
+            return descriptorType;
+        } finally {
+            lock.unlock();
+        }
     }
     
     /**
      * Sets the descriptor type
      * @param descriptorType The descriptor type.  May not be null
      */
-    public synchronized void setDescriptorType(DescriptorType descriptorType) {
-        if (descriptorType == null) throw new IllegalArgumentException();
-        this.descriptorType = descriptorType;
+    public void setDescriptorType(DescriptorType descriptorType) {
+        lock.lock();
+        try {
+            if (descriptorType == null) throw new IllegalArgumentException();
+            this.descriptorType = descriptorType;
+        } finally {
+            lock.unlock();
+        }
     }
     
     @Override
-    public synchronized DescriptorVisibility getDescriptorVisibility() {
-        return descriptorVisibility;
+    public DescriptorVisibility getDescriptorVisibility() {
+        lock.lock();
+        try {
+            return descriptorVisibility;
+        } finally {
+            lock.unlock();
+        }
     }
     
     /**
      * Sets the descriptor visilibity
      * @param descriptorVisibility The visibility this descriptor should have
      */
-    public synchronized void setDescriptorVisibility(DescriptorVisibility descriptorVisibility) {
-        if (descriptorVisibility == null) throw new IllegalArgumentException();
-        this.descriptorVisibility = descriptorVisibility;
+    public void setDescriptorVisibility(DescriptorVisibility descriptorVisibility) {
+        lock.lock();
+        try {
+            if (descriptorVisibility == null) throw new IllegalArgumentException();
+            this.descriptorVisibility = descriptorVisibility;
+        } finally {
+            lock.unlock();
+        }
     }
 
 	@Override
-	public synchronized Map<String, List<String>> getMetadata() {
-	    if (metadatas == null) return EMPTY_METADATAS_MAP;
-		return Collections.unmodifiableMap(metadatas);
+	public Map<String, List<String>> getMetadata() {
+	    lock.lock();
+	    try {
+	        if (metadatas == null) return EMPTY_METADATAS_MAP;
+	            return Collections.unmodifiableMap(metadatas);
+	    } finally {
+	        lock.unlock();
+	    }
 	}
 	
 	/**
@@ -339,15 +426,20 @@ public class DescriptorImpl implements Descriptor, Externalizable {
 	 * @param metadata The non-null metadata that this descriptor
 	 * should have
 	 */
-	public synchronized void setMetadata(Map<String, List<String>> metadata) {
-	    if (metadatas == null) {
-	        metadatas = new LinkedHashMap<String, List<String>>();
-	    }
-	    else {
-	        metadatas.clear();
-	    }
-	    
-	    metadatas.putAll(ReflectionHelper.deepCopyMetadata(metadata));
+	public void setMetadata(Map<String, List<String>> metadata) {
+	    lock.lock();
+            try {
+                if (metadatas == null) {
+                    metadatas = new LinkedHashMap<String, List<String>>();
+                }
+                else {
+                    metadatas.clear();
+                }
+                
+                metadatas.putAll(ReflectionHelper.deepCopyMetadata(metadata));
+            } finally {
+                lock.unlock();
+            }
 	}
 	
 	/**
@@ -357,10 +449,15 @@ public class DescriptorImpl implements Descriptor, Externalizable {
 	 * @param metadata The non-null but possibly empty list of fields
 	 * to add to the metadata map
 	 */
-	public synchronized void addMetadata(Map<String, List<String>> metadata) {
-	    if (metadatas == null) metadatas = new LinkedHashMap<String, List<String>>();
-	    
-        metadatas.putAll(ReflectionHelper.deepCopyMetadata(metadata));
+	public void addMetadata(Map<String, List<String>> metadata) {
+	    lock.lock();
+            try {
+                if (metadatas == null) metadatas = new LinkedHashMap<String, List<String>>();
+                
+                metadatas.putAll(ReflectionHelper.deepCopyMetadata(metadata));
+            } finally {
+                lock.unlock();
+            }
     }
 	
 	/**
@@ -370,9 +467,14 @@ public class DescriptorImpl implements Descriptor, Externalizable {
 	 * not contain the character '='
 	 * @param value The value to add.  May not be null
 	 */
-	public synchronized void addMetadata(String key, String value) {
-	    if (metadatas == null) metadatas = new LinkedHashMap<String, List<String>>();
-	    ReflectionHelper.addMetadata(metadatas, key, value);
+	public void addMetadata(String key, String value) {
+	    lock.lock();
+            try {
+                if (metadatas == null) metadatas = new LinkedHashMap<String, List<String>>();
+                ReflectionHelper.addMetadata(metadatas, key, value);
+            } finally {
+                lock.unlock();
+            }
 	}
 	
 	/**
@@ -383,9 +485,14 @@ public class DescriptorImpl implements Descriptor, Externalizable {
 	 * @param value The value to remove.  May not be null
 	 * @return true if the value was removed
 	 */
-	public synchronized boolean removeMetadata(String key, String value) {
-	    if (metadatas == null) return false;
-	    return ReflectionHelper.removeMetadata(metadatas, key, value);
+	public boolean removeMetadata(String key, String value) {
+	    lock.lock();
+            try {
+                if (metadatas == null) return false;
+                return ReflectionHelper.removeMetadata(metadatas, key, value);
+            } finally {
+                lock.unlock();
+            }
 	}
 	
 	/**
@@ -394,60 +501,100 @@ public class DescriptorImpl implements Descriptor, Externalizable {
 	 * @param key The key of the metadata values to remove
 	 * @return true if any value was removed
 	 */
-	public synchronized boolean removeAllMetadata(String key) {
-	    if (metadatas == null) return false;
-	    return ReflectionHelper.removeAllMetadata(metadatas, key);
+	public boolean removeAllMetadata(String key) {
+	    lock.lock();
+            try {
+                if (metadatas == null) return false;
+                return ReflectionHelper.removeAllMetadata(metadatas, key);
+            } finally {
+                lock.unlock();
+            }
 	}
 	
 	/**
      * Removes all metadata values
      */
-    public synchronized void clearMetadata() {
-        metadatas = null;
+    public void clearMetadata() {
+        lock.lock();
+        try {
+            metadatas = null;
+        } finally {
+            lock.unlock();
+        }
     }
 	
 	/* (non-Javadoc)
      * @see org.glassfish.hk2.api.Descriptor#getLoader()
      */
     @Override
-    public synchronized HK2Loader getLoader() {
-        return loader;
+    public HK2Loader getLoader() {
+        lock.lock();
+        try {
+            return loader;
+        } finally {
+            lock.unlock();
+        }
     }
     
     /**
      * Sets the loader to use with this descriptor
      * @param loader The loader to use with this descriptor
      */
-    public synchronized void setLoader(HK2Loader loader) {
-        this.loader = loader;
+    public void setLoader(HK2Loader loader) {
+        lock.lock();
+        try {
+            this.loader = loader;
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
-    public synchronized int getRanking() {
-        return rank;
+    public int getRanking() {
+        lock.lock();
+        try {
+            return rank;
+        } finally {
+            lock.unlock();
+        }
     }
     
     /* (non-Javadoc)
      * @see org.glassfish.hk2.api.Descriptor#setRanking(int)
      */
     @Override
-    public synchronized int setRanking(int ranking) {
-        int retVal = rank;
-        rank = ranking;
-        return retVal;
+    public int setRanking(int ranking) {
+        lock.lock();
+        try {
+            int retVal = rank;
+            rank = ranking;
+            return retVal;
+        } finally {
+            lock.unlock();
+        }
     }
 	
 	@Override
-	public synchronized Long getServiceId() {
-		return id;
+	public Long getServiceId() {
+	    lock.lock();
+	    try {
+	        return id;
+	    } finally {
+	        lock.unlock();
+	    }
 	}
 	
 	/**
 	 * Sets the service id for this descriptor
 	 * @param id the service id for this descriptor
 	 */
-	public synchronized void setServiceId(Long id) {
-	    this.id = id;
+	public void setServiceId(Long id) {
+	    lock.lock();
+	    try {
+	        this.id = id;
+	    } finally {
+	        lock.unlock();
+	    }
 	}
 	
 	@Override
@@ -501,16 +648,26 @@ public class DescriptorImpl implements Descriptor, Externalizable {
 	}
 	
 	@Override
-	public synchronized Long getLocatorId() {
-	    return locatorId;
+	public Long getLocatorId() {
+	    lock.lock();
+	    try {
+	        return locatorId;
+	    } finally {
+	        lock.unlock();
+	    }
 	}
 	
 	/**
 	 * Sets the locator id for this descriptor
 	 * @param locatorId the locator id for this descriptor
 	 */
-	public synchronized void setLocatorId(Long locatorId) {
-	    this.locatorId = locatorId;
+	public void setLocatorId(Long locatorId) {
+	    lock.lock();
+            try {
+                this.locatorId = locatorId;
+            } finally {
+                lock.unlock();
+            }
 	}
 	
 	public int hashCode() {
@@ -724,14 +881,19 @@ public class DescriptorImpl implements Descriptor, Externalizable {
 	    
 	}
 	
-	public synchronized String toString() {
-        StringBuffer sb = new StringBuffer("Descriptor(");
-        
-        pretty(sb, this);
-        
-        sb.append(")");
-        
-        return sb.toString();
+	public String toString() {
+	    lock.lock();
+	    try {
+	        StringBuffer sb = new StringBuffer("Descriptor(");
+    	        
+	        pretty(sb, this);
+    	        
+	        sb.append(")");
+    	        
+	        return sb.toString();
+	    } finally {
+	        lock.unlock();
+	    }
 	}
 	
 	/**

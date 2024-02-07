@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -21,6 +21,7 @@ import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 import jakarta.inject.Named;
 
@@ -62,6 +63,8 @@ public class AliasDescriptor<T> extends AbstractActiveDescriptor<T> {
      * For serialization
      */
     private static final long serialVersionUID = 2609895430798803508L;
+
+    private final ReentrantLock lock = new ReentrantLock();
 
     /**
      * The service locator.
@@ -226,28 +229,38 @@ public class AliasDescriptor<T> extends AbstractActiveDescriptor<T> {
      * @see org.glassfish.hk2.api.ActiveDescriptor#getQualifierAnnotations()
      */
     @Override
-    public synchronized Set<Annotation> getQualifierAnnotations() {
-        ensureInitialized();
+    public Set<Annotation> getQualifierAnnotations() {
+        lock.lock();
+        try {
+            ensureInitialized();
 
-        if (qualifiers == null) {
-            qualifiers = new HashSet<Annotation>(descriptor.getQualifierAnnotations());
-            if (getName() != null) {
-                qualifiers.add(new NamedImpl(getName()));
+            if (qualifiers == null) {
+                qualifiers = new HashSet<Annotation>(descriptor.getQualifierAnnotations());
+                if (getName() != null) {
+                    qualifiers.add(new NamedImpl(getName()));
+                }
             }
+            return qualifiers;
+        } finally {
+            lock.unlock();
         }
-        return qualifiers;
     }
     
     @Override
-    public synchronized Set<String> getQualifiers() {
-        if (qualifierNames != null) return qualifierNames;
-        
-        qualifierNames = new HashSet<String>(descriptor.getQualifiers());
-        if (getName() != null) {
-            qualifierNames.add(Named.class.getName());
+    public Set<String> getQualifiers() {
+        lock.lock();
+        try {
+            if (qualifierNames != null) return qualifierNames;
+            
+            qualifierNames = new HashSet<String>(descriptor.getQualifiers());
+            if (getName() != null) {
+                qualifierNames.add(Named.class.getName());
+            }
+            
+            return qualifierNames;
+        } finally {
+            lock.unlock();
         }
-        
-        return qualifierNames;
     }
 
     /* (non-Javadoc)
@@ -287,53 +300,61 @@ public class AliasDescriptor<T> extends AbstractActiveDescriptor<T> {
      * Ensure that this descriptor has been initialized.
      */
     @SuppressWarnings("unchecked")
-    private synchronized void ensureInitialized() {
-        if (!initialized) {
-            // reify the underlying descriptor if needed
-            if (!descriptor.isReified()) {
-                descriptor = (ActiveDescriptor<T>) locator.reifyDescriptor(descriptor);
-            }
+    private void ensureInitialized() {
+        lock.lock();
+        try {
+            if (!initialized) {
+                // reify the underlying descriptor if needed
+                if (!descriptor.isReified()) {
+                    descriptor = (ActiveDescriptor<T>) locator.reifyDescriptor(descriptor);
+                }
 
-            if (contract == null) {
+                if (contract == null) {
+                    initialized = true;
+                    return;
+                }
+
+                HK2Loader loader = descriptor.getLoader();
+
+                Type contractType = null;
+                try {
+                    if (loader != null) {
+                        contractType = loader.loadClass(contract);
+                    }
+                    else {
+                        Class<?> ic = descriptor.getImplementationClass();
+                        ClassLoader cl = null;
+                        if (ic != null) {
+                            cl = ic.getClassLoader();
+                        }
+                        if (cl == null) {
+                            cl = ClassLoader.getSystemClassLoader();
+                        }
+
+                        contractType = cl.loadClass(contract);
+                    }
+                }
+                catch (ClassNotFoundException e) {
+                    // do nothing
+                }
+
+                super.addContractType(contractType);
+
                 initialized = true;
-                return;
             }
-
-            HK2Loader loader = descriptor.getLoader();
-
-            Type contractType = null;
-            try {
-                if (loader != null) {
-                    contractType = loader.loadClass(contract);
-                }
-                else {
-                    Class<?> ic = descriptor.getImplementationClass();
-                    ClassLoader cl = null;
-                    if (ic != null) {
-                        cl = ic.getClassLoader();
-                    }
-                    if (cl == null) {
-                        cl = ClassLoader.getSystemClassLoader();
-                    }
-
-                    contractType = cl.loadClass(contract);
-                }
-            }
-            catch (ClassNotFoundException e) {
-                // do nothing
-            }
-
-            super.addContractType(contractType);
-
-            initialized = true;
+        } finally {
+            lock.unlock();
         }
     }
     
     @Override
     public int hashCode() {
         int retVal;
-        synchronized (this) {
+        lock.lock();
+        try {
             retVal = descriptor.hashCode();
+        } finally {
+            lock.unlock();
         }
         
         if (getName() != null) {

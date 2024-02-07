@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -16,6 +16,8 @@
 
 package org.jvnet.hk2.spring.bridge.api;
 
+import java.util.concurrent.locks.ReentrantLock;
+
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.ServiceHandle;
 import org.glassfish.hk2.api.ServiceLocator;
@@ -29,14 +31,20 @@ import org.springframework.beans.factory.config.Scope;
  *
  */
 public class SpringScopeImpl implements Scope {
+    private final ReentrantLock lock = new ReentrantLock();
     private ServiceLocator locator;
     
     /**
      * Sets the service locator to use with this scope
      * @param locator The (non-null) locator to use for this scope
      */
-    public synchronized void setServiceLocator(ServiceLocator locator) {
-        this.locator = locator;
+    public void setServiceLocator(ServiceLocator locator) {
+        lock.lock();
+        try {
+            this.locator = locator;
+        } finally {
+            lock.unlock();
+        }
     }
     
     /**
@@ -46,8 +54,13 @@ public class SpringScopeImpl implements Scope {
      * @param name The name to be used.  If null an anonymous service
      * locator will be used
      */
-    public synchronized void setServiceLocatorName(String name) {
-        locator = ServiceLocatorFactory.getInstance().create(name);
+    public void setServiceLocatorName(String name) {
+        lock.lock();
+        try {
+            locator = ServiceLocatorFactory.getInstance().create(name);
+        } finally {
+            lock.unlock();
+        }
     }
     
     /**
@@ -56,18 +69,28 @@ public class SpringScopeImpl implements Scope {
      * 
      * @return The {@link ServiceLocator} to be used with this scope
      */
-    public synchronized ServiceLocator getServiceLocator() {
-        return locator;
+    public ServiceLocator getServiceLocator() {
+        lock.lock();
+        try {
+            return locator;
+        } finally {
+            lock.unlock();
+        }
     }
     
-    private synchronized ServiceHandle<?> getServiceFromName(String id) {
-        if (locator == null) throw new IllegalStateException(
-                "ServiceLocator must be set");
-        
-        ActiveDescriptor<?> best = locator.getBestDescriptor(BuilderHelper.createTokenizedFilter(id));
-        if (best == null) return null;
-        
-        return locator.getServiceHandle(best);
+    private ServiceHandle<?> getServiceFromName(String id) {
+        lock.lock();
+        try {
+            if (locator == null) throw new IllegalStateException(
+                    "ServiceLocator must be set");
+            
+            ActiveDescriptor<?> best = locator.getBestDescriptor(BuilderHelper.createTokenizedFilter(id));
+            if (best == null) return null;
+            
+            return locator.getServiceHandle(best);
+        } finally {
+            lock.unlock();
+        }
     }
 
     /* (non-Javadoc)

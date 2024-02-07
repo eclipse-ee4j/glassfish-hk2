@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 
@@ -51,7 +52,8 @@ public class ClassAltClassImpl implements AltClass {
     public static final AltClass DOUBLE = new ClassAltClassImpl(double.class, SCALAR_HELPER);
     public static final AltClass OBJECT = new ClassAltClassImpl(Object.class, SCALAR_HELPER);
     public static final AltClass XML_ADAPTER = new ClassAltClassImpl(XmlAdapter.class, SCALAR_HELPER);
-    
+
+    private final ReentrantLock lock = new ReentrantLock();
     private final Class<?> clazz;
     private final ClassReflectionHelper helper;
     private List<AltMethod> methods;
@@ -86,36 +88,46 @@ public class ClassAltClassImpl implements AltClass {
      * @see org.glassfish.hk2.xml.internal.alt.AltClass#getAnnotations()
      */
     @Override
-    public synchronized List<AltAnnotation> getAnnotations() {
-        if (annotations != null) return annotations;
-        
-        Annotation annotationz[] = clazz.getAnnotations();
-        
-        ArrayList<AltAnnotation> retVal = new ArrayList<AltAnnotation>(annotationz.length);
-        for (Annotation annotation : annotationz) {
-            retVal.add(new AnnotationAltAnnotationImpl(annotation, helper));
+    public List<AltAnnotation> getAnnotations() {
+        lock.lock();
+        try {
+            if (annotations != null) return annotations;
+            
+            Annotation annotationz[] = clazz.getAnnotations();
+            
+            ArrayList<AltAnnotation> retVal = new ArrayList<AltAnnotation>(annotationz.length);
+            for (Annotation annotation : annotationz) {
+                retVal.add(new AnnotationAltAnnotationImpl(annotation, helper));
+            }
+            
+            annotations = Collections.unmodifiableList(retVal);
+            return annotations;
+        } finally {
+            lock.unlock();
         }
-        
-        annotations = Collections.unmodifiableList(retVal);
-        return annotations;
     }
 
     /* (non-Javadoc)
      * @see org.glassfish.hk2.xml.internal.alt.AltClass#getMethods()
      */
     @Override
-    public synchronized List<AltMethod> getMethods() {
-        if (methods != null) return methods;
-        
-        Set<MethodWrapper> wrappers = helper.getAllMethods(clazz);
-        ArrayList<AltMethod> retVal = new ArrayList<AltMethod>(wrappers.size());
-        
-        for (MethodWrapper method : wrappers) {
-            retVal.add(new MethodAltMethodImpl(method.getMethod(), helper));
+    public List<AltMethod> getMethods() {
+        lock.lock();
+        try {
+            if (methods != null) return methods;
+            
+            Set<MethodWrapper> wrappers = helper.getAllMethods(clazz);
+            ArrayList<AltMethod> retVal = new ArrayList<AltMethod>(wrappers.size());
+            
+            for (MethodWrapper method : wrappers) {
+                retVal.add(new MethodAltMethodImpl(method.getMethod(), helper));
+            }
+            
+            methods = Collections.unmodifiableList(retVal);
+            return methods;
+        } finally {
+            lock.unlock();
         }
-        
-        methods = Collections.unmodifiableList(retVal);
-        return methods;
     }
     
     @Override

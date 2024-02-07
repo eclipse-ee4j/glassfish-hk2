@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2020 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -19,12 +19,14 @@ package org.glassfish.hk2.classmodel.reflect.impl;
 import org.glassfish.hk2.classmodel.reflect.*;
 
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Implementation of a class model
  */
 public class ClassModelImpl extends ExtensibleTypeImpl<ClassModel> implements ClassModel {
 
+    private final ReentrantLock lock = new ReentrantLock();
     final List<FieldModel> fields = new ArrayList<>();
 
     public ClassModelImpl(String name, TypeProxy<Type> sink, TypeProxy parent) {
@@ -32,8 +34,13 @@ public class ClassModelImpl extends ExtensibleTypeImpl<ClassModel> implements Cl
     }
     
     @Override
-    synchronized void addField(FieldModel field) {
-        fields.add(field);
+    void addField(FieldModel field) {
+        lock.lock();
+        try {
+            fields.add(field);
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override

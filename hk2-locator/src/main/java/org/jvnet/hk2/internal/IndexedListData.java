@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2024 Oracle and/or its affiliates. All rights reserved.
  * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.ListIterator;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * This object contains a list of values.  The list is not always sorted, but will
@@ -32,13 +33,15 @@ import java.util.ListIterator;
  *
  */
 public class IndexedListData {
+    private final ReentrantLock lock = new ReentrantLock();
     private final ArrayList<SystemDescriptor<?>> unsortedList = new ArrayList<SystemDescriptor<?>>();
     private volatile boolean sorted = true;
     
     public Collection<SystemDescriptor<?>> getSortedList() {
         if (sorted) return unsortedList;
         
-        synchronized (this) {
+        lock.lock();
+        try {
             if (sorted) return unsortedList;
         
             if (unsortedList.size() <= 1) {
@@ -50,54 +53,86 @@ public class IndexedListData {
         
             sorted = true;
             return unsortedList;
+        } finally {
+            lock.unlock();
         }
     }
     
-    public synchronized void addDescriptor(SystemDescriptor<?> descriptor) {
-        unsortedList.add(descriptor);
-        
-        sorted = unsortedList.size() <= 1;
-        
-        descriptor.addList(this);
+    public void addDescriptor(SystemDescriptor<?> descriptor) {
+        lock.lock();
+        try {
+            unsortedList.add(descriptor);
+            
+            sorted = unsortedList.size() <= 1;
+            
+            descriptor.addList(this);
+        } finally {
+            lock.unlock();
+        }
     }
     
-    public synchronized void removeDescriptor(SystemDescriptor<?> descriptor) {
-        ListIterator<SystemDescriptor<?>> iterator = unsortedList.listIterator();
-        while (iterator.hasNext()) {
-            SystemDescriptor<?> candidate = iterator.next();
-            if (ServiceLocatorImpl.DESCRIPTOR_COMPARATOR.compare(descriptor, candidate) == 0) {
-                iterator.remove();
-                break;
+    public void removeDescriptor(SystemDescriptor<?> descriptor) {
+        lock.lock();
+        try {
+            ListIterator<SystemDescriptor<?>> iterator = unsortedList.listIterator();
+            while (iterator.hasNext()) {
+                SystemDescriptor<?> candidate = iterator.next();
+                if (ServiceLocatorImpl.DESCRIPTOR_COMPARATOR.compare(descriptor, candidate) == 0) {
+                    iterator.remove();
+                    break;
+                }
             }
+            
+            sorted = unsortedList.size() <= 1;
+            
+            descriptor.removeList(this);
+        } finally {
+            lock.unlock();
         }
-        
-        sorted = unsortedList.size() <= 1;
-        
-        descriptor.removeList(this);
     }
     
-    public synchronized boolean isEmpty() {
-        return unsortedList.isEmpty();
+    public boolean isEmpty() {
+        lock.lock();
+        try {
+            return unsortedList.isEmpty();
+        } finally {
+            lock.unlock();
+        }
     }
     
     /**
      * Called by a SystemDescriptor when its ranking has changed
      */
-    public synchronized void unSort() {
-        if (unsortedList.size() > 1) {
-            sorted = false;
+    public void unSort() {
+        lock.lock();
+        try {
+            if (unsortedList.size() > 1) {
+                sorted = false;
+            }
+        } finally {
+            lock.unlock();
         }
     }
     
-    public synchronized void clear() {
-        for (SystemDescriptor<?> descriptor : unsortedList) {
-            descriptor.removeList(this);
+    public void clear() {
+        lock.lock();
+        try {
+            for (SystemDescriptor<?> descriptor : unsortedList) {
+                descriptor.removeList(this);
+            }
+            
+            unsortedList.clear();
+        } finally {
+            lock.unlock();
         }
-        
-        unsortedList.clear();
     }
     
-    public synchronized int size() {
-        return unsortedList.size();
+    public int size() {
+        lock.lock();
+        try {
+            return unsortedList.size();
+        } finally {
+            lock.unlock();
+        }
     }
 }

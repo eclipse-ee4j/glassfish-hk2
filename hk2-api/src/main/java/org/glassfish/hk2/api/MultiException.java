@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -20,6 +20,7 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * This exception can contain multiple other exceptions.
@@ -34,7 +35,7 @@ public class MultiException extends HK2RuntimeException {
      * For serialization
      */
     private static final long serialVersionUID = 2112432697858621044L;
-    private final Object lock = new byte[0]; // byte[0] is an arbitrary type that is Serializable
+    private final ReentrantLock lock = new ReentrantLock();
     private final List<Throwable> throwables = new LinkedList<Throwable>();
     private boolean reportToErrorService = true;
 
@@ -106,8 +107,11 @@ public class MultiException extends HK2RuntimeException {
      * not return null, but may return an empty object
      */
     public List<Throwable> getErrors() {
-        synchronized (lock) {
+        lock.lock();
+        try {
             return new LinkedList<Throwable>(throwables);
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -117,8 +121,11 @@ public class MultiException extends HK2RuntimeException {
      * @param error The exception to add
      */
     public void addError(Throwable error) {
-        synchronized (lock) {
+        lock.lock();
+        try {
             throwables.add(error);
+        } finally {
+            lock.unlock();
         }
     }
     

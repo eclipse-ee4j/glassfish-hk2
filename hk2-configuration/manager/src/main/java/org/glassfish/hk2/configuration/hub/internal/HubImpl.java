@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReentrantLock;
 
 import jakarta.inject.Inject;
 
@@ -48,7 +49,7 @@ import org.jvnet.hk2.annotations.Service;
 public class HubImpl implements Hub {
     private static final AtomicLong revisionCounter = new AtomicLong(1);
     
-    private final Object lock = new Object();
+    private final ReentrantLock lock = new ReentrantLock();
     private BeanDatabaseImpl currentDatabase = new BeanDatabaseImpl(revisionCounter.getAndIncrement());
     
     @Inject
@@ -59,8 +60,11 @@ public class HubImpl implements Hub {
      */
     @Override
     public BeanDatabase getCurrentDatabase() {
-        synchronized (lock) {
+        lock.lock();
+        try {
             return currentDatabase;
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -69,15 +73,19 @@ public class HubImpl implements Hub {
      */
     @Override
     public WriteableBeanDatabase getWriteableDatabaseCopy() {
-        synchronized (lock) {
+        lock.lock();
+        try {
             return new WriteableBeanDatabaseImpl(this, currentDatabase);
+        } finally {
+            lock.unlock();
         }
     }
     
     private int inTransaction = 0;
     
     /* package */ LinkedList<BeanDatabaseUpdateListener> prepareCurrentDatabase(WriteableBeanDatabaseImpl writeableDatabase, Object commitMessage, List<Change> changes) {
-        synchronized (lock) {
+        lock.lock();
+        try {
             if (inTransaction > 0) {
                 throw new IllegalStateException("This Hub is already in a transaction");
             }
@@ -115,12 +123,15 @@ public class HubImpl implements Hub {
             inTransaction++;
             
             return completedListeners;
+        } finally {
+            lock.unlock();
         }
     }
     
     /* package */ void activateCurrentDatabase(WriteableBeanDatabaseImpl writeableDatabase, Object commitMessage, List<Change> changes,
             LinkedList<BeanDatabaseUpdateListener> completedListeners) {
-        synchronized (lock) {
+        lock.lock();
+        try {
             inTransaction--;
             if (inTransaction < 0) inTransaction = 0;
             
@@ -149,12 +160,15 @@ public class HubImpl implements Hub {
             }
             
             if (commitError != null) throw commitError;
+        } finally {
+            lock.unlock();
         }
     }
     
     /* package */ void rollbackCurrentDatabase(WriteableBeanDatabaseImpl writeableDatabase, Object commitMessage, List<Change> changes,
             LinkedList<BeanDatabaseUpdateListener> completedListeners) {
-        synchronized (lock) {
+        lock.lock();
+        try {
             inTransaction--;
             if (inTransaction < 0) inTransaction = 0;
             
@@ -179,6 +193,8 @@ public class HubImpl implements Hub {
             }
             
             if (rollbackError != null) throw rollbackError;
+        } finally {
+            lock.unlock();
         }
     }
     

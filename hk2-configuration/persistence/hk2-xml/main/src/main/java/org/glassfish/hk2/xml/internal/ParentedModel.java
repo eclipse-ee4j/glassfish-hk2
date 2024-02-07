@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -17,6 +17,7 @@
 package org.glassfish.hk2.xml.internal;
 
 import java.io.Serializable;
+import java.util.concurrent.locks.ReentrantLock;
 
 import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 
@@ -34,8 +35,8 @@ import org.glassfish.hk2.utilities.general.GeneralUtilities;
  */
 public class ParentedModel implements Serializable {
     private static final long serialVersionUID = -2480798409414987937L;
-    
-    private final Object lock = new Object();
+
+    private final ReentrantLock lock = new ReentrantLock();
     
     /** The interface of the child for which this is a parent */
     private String childInterface;
@@ -126,7 +127,8 @@ public class ParentedModel implements Serializable {
     
     @SuppressWarnings("unchecked")
     public XmlAdapter<?, ?> getAdapterObject() {
-        synchronized (lock) {
+        lock.lock();
+        try {
             if (myLoader == null) {
                 throw new IllegalStateException("Cannot call getChildModel before the classloader has been determined");
             }
@@ -149,12 +151,15 @@ public class ParentedModel implements Serializable {
             catch (Exception e) {
                 throw new RuntimeException(e);
             }
+        } finally {
+            lock.unlock();
         }
         
     }
     
     public ModelImpl getChildModel() {
-        synchronized (lock) {
+        lock.lock();
+        try {
             if (myLoader == null) {
                 throw new IllegalStateException("Cannot call getChildModel before the classloader has been determined");
             }
@@ -174,13 +179,18 @@ public class ParentedModel implements Serializable {
             }
             
             return childModel;
+        } finally {
+            lock.unlock();
         }
     }
     
     public void setRuntimeInformation(JAUtilities jaUtilities, ClassLoader myLoader) {
-        synchronized (lock) {
+        lock.lock();
+        try {
             this.jaUtilities = jaUtilities;
             this.myLoader = myLoader;
+        } finally {
+            lock.unlock();
         }
     }
     

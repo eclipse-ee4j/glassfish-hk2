@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -23,6 +23,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.Context;
@@ -62,6 +64,8 @@ import org.jvnet.hk2.annotations.Contract;
 @Contract
 public abstract class OperationContext<T extends Annotation> implements Context<T> {
     private SingleOperationManager<T> manager;
+    private final ReentrantLock lock = new ReentrantLock();
+    private final Condition condition = lock.newCondition();
     private final HashMap<OperationHandleImpl<T>, LinkedHashMap<ActiveDescriptor<?>, Object>> operationMap =
             new HashMap<OperationHandleImpl<T>, LinkedHashMap<ActiveDescriptor<?>, Object>>();
     private final HashSet<ActiveDescriptor<?>> creating = new HashSet<ActiveDescriptor<?>>();
@@ -79,10 +83,13 @@ public abstract class OperationContext<T extends Annotation> implements Context<
         LinkedList<OperationHandleImpl<T>> closingOperationStack;
         boolean closingOperation;
         
-        synchronized (this) {
+        lock.lock();
+        try {
             localManager = manager;
             closingOperationStack = closingOperations.get(Thread.currentThread().getId());
             closingOperation = (closingOperationStack != null && !closingOperationStack.isEmpty());
+        } finally {
+            lock.unlock();
         }
         
         if (localManager == null) {
@@ -92,18 +99,22 @@ public abstract class OperationContext<T extends Annotation> implements Context<
         
         OperationHandleImpl<T> operation = localManager.getCurrentOperationOnThisThread();
         if (operation == null) {
-            synchronized (this) {
+            lock.lock();
+            try {
                 if (!closingOperation) {
                     throw new IllegalStateException("There is no current operation of type " +
                             getScope().getName() + " on thread " + Thread.currentThread().getId());
                 }
                 
                 operation = closingOperationStack.get(0);
+            } finally {
+                lock.unlock();
             }
         }
         
         LinkedHashMap<ActiveDescriptor<?>, Object> serviceMap;
-        synchronized (this) {
+        lock.lock();
+        try {
             serviceMap = operationMap.get(operation);
             if (serviceMap == null) {
                 if (closingOperation || shuttingDown) {
@@ -132,7 +143,7 @@ public abstract class OperationContext<T extends Annotation> implements Context<
             // retVal is null, and this is not an explicit null, so must actually do the creation
             while (creating.contains(activeDescriptor)) {
                 try {
-                    this.wait();
+                    condition.await();
                 }
                 catch (InterruptedException e) {
                     throw new RuntimeException(e);
@@ -148,6 +159,8 @@ public abstract class OperationContext<T extends Annotation> implements Context<
             
             // Not in creating, and not created.  Create it ourselves
             creating.add(activeDescriptor);
+        } finally {
+            lock.unlock();
         }
         
         Object retVal = null;
@@ -162,13 +175,16 @@ public abstract class OperationContext<T extends Annotation> implements Context<
             success = true;
         }
         finally {
-            synchronized (this) {
+            lock.lock();
+            try {
                 if (success) {
                     serviceMap.put(activeDescriptor, retVal);
                 }
                 
                 creating.remove(activeDescriptor);
-                this.notifyAll();
+                condition.signalAll();
+            } finally {
+                lock.unlock();
             }
         }
         
@@ -181,21 +197,27 @@ public abstract class OperationContext<T extends Annotation> implements Context<
     @Override
     public boolean containsKey(ActiveDescriptor<?> descriptor) {
         SingleOperationManager<T> localManager;
-        synchronized (this) {
+        lock.lock();
+        try {
             localManager = manager;
+        } finally {
+            lock.unlock();
         }
         if (localManager == null) return false;
         
         OperationHandleImpl<T> operation = localManager.getCurrentOperationOnThisThread();
         if (operation == null) return false;
         
-        synchronized (this) {
+        lock.lock();
+        try {
             HashMap<ActiveDescriptor<?>, Object> serviceMap;
             
             serviceMap = operationMap.get(operation);
             if (serviceMap == null) return false;
             
             return serviceMap.containsKey(descriptor);
+        } finally {
+            lock.unlock();
         }
         
     }
@@ -206,13 +228,16 @@ public abstract class OperationContext<T extends Annotation> implements Context<
     @SuppressWarnings("unchecked")
     @Override
     public void destroyOne(ActiveDescriptor<?> descriptor) {
-        synchronized (this) {
+        lock.lock();
+        try {
             for (HashMap<ActiveDescriptor<?>, Object> serviceMap : operationMap.values()) {
                 Object killMe = serviceMap.remove(descriptor);
                 if (killMe == null) continue;
                 
                 ((ActiveDescriptor<Object>) descriptor).dispose(killMe);
             }
+        } finally {
+            lock.unlock();
         }
     }
     
@@ -222,7 +247,8 @@ public abstract class OperationContext<T extends Annotation> implements Context<
         HashMap<ActiveDescriptor<?>, Object> serviceMap;
         LinkedList<OperationHandleImpl<T>> stack;
         
-        synchronized (this) {
+        lock.lock();
+        try {
             stack = closingOperations.get(tid);
             if (stack == null) {
                 stack = new LinkedList<OperationHandleImpl<T>>();
@@ -232,6 +258,8 @@ public abstract class OperationContext<T extends Annotation> implements Context<
             stack.addFirst(operation);
             
             serviceMap = operationMap.get(operation);
+        } finally {
+            lock.unlock();
         }
         
         try {
@@ -258,13 +286,16 @@ public abstract class OperationContext<T extends Annotation> implements Context<
             }
         }
         finally {
-            synchronized (this) {
+            lock.lock();
+            try {
                 operationMap.remove(operation);
             
                 stack.removeFirst();
                 if (stack.isEmpty()) {
                     closingOperations.remove(tid);
                 }
+            } finally {
+                lock.unlock();
             }
         }
     }
@@ -275,9 +306,12 @@ public abstract class OperationContext<T extends Annotation> implements Context<
     @Override
     public void shutdown() {
         Set<OperationHandleImpl<T>> toShutDown;
-        synchronized (this) {
+        lock.lock();
+        try {
             shuttingDown = true;
             toShutDown = operationMap.keySet();
+        } finally {
+            lock.unlock();
         }
         
         try {
@@ -286,8 +320,11 @@ public abstract class OperationContext<T extends Annotation> implements Context<
             }
         }
         finally {
-            synchronized (this) {
+            lock.lock();
+            try {
                 operationMap.clear();
+            } finally {
+                lock.unlock();
             }
         }
         

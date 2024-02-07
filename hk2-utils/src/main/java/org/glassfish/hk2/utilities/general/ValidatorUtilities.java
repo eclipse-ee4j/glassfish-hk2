@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -19,6 +19,7 @@ package org.glassfish.hk2.utilities.general;
 import java.lang.annotation.ElementType;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.concurrent.locks.ReentrantLock;
 
 import jakarta.validation.Path;
 import jakarta.validation.TraversableResolver;
@@ -36,6 +37,7 @@ import org.hibernate.validator.HibernateValidator;
  *
  */
 public class ValidatorUtilities {
+    private static final ReentrantLock slock = new ReentrantLock();
     private static final TraversableResolver TRAVERSABLE_RESOLVER = new TraversableResolver() {
         public boolean isReachable(Object traversableObject,
                 Path.Node traversableProperty, Class<?> rootBeanType,
@@ -76,23 +78,28 @@ public class ValidatorUtilities {
      * 
      * @return A jakarta bean validator for validating constraints
      */
-    public synchronized static Validator getValidator() {
-        if (validator == null) {
-            validator = AccessController.doPrivileged(new PrivilegedAction<Validator>() {
-
-                @Override
-                public Validator run() {
-                    return initializeValidator();
-                }
-                
-            });
+    public static Validator getValidator() {
+        slock.lock();
+        try {
+            if (validator == null) {
+                validator = AccessController.doPrivileged(new PrivilegedAction<Validator>() {
+    
+                    @Override
+                    public Validator run() {
+                        return initializeValidator();
+                    }
+                    
+                });
+            }
+            
+            if (validator == null) {
+                throw new IllegalStateException("Could not find a jakarta.validator");
+            }
+            
+            return validator;
+        } finally {
+            slock.unlock();
         }
-        
-        if (validator == null) {
-            throw new IllegalStateException("Could not find a jakarta.validator");
-        }
-        
-        return validator;
     }
 
 }
