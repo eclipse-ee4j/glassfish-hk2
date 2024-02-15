@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 import jakarta.annotation.PreDestroy;
 import jakarta.inject.Inject;
@@ -44,6 +45,7 @@ import org.glassfish.hk2.extras.ExtrasUtilities;
 @Singleton
 @Visibility(DescriptorVisibility.LOCAL)
 public class Hk2BridgeImpl implements DynamicConfigurationListener {
+    private final ReentrantLock lock = new ReentrantLock();
     private final ServiceLocator local;
     private ServiceLocator remote;
     private Filter filter;
@@ -56,46 +58,56 @@ public class Hk2BridgeImpl implements DynamicConfigurationListener {
         
     }
     
-    public synchronized void setRemote(ServiceLocator remote) {
-        this.remote = remote;
-        this.filter = new NoLocalNoRemoteFilter(remote.getLocatorId());
-        
-        List<ActiveDescriptor<?>> newDescriptors = local.getDescriptors(filter);
-        
-        handleChange(newDescriptors);
+    public void setRemote(ServiceLocator remote) {
+        lock.lock();
+        try {
+            this.remote = remote;
+            this.filter = new NoLocalNoRemoteFilter(remote.getLocatorId());
+            
+            List<ActiveDescriptor<?>> newDescriptors = local.getDescriptors(filter);
+            
+            handleChange(newDescriptors);
+        } finally {
+            lock.unlock();
+        }
     }
     
     @SuppressWarnings("unchecked")
-    private synchronized void handleChange(List<ActiveDescriptor<?>> newDescriptors) {
-        if (remote == null) return;
-        
-        HashSet<ActiveDescriptor<?>> toRemove = new HashSet<ActiveDescriptor<?>>(mirroredDescriptors);
-        toRemove.removeAll(newDescriptors);
-        
-        HashSet<ActiveDescriptor<?>> toAdd = new HashSet<ActiveDescriptor<?>>(newDescriptors);
-        toAdd.removeAll(mirroredDescriptors);
-        
-        DynamicConfigurationService remoteDCS = remote.getService(DynamicConfigurationService.class);
-        DynamicConfiguration config = remoteDCS.createDynamicConfiguration();
-        
-        boolean dirty = false;
-        for (ActiveDescriptor<?> removeMe : toRemove) {
-            Filter removeFilter = new RemoveFilter(removeMe.getLocatorId(), removeMe.getServiceId());
-            config.addUnbindFilter(removeFilter);
-            dirty = true;
+    private void handleChange(List<ActiveDescriptor<?>> newDescriptors) {
+        lock.lock();
+        try {
+            if (remote == null) return;
+            
+            HashSet<ActiveDescriptor<?>> toRemove = new HashSet<ActiveDescriptor<?>>(mirroredDescriptors);
+            toRemove.removeAll(newDescriptors);
+            
+            HashSet<ActiveDescriptor<?>> toAdd = new HashSet<ActiveDescriptor<?>>(newDescriptors);
+            toAdd.removeAll(mirroredDescriptors);
+            
+            DynamicConfigurationService remoteDCS = remote.getService(DynamicConfigurationService.class);
+            DynamicConfiguration config = remoteDCS.createDynamicConfiguration();
+            
+            boolean dirty = false;
+            for (ActiveDescriptor<?> removeMe : toRemove) {
+                Filter removeFilter = new RemoveFilter(removeMe.getLocatorId(), removeMe.getServiceId());
+                config.addUnbindFilter(removeFilter);
+                dirty = true;
+            }
+            
+            for (ActiveDescriptor<?> addMe : toAdd) {
+                CrossOverDescriptor<Object> cod = new CrossOverDescriptor<Object>(local, (ActiveDescriptor<Object>) addMe);
+                config.addActiveDescriptor(cod);
+                dirty = true;
+            }
+            
+            if (dirty) {
+                config.commit();
+            }
+            
+            mirroredDescriptors = newDescriptors;
+        } finally {
+            lock.unlock();
         }
-        
-        for (ActiveDescriptor<?> addMe : toAdd) {
-            CrossOverDescriptor<Object> cod = new CrossOverDescriptor<Object>(local, (ActiveDescriptor<Object>) addMe);
-            config.addActiveDescriptor(cod);
-            dirty = true;
-        }
-        
-        if (dirty) {
-            config.commit();
-        }
-        
-        mirroredDescriptors = newDescriptors;
     }
     
     /* (non-Javadoc)

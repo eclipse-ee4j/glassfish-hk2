@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2020 TechEmpower. All rights reserved.
+ * Copyright (c) 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -48,6 +50,7 @@ import org.glassfish.hk2.utilities.reflection.ReflectionHelper;
  * and {@link NoInstancesService}.
  */
 final class ProvidesDescriptor<T> implements ActiveDescriptor<T> {
+  private final ReentrantLock lock = new ReentrantLock();
   private final AnnotatedElement annotatedElement;
   private final Class<?> implementationClass;
   private final Type implementationType;
@@ -215,23 +218,33 @@ final class ProvidesDescriptor<T> implements ActiveDescriptor<T> {
   private boolean initialRankingFound = false;
 
   @Override
-  public synchronized int getRanking() {
-    if (!initialRankingFound) {
-      Rank rank = annotatedElement.getAnnotation(Rank.class);
-      if (rank != null)
-        ranking = rank.value();
-
-      initialRankingFound = true;
+  public int getRanking() {
+    lock.lock();
+    try {
+        if (!initialRankingFound) {
+          Rank rank = annotatedElement.getAnnotation(Rank.class);
+          if (rank != null)
+            ranking = rank.value();
+    
+          initialRankingFound = true;
+        }
+    
+        return ranking;
+    } finally {
+        lock.unlock();
     }
-
-    return ranking;
   }
 
   @Override
-  public synchronized int setRanking(int ranking) {
-    int previousRanking = getRanking();
-    this.ranking = ranking;
-    return previousRanking;
+  public int setRanking(int ranking) {
+    lock.lock();
+    try {
+        int previousRanking = getRanking();
+        this.ranking = ranking;
+        return previousRanking;
+    } finally {
+        lock.unlock();
+    }
   }
 
   @Override
@@ -270,28 +283,48 @@ final class ProvidesDescriptor<T> implements ActiveDescriptor<T> {
   private boolean isCacheSet = false;
 
   @Override
-  public synchronized /*@Nullable*/ T getCache() {
-    if (!isCacheSet)
-      throw new IllegalStateException();
+  public /*@Nullable*/ T getCache() {
+    lock.lock();
+    try {
+        if (!isCacheSet)
+            throw new IllegalStateException();
 
-    return cache;
+        return cache;
+    } finally {
+          lock.unlock();
+    }
   }
 
   @Override
-  public synchronized boolean isCacheSet() {
-    return isCacheSet;
+  public boolean isCacheSet() {
+    lock.lock();
+    try {
+        return isCacheSet;
+    } finally {
+        lock.unlock();
+    }
   }
 
   @Override
-  public synchronized void setCache(T cacheMe) {
-    cache = cacheMe;
-    isCacheSet = true;
+  public void setCache(T cacheMe) {
+      lock.lock();
+      try {
+          cache = cacheMe;
+          isCacheSet = true;
+      } finally {
+          lock.unlock();
+      }
   }
 
   @Override
-  public synchronized void releaseCache() {
-    cache = null;
-    isCacheSet = false;
+  public void releaseCache() {
+      lock.lock();
+      try {
+          cache = null;
+          isCacheSet = false;
+      } finally {
+          lock.unlock();
+      }
   }
 
   @Override

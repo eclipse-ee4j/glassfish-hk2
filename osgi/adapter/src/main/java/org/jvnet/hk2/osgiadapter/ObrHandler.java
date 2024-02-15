@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Hashtable;
 import java.util.concurrent.Executors;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 
 import org.apache.felix.bundlerepository.DataModelHelper;
@@ -54,6 +55,7 @@ class ObrHandler extends ServiceTracker {
     Implementation Note: This class has no dependency on HK2.
      */
 
+    private final ReentrantLock lock = new ReentrantLock();
     private boolean deployFragments = false;
     private boolean deployOptionalRequirements = false;
     // We maintain our own repository list which we use during resolution process.
@@ -95,11 +97,16 @@ class ObrHandler extends ServiceTracker {
         }
     }
 
-    public synchronized void addRepository(URI obrUri) throws Exception {
-        if (isDirectory(obrUri)) {
-            setupRepository(new File(obrUri), isSynchronous());
-        } else {
-            repositories.add(getRepositoryAdmin().getHelper().repository(obrUri.toURL()));
+    public void addRepository(URI obrUri) throws Exception {
+        lock.lock();
+        try {
+            if (isDirectory(obrUri)) {
+                setupRepository(new File(obrUri), isSynchronous());
+            } else {
+                repositories.add(getRepositoryAdmin().getHelper().repository(obrUri.toURL()));
+            }
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -134,24 +141,26 @@ class ObrHandler extends ServiceTracker {
         return property == null || Boolean.TRUE.toString().equalsIgnoreCase(property);
     }
 
-    private synchronized void _setupRepository(File repoDir) throws Exception {
-        Repository repository;
-        File repoFile = getRepositoryFile(repoDir);
-        final long tid = Thread.currentThread().getId();
-        if (repoFile != null && repoFile.exists()) {
-            long t = System.currentTimeMillis();
-            repository = updateRepository(repoFile, repoDir);
-            long t2 = System.currentTimeMillis();
-            logger.logp(Level.INFO, "ObrHandler", "_setupRepository", "Thread #{0}: updateRepository took {1} ms",
-                    new Object[]{tid, t2 - t});
-        } else {
-            long t = System.currentTimeMillis();
-            repository = createRepository(repoFile, repoDir);
-            long t2 = System.currentTimeMillis();
-            logger.logp(Level.INFO, "ObrHandler", "_setupRepository", "Thread #{0}: createRepository took {1} ms",
-                    new Object[]{tid, t2 - t});
-        }
-        repositories.add(repository);
+    private void _setupRepository(File repoDir) throws Exception {
+        lock.lock();
+        try {
+            Repository repository;
+            File repoFile = getRepositoryFile(repoDir);
+            final long tid = Thread.currentThread().getId();
+            if (repoFile != null && repoFile.exists()) {
+                long t = System.currentTimeMillis();
+                repository = updateRepository(repoFile, repoDir);
+                long t2 = System.currentTimeMillis();
+                logger.logp(Level.INFO, "ObrHandler", "_setupRepository", "Thread #{0}: updateRepository took {1} ms",
+                        new Object[]{tid, t2 - t});
+            } else {
+                long t = System.currentTimeMillis();
+                repository = createRepository(repoFile, repoDir);
+                long t2 = System.currentTimeMillis();
+                logger.logp(Level.INFO, "ObrHandler", "_setupRepository", "Thread #{0}: createRepository took {1} ms",
+                        new Object[]{tid, t2 - t});
+            }
+            repositories.add(repository);
         // We don't add repository to RepositoryAdmin, as we pass the list of repositories to use in resolver().
 //        final String repoUrl = repository.getURI();
 //        logger.logp(Level.INFO, "ObrHandler", "_setupRepository", "Thread #{0}: Adding repository = {1}",
@@ -161,6 +170,9 @@ class ObrHandler extends ServiceTracker {
 //        long t2 = System.currentTimeMillis();
 //        logger.logp(Level.INFO, "ObrHandler", "_setupRepository", "Thread #{0}: Adding repo took {1} ms",
 //                new Object[]{tid, t2 - t});
+        } finally {
+            lock.unlock();
+        }
     }
 
     private File getRepositoryFile(File repoDir) {
@@ -280,18 +292,23 @@ class ObrHandler extends ServiceTracker {
     }
 
     /* package */
-    synchronized Bundle deploy(Resource resource) {
-        final Resolver resolver = getRepositoryAdmin().resolver(getRepositories());
-        boolean resolved = resolve(resolver, resource);
-        if (resolved) {
-            final int flags = !deployOptionalRequirements ? Resolver.NO_OPTIONAL_RESOURCES : 0;
-            resolver.deploy(flags);
-            return getBundle(resource);
-        } else {
-            Reason[] reqs = resolver.getUnsatisfiedRequirements();
-            logger.logp(Level.WARNING, "ObrHandler", "deploy",
-                    "Unable to satisfy the requirements: {0}", new Object[]{Arrays.toString(reqs)});
-            return null;
+    Bundle deploy(Resource resource) {
+        lock.lock();
+        try {
+            final Resolver resolver = getRepositoryAdmin().resolver(getRepositories());
+            boolean resolved = resolve(resolver, resource);
+            if (resolved) {
+                final int flags = !deployOptionalRequirements ? Resolver.NO_OPTIONAL_RESOURCES : 0;
+                resolver.deploy(flags);
+                return getBundle(resource);
+            } else {
+                Reason[] reqs = resolver.getUnsatisfiedRequirements();
+                logger.logp(Level.WARNING, "ObrHandler", "deploy",
+                        "Unable to satisfy the requirements: {0}", new Object[]{Arrays.toString(reqs)});
+                return null;
+            }
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -322,17 +339,22 @@ class ObrHandler extends ServiceTracker {
     }
 
     /* package */
-    synchronized Bundle deploy(String name, String version) {
-        Resource resource = findResource(name, version);
-        if (resource == null) {
-            logger.logp(Level.INFO, "ObrHandler", "deploy",
-                    "No resource matching name = {0} and version = {1} ", new Object[]{name, version});
-            return null;
+    Bundle deploy(String name, String version) {
+        lock.lock();
+        try {
+            Resource resource = findResource(name, version);
+            if (resource == null) {
+                logger.logp(Level.INFO, "ObrHandler", "deploy",
+                        "No resource matching name = {0} and version = {1} ", new Object[]{name, version});
+                return null;
+            }
+            if (resource.isLocal()) {
+                return getBundle(resource);
+            }
+            return deploy(resource);
+        } finally {
+            lock.unlock();
         }
-        if (resource.isLocal()) {
-            return getBundle(resource);
-        }
-        return deploy(resource);
     }
 
     private Bundle getBundle(Resource resource) {

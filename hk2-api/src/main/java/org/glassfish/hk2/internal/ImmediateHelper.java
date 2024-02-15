@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -24,6 +24,8 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -85,7 +87,8 @@ public class ImmediateHelper implements DynamicConfigurationListener, Runnable,
     
     private final HashSet<Long> tidsWithWork = new HashSet<Long>();
     
-    private final Object queueLock = new Object();
+    private final ReentrantLock queueLock = new ReentrantLock();
+    private final Condition condition = queueLock.newCondition();
     private boolean threadAvailable;
     private boolean outstandingJob;
     private boolean waitingForWork;
@@ -140,16 +143,19 @@ public class ImmediateHelper implements DynamicConfigurationListener, Runnable,
             currentExecutor.execute(this);
         }
         else if (waitingForWork) {
-            queueLock.notify();
+            condition.signal();
         }
     }
     
     @Override
     public void configurationChanged() {
-        synchronized (queueLock) {
+        queueLock.lock();
+        try {
             if (currentState.equals(ImmediateServiceState.SUSPENDED)) return;
             
             doWorkIfWeHaveSome();
+        } finally {
+            queueLock.unlock();
         }
     }
     
@@ -169,9 +175,11 @@ public class ImmediateHelper implements DynamicConfigurationListener, Runnable,
         if (!(ErrorType.DYNAMIC_CONFIGURATION_FAILURE.equals(errorInformation.getErrorType()))) {
             // Only interested in dynamic configuration failures
             long tid = Thread.currentThread().getId();
-            
-            synchronized (queueLock) {
+            queueLock.lock();
+            try {
                 tidsWithWork.remove(tid);
+            } finally {
+                queueLock.unlock();
             }
             
             return;
@@ -185,8 +193,11 @@ public class ImmediateHelper implements DynamicConfigurationListener, Runnable,
                 info.getOperation().equals(Operation.UNBIND)) {
             long tid = Thread.currentThread().getId();
             
-            synchronized (queueLock) {
+            queueLock.lock();
+            try {
                 tidsWithWork.add(tid);
+            } finally {
+                queueLock.unlock();
             }
         }
         
@@ -200,7 +211,8 @@ public class ImmediateHelper implements DynamicConfigurationListener, Runnable,
     @Override
     public void run() {
         for(;;) {
-            synchronized (queueLock) {
+            queueLock.lock();
+            try {
                 long decayTime = this.decayTime;
                 
                 while (currentState.equals(ImmediateServiceState.RUNNING) &&
@@ -209,7 +221,7 @@ public class ImmediateHelper implements DynamicConfigurationListener, Runnable,
                     waitingForWork = true;
                     long currentTime = System.currentTimeMillis();
                     try {
-                        queueLock.wait(decayTime);
+                        condition.await(decayTime, TimeUnit.MILLISECONDS);
                     }
                     catch (InterruptedException ie) {
                         threadAvailable = false;
@@ -228,6 +240,8 @@ public class ImmediateHelper implements DynamicConfigurationListener, Runnable,
                 }
                 
                 outstandingJob = false;
+            } finally {
+                queueLock.unlock();
             }
             
             immediateContext.doWork();
@@ -240,8 +254,11 @@ public class ImmediateHelper implements DynamicConfigurationListener, Runnable,
      */
     @Override
     public Executor getExecutor() {
-        synchronized (queueLock) {
+        queueLock.lock();
+        try {
             return currentExecutor;
+        } finally {
+            queueLock.unlock();
         }
     }
 
@@ -250,12 +267,15 @@ public class ImmediateHelper implements DynamicConfigurationListener, Runnable,
      */
     @Override
     public void setExecutor(Executor executor) throws IllegalStateException {
-        synchronized (queueLock)  {
+        queueLock.lock();
+        try {
             if (currentState.equals(ImmediateServiceState.RUNNING)) {
                 throw new IllegalStateException("ImmediateSerivce attempt made to change executor while in RUNNING state");
             }
             
             currentExecutor = (executor == null) ? DEFAULT_EXECUTOR : executor ;
+        } finally {
+            queueLock.unlock();
         }
         
     }
@@ -265,8 +285,11 @@ public class ImmediateHelper implements DynamicConfigurationListener, Runnable,
      */
     @Override
     public long getThreadInactivityTimeout() {
-        synchronized (queueLock) {
+        queueLock.lock();
+        try {
             return decayTime;
+        } finally {
+            queueLock.unlock();
         }
     }
 
@@ -276,12 +299,15 @@ public class ImmediateHelper implements DynamicConfigurationListener, Runnable,
     @Override
     public void setThreadInactivityTimeout(long timeInMillis)
             throws IllegalStateException {
-        synchronized (queueLock)  {
+        queueLock.lock();
+        try {
             if (timeInMillis < 0) {
                 throw new IllegalArgumentException();
             }
             
             decayTime = timeInMillis;
+        } finally {
+            queueLock.unlock();
         }
         
     }
@@ -291,8 +317,11 @@ public class ImmediateHelper implements DynamicConfigurationListener, Runnable,
      */
     @Override
     public ImmediateServiceState getImmediateState() {
-        synchronized (queueLock) {
+        queueLock.lock();
+        try {
             return currentState;
+        } finally {
+            queueLock.unlock();
         }
     }
 
@@ -301,7 +330,8 @@ public class ImmediateHelper implements DynamicConfigurationListener, Runnable,
      */
     @Override
     public void setImmediateState(ImmediateServiceState state) {
-        synchronized (queueLock)  {
+        queueLock.lock();
+        try {
             if (state == null) throw new IllegalArgumentException();
             
             if (state == currentState) return;
@@ -310,6 +340,8 @@ public class ImmediateHelper implements DynamicConfigurationListener, Runnable,
             if (currentState.equals(ImmediateServiceState.RUNNING)) {
                 doWorkIfWeHaveSome();
             }
+        } finally {
+            queueLock.unlock();
         }
         
     }
