@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -17,6 +17,7 @@
 package org.glassfish.hk2.configuration.hub.test;
 
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 import jakarta.inject.Singleton;
 
@@ -30,20 +31,36 @@ import org.glassfish.hk2.configuration.hub.api.Change;
  */
 @Singleton
 public class AbstractCountingListener implements BeanDatabaseUpdateListener {
+    private final ReentrantLock lock = new ReentrantLock();
     private int prepareCalled;
     private int rollbackCalled;
     private int commitCalled;
     
-    public synchronized int getNumPreparesCalled() {
-        return prepareCalled;
+    public int getNumPreparesCalled() {
+        lock.lock();
+        try {
+            return prepareCalled;
+        } finally {
+            lock.unlock();
+        }
     }
     
-    public synchronized int getNumCommitsCalled() {
-        return commitCalled;
+    public int getNumCommitsCalled() {
+        lock.lock();
+        try {
+            return commitCalled;
+        } finally {
+            lock.unlock();
+        }
     }
     
-    public synchronized int getNumRollbackCalled() {
-        return rollbackCalled;
+    public int getNumRollbackCalled() {
+        lock.lock();
+        try {
+            return rollbackCalled;
+        } finally {
+            lock.unlock();
+        }
     }
     
     public void prepareAction() {
@@ -59,11 +76,16 @@ public class AbstractCountingListener implements BeanDatabaseUpdateListener {
      * @see org.glassfish.hk2.configuration.hub.api.BeanDatabaseUpdateListener#prepareDatabaseChange(org.glassfish.hk2.configuration.hub.api.BeanDatabase, org.glassfish.hk2.configuration.hub.api.BeanDatabase, java.lang.Object, java.util.List)
      */
     @Override
-    public synchronized void prepareDatabaseChange(BeanDatabase currentDatabase,
+    public void prepareDatabaseChange(BeanDatabase currentDatabase,
             BeanDatabase proposedDatabase, Object commitMessage,
             List<Change> changes) {
-        prepareCalled++;
-        prepareAction();
+        lock.lock();
+        try {
+            prepareCalled++;
+            prepareAction();
+        } finally {
+            lock.unlock();
+        }
     }
 
     /* (non-Javadoc)

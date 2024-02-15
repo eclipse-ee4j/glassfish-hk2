@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -22,6 +22,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.glassfish.hk2.utilities.reflection.ClassReflectionHelper;
 import org.glassfish.hk2.utilities.reflection.ReflectionHelper;
@@ -35,6 +36,7 @@ import org.glassfish.hk2.xml.internal.alt.MethodInformationI;
  *
  */
 public class MethodAltMethodImpl implements AltMethod {
+    private final ReentrantLock lock = new ReentrantLock();
     private final Method method;
     private final ClassReflectionHelper helper;
     private List<AltClass> parameterTypes;
@@ -73,18 +75,23 @@ public class MethodAltMethodImpl implements AltMethod {
      * @see org.glassfish.hk2.xml.internal.alt.AltMethod#getParameterTypes()
      */
     @Override
-    public synchronized List<AltClass> getParameterTypes() {
-        if (parameterTypes != null) return parameterTypes;
-        
-        Class<?> pTypes[] = method.getParameterTypes();
-        List<AltClass> retVal = new ArrayList<AltClass>(pTypes.length);
-        
-        for (Class<?> pType : pTypes) {
-            retVal.add(new ClassAltClassImpl(pType, helper));
+    public List<AltClass> getParameterTypes() {
+        lock.lock();
+        try {
+            if (parameterTypes != null) return parameterTypes;
+            
+            Class<?> pTypes[] = method.getParameterTypes();
+            List<AltClass> retVal = new ArrayList<AltClass>(pTypes.length);
+            
+            for (Class<?> pType : pTypes) {
+                retVal.add(new ClassAltClassImpl(pType, helper));
+            }
+            
+            parameterTypes = Collections.unmodifiableList(retVal);
+            return parameterTypes;
+        } finally {
+            lock.unlock();
         }
-        
-        parameterTypes = Collections.unmodifiableList(retVal);
-        return parameterTypes;
     }
 
     /* (non-Javadoc)
@@ -143,18 +150,23 @@ public class MethodAltMethodImpl implements AltMethod {
      * @see org.glassfish.hk2.xml.internal.alt.AltMethod#getAnnotations()
      */
     @Override
-    public synchronized List<AltAnnotation> getAnnotations() {
-        if (altAnnotations != null) return altAnnotations;
-        
-        Annotation annotations[] = method.getAnnotations();
-        ArrayList<AltAnnotation> retVal = new ArrayList<AltAnnotation>(annotations.length);
-        
-        for (Annotation annotation : annotations) {
-            retVal.add(new AnnotationAltAnnotationImpl(annotation, helper));
+    public List<AltAnnotation> getAnnotations() {
+        lock.lock();
+        try {
+            if (altAnnotations != null) return altAnnotations;
+            
+            Annotation annotations[] = method.getAnnotations();
+            ArrayList<AltAnnotation> retVal = new ArrayList<AltAnnotation>(annotations.length);
+            
+            for (Annotation annotation : annotations) {
+                retVal.add(new AnnotationAltAnnotationImpl(annotation, helper));
+            }
+            
+            altAnnotations = Collections.unmodifiableList(retVal);
+            return altAnnotations;
+        } finally {
+            lock.unlock();
         }
-        
-        altAnnotations = Collections.unmodifiableList(retVal);
-        return altAnnotations;
     }
 
     /* (non-Javadoc)

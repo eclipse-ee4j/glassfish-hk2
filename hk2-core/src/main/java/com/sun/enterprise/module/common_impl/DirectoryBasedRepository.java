@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * This class is a directory based repository implementation. This mean that all jar
@@ -43,6 +44,7 @@ import java.util.TimerTask;
 public class DirectoryBasedRepository extends AbstractRepositoryImpl {
     
     protected final File repository;
+    private final ReentrantLock lock = new ReentrantLock();
     private final int intervalInMs = Integer.getInteger("hk2.file.directory.changeIntervalTimer", 1000);
     private Timer timer;
     private boolean isTimerThreadDaemon = false;
@@ -75,28 +77,36 @@ public class DirectoryBasedRepository extends AbstractRepositoryImpl {
     }
 
     @Override
-    public synchronized boolean addListener(RepositoryChangeListener listener) {
-
-        final boolean returnValue = super.addListener(listener);
-        if (returnValue && timer==null) {
-            initializeSubDirectories();
-            
-            timer = new Timer("hk2-repo-listener-"+ this.getName(), isTimerThreadDaemon);
-            timer.schedule(new TimerTask() {
-                long lastModified = repository.lastModified();
-                public void run() {
-                    synchronized(this) {
-                        if (lastModified<repository.lastModified()) {
-                            lastModified = repository.lastModified();
-                            // something has changed, look into this...
-                            directoryChanged();
+    public boolean addListener(RepositoryChangeListener listener) {
+        lock.lock();
+        try {
+            final boolean returnValue = super.addListener(listener);
+            if (returnValue && timer==null) {
+                initializeSubDirectories();
+                
+                timer = new Timer("hk2-repo-listener-"+ this.getName(), isTimerThreadDaemon);
+                timer.schedule(new TimerTask() {
+                    private final ReentrantLock lock = new ReentrantLock();
+                    long lastModified = repository.lastModified();
+                    public void run() {
+                        lock.lock();
+                        try {
+                            if (lastModified<repository.lastModified()) {
+                                lastModified = repository.lastModified();
+                                // something has changed, look into this...
+                                directoryChanged();
+                            }
+                        } finally {
+                            lock.unlock();
                         }
                     }
-                }
-            }, intervalInMs, intervalInMs);
-            timer.purge();
+                }, intervalInMs, intervalInMs);
+                timer.purge();
+            }
+            return returnValue; 
+        } finally {
+            lock.unlock();
         }
-        return returnValue;        
     }
 
     @Override
@@ -145,85 +155,89 @@ public class DirectoryBasedRepository extends AbstractRepositoryImpl {
         return disabledFile.exists();
     }
 
-    private synchronized void directoryChanged() {
-
-        // not the most efficient implementation, could be revisited later
-        HashMap<ModuleId, ModuleDefinition> newModuleDefs =
-                new HashMap<ModuleId, ModuleDefinition>();
-        List<URI> libraries = new LinkedList<URI>();
-
+    private void directoryChanged() {
+        lock.lock();
         try {
-            loadModuleDefs(newModuleDefs, libraries);
-        } catch(IOException ioe) {
-            // we probably need to wait until the jar has finished being copied
-            // XXX add some form of retry
-        }
-        for(ModuleDefinition def : newModuleDefs.values()) {
-            if (find(def.getName(), def.getVersion())==null) {
-                add(def);
-                for (RepositoryChangeListener listener : listeners) {
-                    listener.moduleAdded(def);
-                }
+            // not the most efficient implementation, could be revisited later
+            HashMap<ModuleId, ModuleDefinition> newModuleDefs =
+                    new HashMap<ModuleId, ModuleDefinition>();
+            List<URI> libraries = new LinkedList<URI>();
+
+            try {
+                loadModuleDefs(newModuleDefs, libraries);
+            } catch(IOException ioe) {
+                // we probably need to wait until the jar has finished being copied
+                // XXX add some form of retry
             }
-        }
-        for (ModuleDefinition def : findAll()) {
-            if (!newModuleDefs.containsKey(AbstractFactory.getInstance().createModuleId(def))) {
-                remove(def);
-                for (RepositoryChangeListener listener : listeners) {
-                    listener.moduleRemoved(def);
-                }
-            }
-        }
-        List<URI> originalLibraries = super.getJarLocations();
-        for (URI location : libraries) {
-            if (!originalLibraries.contains(location)) {
-                addLibrary(location);
-                for (RepositoryChangeListener listener : listeners) {
-                    listener.added(location);
-                }
-            }
-        }
-        if (originalLibraries.size()>0) {
-            List<URI> copy = new LinkedList<URI>();
-            copy.addAll(originalLibraries);
-            for (URI originalLocation : copy) {
-                if (!libraries.contains(originalLocation)) {
-                    removeLibrary(originalLocation);
+            for(ModuleDefinition def : newModuleDefs.values()) {
+                if (find(def.getName(), def.getVersion())==null) {
+                    add(def);
                     for (RepositoryChangeListener listener : listeners) {
-                        listener.removed(originalLocation);
+                        listener.moduleAdded(def);
                     }
                 }
             }
-        }
+            for (ModuleDefinition def : findAll()) {
+                if (!newModuleDefs.containsKey(AbstractFactory.getInstance().createModuleId(def))) {
+                    remove(def);
+                    for (RepositoryChangeListener listener : listeners) {
+                        listener.moduleRemoved(def);
+                    }
+                }
+            }
+            List<URI> originalLibraries = super.getJarLocations();
+            for (URI location : libraries) {
+                if (!originalLibraries.contains(location)) {
+                    addLibrary(location);
+                    for (RepositoryChangeListener listener : listeners) {
+                        listener.added(location);
+                    }
+                }
+            }
+            if (originalLibraries.size()>0) {
+                List<URI> copy = new LinkedList<URI>();
+                copy.addAll(originalLibraries);
+                for (URI originalLocation : copy) {
+                    if (!libraries.contains(originalLocation)) {
+                        removeLibrary(originalLocation);
+                        for (RepositoryChangeListener listener : listeners) {
+                            listener.removed(originalLocation);
+                        }
+                    }
+                }
+            }
 
-        // added or removed subdirectories ?
-        List<File> previous = new LinkedList<File>();
-        previous.addAll(subDirectories);
-        for (File file : repository.listFiles(new FileFilter() {
-            public boolean accept(File pathname) {
-                return pathname.isDirectory();
-            }
-        })) {
-            // added ?
-            if (!subDirectories.contains(file)) {
-                for (RepositoryChangeListener listener : listeners) {
-                    listener.added(file.toURI());
+            // added or removed subdirectories ?
+            List<File> previous = new LinkedList<File>();
+            previous.addAll(subDirectories);
+            for (File file : repository.listFiles(new FileFilter() {
+                public boolean accept(File pathname) {
+                    return pathname.isDirectory();
                 }
-                subDirectories.add(file);
-            }  else {
-                // known, removing it from the copied list to check
-                // for removal
-                previous.remove(file);
-            }
-        }
-        // any left in our copy is a removed sub directory.
-        if (!previous.isEmpty()) {
-            for (File file : previous) {
-                 for (RepositoryChangeListener listener : listeners) {
-                    listener.removed(file.toURI());
+            })) {
+                // added ?
+                if (!subDirectories.contains(file)) {
+                    for (RepositoryChangeListener listener : listeners) {
+                        listener.added(file.toURI());
+                    }
+                    subDirectories.add(file);
+                }  else {
+                    // known, removing it from the copied list to check
+                    // for removal
+                    previous.remove(file);
                 }
-                subDirectories.remove(file);
             }
+            // any left in our copy is a removed sub directory.
+            if (!previous.isEmpty()) {
+                for (File file : previous) {
+                     for (RepositoryChangeListener listener : listeners) {
+                        listener.removed(file.toURI());
+                    }
+                    subDirectories.remove(file);
+                }
+            } 
+        } finally {
+            lock.unlock();
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2024 Oracle and/or its affiliates. All rights reserved.
  * Copyright (c) 2019 Payara Foundation and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.locks.ReentrantLock;
 import java.net.URI;
 import java.util.logging.Logger;
 
@@ -149,6 +150,7 @@ public class ParsingContext {
     final Logger logger;
     final ParsingConfig config;
     final ResourceLocator locator;
+    final ReentrantLock lock = new ReentrantLock();
 
     private ParsingContext(Builder builder) {
 //        Runtime runtime = Runtime.getRuntime();
@@ -178,13 +180,18 @@ public class ParsingContext {
 
     Map<URI, TypeBuilder> builders = new HashMap<URI, TypeBuilder>();
 
-    public synchronized TypeBuilder getTypeBuilder(URI definingURI) {
-        TypeBuilder builder = builders.get(definingURI);
-        if (builder==null) {
-            builder = new TypesImpl(types, definingURI);
-            builders.put(definingURI, builder);
+    public TypeBuilder getTypeBuilder(URI definingURI) {
+        lock.lock();
+        try {
+            TypeBuilder builder = builders.get(definingURI);
+            if (builder==null) {
+                builder = new TypesImpl(types, definingURI);
+                builders.put(definingURI, builder);
+            }
+            return builder;
+        } finally {
+            lock.unlock();
         }
-        return builder;
     }
 
     /**

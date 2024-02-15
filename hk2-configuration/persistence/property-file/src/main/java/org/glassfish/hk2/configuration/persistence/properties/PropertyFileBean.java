@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -18,6 +18,7 @@ package org.glassfish.hk2.configuration.persistence.properties;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * This bean configures the PropertyFileService itself.  An implementation
@@ -35,6 +36,7 @@ public class PropertyFileBean {
     /** The name of the single instance of this bean */
     public final static String INSTANCE_NAME = "DEFAULT";
     
+    private final ReentrantLock lock = new ReentrantLock();
     private final HashMap<String, Class<?>> mapping = new HashMap<String, Class<?>>();
     
     /**
@@ -58,8 +60,11 @@ public class PropertyFileBean {
      * @return A copy of the type name to bean class mapping
      */
     public Map<String, Class<?>> getTypeMapping() {
-        synchronized (mapping) {
+        lock.lock();
+        try {
             return new HashMap<String, Class<?>>(mapping);
+        } finally {
+            lock.unlock();
         }
     }
     
@@ -71,8 +76,11 @@ public class PropertyFileBean {
      * May not be null
      */
     public void addTypeMapping(String typeName, Class<?> beanClass) {
-        synchronized (mapping) {
+        lock.lock();
+        try {
             mapping.put(typeName, beanClass);
+        } finally {
+            lock.unlock();
         }
     }
     
@@ -85,8 +93,11 @@ public class PropertyFileBean {
      * was no type mapping with the given name
      */
     public Class<?> removeTypeMapping(String typeName) {
-        synchronized (mapping) {
+        lock.lock();
+        try {
             return mapping.remove(typeName);
+        } finally {
+            lock.unlock();
         }
     }
     
@@ -99,8 +110,11 @@ public class PropertyFileBean {
      * was no type mapping with the given name
      */
     public Class<?> getTypeMapping(String typeName) {
-        synchronized (mapping) {
+        lock.lock();
+        try {
             return mapping.get(typeName);
+        } finally {
+            lock.unlock();
         }
     }
 

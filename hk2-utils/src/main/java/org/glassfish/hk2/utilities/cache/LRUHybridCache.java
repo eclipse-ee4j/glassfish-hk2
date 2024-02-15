@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -26,6 +26,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Hybrid cache that allows explicit removals of included entries as well
@@ -160,7 +161,7 @@ public class LRUHybridCache<K,V> implements Computable<K, HybridCacheEntry<V>> {
     private final ConcurrentHashMap<K, LRUHybridCache<K,V>.OriginThreadAwareFuture> cache = new ConcurrentHashMap<K, LRUHybridCache<K,V>.OriginThreadAwareFuture>();
     private final Computable<K, HybridCacheEntry<V>> computable;
 
-    private final Object prunningLock = new Object();
+    private final ReentrantLock prunningLock = new ReentrantLock();
     private final int maxCacheSize;
 
     /**
@@ -258,11 +259,14 @@ public class LRUHybridCache<K,V> implements Computable<K, HybridCacheEntry<V>> {
                 LRUHybridCache<K,V>.OriginThreadAwareFuture ft =
                         new LRUHybridCache.OriginThreadAwareFuture(this, key);
 
-                synchronized (prunningLock) {
+                prunningLock.lock();
+                try {
                     if (cache.size() + 1 > maxCacheSize) {
                         removeLRUItem();
                     }
                     f = cache.putIfAbsent(key, ft);
+                } finally {
+                    prunningLock.unlock();
                 }
                 if (f == null) {
                     f = ft;
