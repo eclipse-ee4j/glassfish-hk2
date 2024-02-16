@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024 Oracle and/or its affiliates. All rights reserved.
  * Copyright (c) 2023 Payara Foundation and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -27,6 +27,8 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.locks.ReentrantLock;
+
 import com.sun.enterprise.module.HK2Module;
 
 /**
@@ -36,6 +38,7 @@ import com.sun.enterprise.module.HK2Module;
  */
 final class ModuleClassLoader extends ClassLoaderProxy {
     
+    private final ReentrantLock lock = new ReentrantLock();
     private final ModuleImpl module;
 
     /**
@@ -51,9 +54,14 @@ final class ModuleClassLoader extends ClassLoaderProxy {
         this.module = owner;
     }
 
-    protected synchronized Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-        initialize(name);
-        return super.loadClass(name, resolve);
+    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+        lock.lock();
+        try {
+            initialize(name);
+            return super.loadClass(name, resolve);
+        } finally {
+            lock.unlock();
+        }
     }
 
     protected Class<?> findClass(String name) throws ClassNotFoundException {
@@ -125,8 +133,8 @@ final class ModuleClassLoader extends ClassLoaderProxy {
      */
     private void initialize(String name) {
         if (initialized)    return;
-
-        synchronized(this) {
+        lock.lock();
+        try {
             if(!initialized) {
                 // if we are preparing, we should just not initiate initialization.
                 if (module.getState().equals(ModuleState.PREPARING)) {
@@ -139,6 +147,8 @@ final class ModuleClassLoader extends ClassLoaderProxy {
                 initializerThread = Thread.currentThread().getStackTrace();
                 initializerClassName = name;
             }
+        } finally {
+            lock.unlock();
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -20,6 +20,9 @@ import com.sun.enterprise.module.common_impl.AbstractFactory;
 import com.sun.enterprise.module.common_impl.LogHelper;
 import com.sun.enterprise.module.common_impl.ModuleId;
 import com.sun.enterprise.module.ModulesRegistry;
+
+import java.util.concurrent.locks.ReentrantLock;
+
 import com.sun.enterprise.module.ModuleDefinition;
 
 /**
@@ -27,11 +30,18 @@ import com.sun.enterprise.module.ModuleDefinition;
  */
 public class HK2Factory extends AbstractFactory {
 
-    public synchronized static void initialize() {
-        if (Instance != null) {
-            LogHelper.getDefaultLogger().fine("Singleton already initialized as " + getInstance());
+    private static final ReentrantLock lock = new ReentrantLock();
+
+    public static void initialize() {
+        lock.lock();
+        try {
+            if (Instance != null) {
+                LogHelper.getDefaultLogger().fine("Singleton already initialized as " + getInstance());
+            }
+            Instance = new HK2Factory();
+        } finally {
+            lock.unlock();
         }
-        Instance = new HK2Factory();
     }
 
     public ModulesRegistry createModulesRegistry() {

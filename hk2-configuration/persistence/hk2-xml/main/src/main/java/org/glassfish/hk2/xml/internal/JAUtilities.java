@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2021 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -74,7 +75,8 @@ public class JAUtilities {
     public final static String REMOVE = "remove";
     public final static String JAXB_DEFAULT_STRING = "##default";
     public final static String JAXB_DEFAULT_DEFAULT = "\u0000";
-    
+
+    private final ReentrantLock lock = new ReentrantLock();
     private final ClassReflectionHelper classReflectionHelper;
     private final ClassPool defaultClassPool;
     private final CtClass superClazz;
@@ -143,38 +145,43 @@ public class JAUtilities {
         return entry.getValue();
     }
     
-    public synchronized void convertRootAndLeaves(Class<?> root, boolean mustConvertAll) {
-        long currentTime = 0L;
-        if (DEBUG_GENERATION_TIMING) {
-            computer.numGenerated = 0;
-            computer.numPreGenerated = 0;
+    public void convertRootAndLeaves(Class<?> root, boolean mustConvertAll) {
+        lock.lock();
+        try {
+            long currentTime = 0L;
+            if (DEBUG_GENERATION_TIMING) {
+                computer.numGenerated = 0;
+                computer.numPreGenerated = 0;
+                
+                currentTime = System.currentTimeMillis();
+            }
             
-            currentTime = System.currentTimeMillis();
-        }
-        
-        ModelImpl rootModel = interface2ModelCache.compute(root).getValue();
-        if (!mustConvertAll) {
+            ModelImpl rootModel = interface2ModelCache.compute(root).getValue();
+            if (!mustConvertAll) {
+                if (DEBUG_GENERATION_TIMING) {
+                    currentTime = System.currentTimeMillis() - currentTime;
+                    
+                    Logger.getLogger().debug("Took " + currentTime + " to perform " +
+                      computer.numGenerated + " generations with " +
+                      computer.numPreGenerated + " pre generated with a lazy parser");
+                }
+                return;
+            }
+            
+            HashSet<Class<?>> cycles = new HashSet<Class<?>>();
+            cycles.add(root);
+            
+            convertAllRootAndLeaves(rootModel, cycles);
+            
             if (DEBUG_GENERATION_TIMING) {
                 currentTime = System.currentTimeMillis() - currentTime;
                 
-                Logger.getLogger().debug("Took " + currentTime + " to perform " +
+                Logger.getLogger().debug("Took " + currentTime + " milliseconds to perform " +
                   computer.numGenerated + " generations with " +
-                  computer.numPreGenerated + " pre generated with a lazy parser");
+                  computer.numPreGenerated + " pre generated with a non-lazy parser");
             }
-            return;
-        }
-        
-        HashSet<Class<?>> cycles = new HashSet<Class<?>>();
-        cycles.add(root);
-        
-        convertAllRootAndLeaves(rootModel, cycles);
-        
-        if (DEBUG_GENERATION_TIMING) {
-            currentTime = System.currentTimeMillis() - currentTime;
-            
-            Logger.getLogger().debug("Took " + currentTime + " milliseconds to perform " +
-              computer.numGenerated + " generations with " +
-              computer.numPreGenerated + " pre generated with a non-lazy parser");
+        } finally {
+            lock.unlock();
         }
     }
     

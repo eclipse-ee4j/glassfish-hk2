@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -26,6 +26,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.glassfish.hk2.configuration.hub.api.Hub;
 import org.glassfish.hk2.configuration.hub.api.Instance;
@@ -49,7 +50,7 @@ public class PropertyFileHandleImpl implements PropertyFileHandle {
     private final static int MAX_TRIES = 10000;
     private final static char SEPARATOR = '.';
     
-    private final Object lock = new Object();
+    private final ReentrantLock lock = new ReentrantLock();
     private HashMap<TypeData, Map<String, String>> lastRead = new HashMap<TypeData, Map<String, String>>();
     private boolean open = true;
     
@@ -392,7 +393,8 @@ public class PropertyFileHandleImpl implements PropertyFileHandle {
             extractData(sFullKey, value, allBeans);
         }
         
-        synchronized (lock) {
+        lock.lock();
+        try {
             if (!open) {
                 throw new IllegalStateException("This handle has been closed");
             }
@@ -422,6 +424,8 @@ public class PropertyFileHandleImpl implements PropertyFileHandle {
             }
             
             lastRead = allBeans;
+        } finally {
+            lock.unlock();
         }
     }
     
@@ -476,7 +480,8 @@ public class PropertyFileHandleImpl implements PropertyFileHandle {
      */
     @Override
     public void dispose() {
-        synchronized (lock) {
+        lock.lock();
+        try {
             if (!open) return;
             open = false;
             
@@ -500,6 +505,8 @@ public class PropertyFileHandleImpl implements PropertyFileHandle {
             
             // success or not
             lastRead = allBeans;
+        } finally {
+            lock.unlock();
         }
 
     }

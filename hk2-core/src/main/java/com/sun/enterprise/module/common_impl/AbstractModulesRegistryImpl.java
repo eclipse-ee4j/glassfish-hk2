@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -43,6 +43,7 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
 import org.glassfish.hk2.api.ActiveDescriptor;
@@ -78,6 +79,7 @@ public abstract class AbstractModulesRegistryImpl implements ModulesRegistry {
 
     protected final Map<Integer,Repository> repositories = new TreeMap<Integer,Repository>();
 
+    private final ReentrantLock lock = new ReentrantLock();
     private final ConcurrentMap<Class<?>, CopyOnWriteArrayList<?>> runningServices = 
       new ConcurrentHashMap<Class<?>,CopyOnWriteArrayList<?>>();
 
@@ -221,17 +223,22 @@ public abstract class AbstractModulesRegistryImpl implements ModulesRegistry {
      * @param repository new repository to attach to this registry
      * @param weight int value from 1 to 100 to specify the search order
      */
-    public synchronized void addRepository(Repository repository, int weight) {
-        // check that we don't already have this repository
-        for (Repository repo : repositories.values()) {
-            if (repo.getLocation().equals(repository.getLocation())) {
-                throw new RuntimeException("repository at " + repository.getLocation() + " already registered");
+    public void addRepository(Repository repository, int weight) {
+        lock.lock();
+        try {
+            // check that we don't already have this repository
+            for (Repository repo : repositories.values()) {
+                if (repo.getLocation().equals(repository.getLocation())) {
+                    throw new RuntimeException("repository at " + repository.getLocation() + " already registered");
+                }
             }
+            while (repositories.containsKey(weight)) {
+                weight++;
+            }
+            repositories.put(weight, repository);
+        } finally {
+            lock.unlock();
         }
-        while (repositories.containsKey(weight)) {
-            weight++;
-        }
-        repositories.put(weight, repository);
     }
     
     /**
@@ -240,8 +247,13 @@ public abstract class AbstractModulesRegistryImpl implements ModulesRegistry {
      * registered in this instance.
      * @param repository new repository to attach to this registry
      */
-    public synchronized void addRepository(Repository repository) {
-        repositories.put(100+repositories.size(), repository);
+    public void addRepository(Repository repository) {
+        lock.lock();
+        try {
+            repositories.put(100+repositories.size(), repository);
+        } finally {
+            lock.unlock();
+        }
     }
     
     /**
@@ -251,13 +263,18 @@ public abstract class AbstractModulesRegistryImpl implements ModulesRegistry {
      * longer
      * @param name name of the repository to remove
      */
-    public synchronized void removeRepository(String name) {
-        for (Integer weight : repositories.keySet()) {
-            Repository repo = repositories.get(weight);
-            if (repo.getName().equals(name)) {
-                repositories.remove(weight);
-                return;
+    public void removeRepository(String name) {
+        lock.lock();
+        try {
+            for (Integer weight : repositories.keySet()) {
+                Repository repo = repositories.get(weight);
+                if (repo.getName().equals(name)) {
+                    repositories.remove(weight);
+                    return;
+                }
             }
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -267,14 +284,19 @@ public abstract class AbstractModulesRegistryImpl implements ModulesRegistry {
      * @param name name of the repository to return
      * @return the repository or null if not found
      */
-    public synchronized Repository getRepository(String name) {
-        for (Integer weight : repositories.keySet()) {
-            Repository repo = repositories.get(weight);
-            if (repo.getName().equals(name)) {
-                return repo;
+    public Repository getRepository(String name) {
+        lock.lock();
+        try {
+            for (Integer weight : repositories.keySet()) {
+                Repository repo = repositories.get(weight);
+                if (repo.getName().equals(name)) {
+                    return repo;
+                }
             }
+            return null;
+        } finally {
+            lock.unlock();
         }
-        return null;
     }
 
     /**
@@ -537,8 +559,13 @@ public abstract class AbstractModulesRegistryImpl implements ModulesRegistry {
      * definition, the registry will be capable of created shared and private
      * <code>HK2Module</code> instances.
      */
-    public synchronized HK2Module add(ModuleDefinition info) throws ResolveError {
-        return add(info, true);
+    public HK2Module add(ModuleDefinition info) throws ResolveError {
+        lock.lock();
+        try {
+            return add(info, true);
+        } finally {
+            lock.unlock();
+        }
     }
 
     public HK2Module add(ModuleDefinition info, boolean resolve) throws ResolveError {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 import jakarta.inject.Singleton;
 
@@ -42,7 +43,7 @@ public class ConfiguredByContext implements Context<ConfiguredBy> {
 
     private final static ThreadLocal<ActiveDescriptor<?>> workingOn = ThreadLocal.withInitial(() -> null);
 
-    private final Object lock = new Object();
+    private final ReentrantLock lock = new ReentrantLock();
     private final Map<ActiveDescriptor<?>, Object> db = new HashMap<>();
 
     /* (non-Javadoc)
@@ -76,7 +77,8 @@ public class ConfiguredByContext implements Context<ConfiguredBy> {
     @SuppressWarnings("unchecked")
     private <U> U internalFindOrCreate(ActiveDescriptor<U> activeDescriptor,
             ServiceHandle<?> root) {
-        synchronized (lock) {
+        lock.lock();
+        try {
             U retVal = (U) db.get(activeDescriptor);
             if (retVal != null) return retVal;
 
@@ -88,6 +90,8 @@ public class ConfiguredByContext implements Context<ConfiguredBy> {
             db.put(activeDescriptor, retVal);
 
             return retVal;
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -96,8 +100,11 @@ public class ConfiguredByContext implements Context<ConfiguredBy> {
      */
     @Override
     public boolean containsKey(ActiveDescriptor<?> descriptor) {
-        synchronized (lock) {
+        lock.lock();
+        try {
             return db.containsKey(descriptor);
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -107,11 +114,14 @@ public class ConfiguredByContext implements Context<ConfiguredBy> {
     @SuppressWarnings("unchecked")
     @Override
     public void destroyOne(ActiveDescriptor<?> descriptor) {
-        synchronized (lock) {
+        lock.lock();
+        try {
             Object destroyMe = db.remove(descriptor);
             if (destroyMe == null) return;
 
             ((ActiveDescriptor<Object>) descriptor).dispose(destroyMe);
+        } finally {
+            lock.unlock();
         }
 
     }
@@ -137,11 +147,14 @@ public class ConfiguredByContext implements Context<ConfiguredBy> {
      */
     @Override
     public void shutdown() {
-        synchronized (lock) {
+        lock.lock();
+        try {
             Set<ActiveDescriptor<?>> activeDescriptors = new HashSet<>(db.keySet());
             for (ActiveDescriptor<?> killMe : activeDescriptors) {
                 destroyOne(killMe);
             }
+        } finally {
+            lock.unlock();
         }
 
     }
@@ -151,8 +164,11 @@ public class ConfiguredByContext implements Context<ConfiguredBy> {
     }
 
     /* package */ Object findOnly(ActiveDescriptor<?> descriptor) {
-        synchronized (lock) {
+        lock.lock();
+        try {
             return db.get(descriptor);
+        } finally {
+            lock.unlock();
         }
     }
 

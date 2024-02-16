@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2024 Oracle and/or its affiliates. All rights reserved.
  * Copyright (c) 2023 Payara Foundation and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -22,6 +22,7 @@ import org.glassfish.hk2.classmodel.reflect.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 import java.net.URI;
 
 /**
@@ -31,6 +32,7 @@ import java.net.URI;
  */
 public class TypeImpl extends AnnotatedElementImpl implements Type {
 
+    private final ReentrantLock lock = new ReentrantLock();
     private final TypeProxy<Type> sink;
     private final List<MethodModel> methods = new ArrayList<MethodModel>();
     private final Set<URI> definingURIs= new HashSet<URI>();
@@ -46,8 +48,13 @@ public class TypeImpl extends AnnotatedElementImpl implements Type {
         return Collections.unmodifiableSet(definingURIs);
     }
 
-    synchronized void addDefiningURI(URI uri) {
-        definingURIs.add(uri);
+    void addDefiningURI(URI uri) {
+        lock.lock();
+        try {
+            definingURIs.add(uri);
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
@@ -60,8 +67,13 @@ public class TypeImpl extends AnnotatedElementImpl implements Type {
         return false;
     }
 
-    synchronized void addMethod(MethodModelImpl m) {
-        methods.add(m);
+    void addMethod(MethodModelImpl m) {
+        lock.lock();
+        try {
+            methods.add(m);
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
