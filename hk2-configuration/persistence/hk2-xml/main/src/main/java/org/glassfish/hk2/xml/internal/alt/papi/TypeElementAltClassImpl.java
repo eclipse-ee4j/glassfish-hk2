@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
@@ -48,6 +49,7 @@ import org.glassfish.hk2.xml.internal.alt.clazz.ClassAltClassImpl;
  *
  */
 public class TypeElementAltClassImpl implements AltClass {
+    private final ReentrantLock lock = new ReentrantLock();
     private final TypeElement clazz;
     private final ProcessingEnvironment processingEnv;
     
@@ -79,21 +81,26 @@ public class TypeElementAltClassImpl implements AltClass {
      * @see org.glassfish.hk2.xml.internal.alt.AltClass#getAnnotations()
      */
     @Override
-    public synchronized List<AltAnnotation> getAnnotations() {
-        if (annotations != null) return annotations;
-        
-        List<? extends AnnotationMirror> annoMirrors = processingEnv.getElementUtils().getAllAnnotationMirrors(clazz);
-        
-        ArrayList<AltAnnotation> retVal = new ArrayList<AltAnnotation>(annoMirrors.size());
-        
-        for (AnnotationMirror annoMirror : annoMirrors) {
-            AnnotationMirrorAltAnnotationImpl anno = new AnnotationMirrorAltAnnotationImpl(annoMirror, processingEnv);
+    public List<AltAnnotation> getAnnotations() {
+        lock.lock();
+        try {
+            if (annotations != null) return annotations;
             
-            retVal.add(anno);
+            List<? extends AnnotationMirror> annoMirrors = processingEnv.getElementUtils().getAllAnnotationMirrors(clazz);
+            
+            ArrayList<AltAnnotation> retVal = new ArrayList<AltAnnotation>(annoMirrors.size());
+            
+            for (AnnotationMirror annoMirror : annoMirrors) {
+                AnnotationMirrorAltAnnotationImpl anno = new AnnotationMirrorAltAnnotationImpl(annoMirror, processingEnv);
+                
+                retVal.add(anno);
+            }
+            
+            annotations = Collections.unmodifiableList(new ArrayList<AltAnnotation>(retVal));
+            return annotations;
+        } finally {
+            lock.unlock();
         }
-        
-        annotations = Collections.unmodifiableList(new ArrayList<AltAnnotation>(retVal));
-        return annotations;
     }
     
     private static final Set<String> POSSIBLE_NO_HANDLE = new HashSet<String>(Arrays.asList(new String[] {
@@ -164,51 +171,56 @@ public class TypeElementAltClassImpl implements AltClass {
      * @see org.glassfish.hk2.xml.internal.alt.AltClass#getMethods()
      */
     @Override
-    public synchronized List<AltMethod> getMethods() {
-        if (methods != null) return methods;
-        
-        List<? extends Element> innerElements = processingEnv.getElementUtils().getAllMembers(clazz);
-        
-        TreeMap<String, List<Element>> reorderByEnclosingClass = new TreeMap<String, List<Element>>();
-        
-        String clazzName = getName();
-        for (Element innerElementElement : innerElements) {
-            if (isMethodToGenerate(innerElementElement)) {
-                TypeElement enclosingElement = (TypeElement) innerElementElement.getEnclosingElement();
-                
-                String enclosingName = Utilities.convertNameToString(processingEnv.getElementUtils().getBinaryName(enclosingElement));
-                
-                List<Element> addedList = reorderByEnclosingClass.get(enclosingName);
-                if (addedList == null) {
-                    addedList = new LinkedList<Element>();
-                    
-                    reorderByEnclosingClass.put(enclosingName, addedList);
-                }
-                
-                addedList.add(innerElementElement);
-            }
-        }
-        
-        List<Element> innerElementsReordered = new ArrayList<Element>(innerElements.size());
-        for (Map.Entry<String, List<Element>> listByEnclosing : reorderByEnclosingClass.entrySet()) {
-            String enclosingClass = listByEnclosing.getKey();
-            if (clazzName.equals(enclosingClass)) continue;
+    public List<AltMethod> getMethods() {
+        lock.lock();
+        try {
+            if (methods != null) return methods;
             
-            innerElementsReordered.addAll(listByEnclosing.getValue());
+            List<? extends Element> innerElements = processingEnv.getElementUtils().getAllMembers(clazz);
+            
+            TreeMap<String, List<Element>> reorderByEnclosingClass = new TreeMap<String, List<Element>>();
+            
+            String clazzName = getName();
+            for (Element innerElementElement : innerElements) {
+                if (isMethodToGenerate(innerElementElement)) {
+                    TypeElement enclosingElement = (TypeElement) innerElementElement.getEnclosingElement();
+                    
+                    String enclosingName = Utilities.convertNameToString(processingEnv.getElementUtils().getBinaryName(enclosingElement));
+                    
+                    List<Element> addedList = reorderByEnclosingClass.get(enclosingName);
+                    if (addedList == null) {
+                        addedList = new LinkedList<Element>();
+                        
+                        reorderByEnclosingClass.put(enclosingName, addedList);
+                    }
+                    
+                    addedList.add(innerElementElement);
+                }
+            }
+            
+            List<Element> innerElementsReordered = new ArrayList<Element>(innerElements.size());
+            for (Map.Entry<String, List<Element>> listByEnclosing : reorderByEnclosingClass.entrySet()) {
+                String enclosingClass = listByEnclosing.getKey();
+                if (clazzName.equals(enclosingClass)) continue;
+                
+                innerElementsReordered.addAll(listByEnclosing.getValue());
+            }
+            
+            List<Element> topClass = reorderByEnclosingClass.get(clazzName);
+            if (topClass != null) {
+                innerElementsReordered.addAll(topClass);
+            }
+            
+            ArrayList<AltMethod> retVal = new ArrayList<AltMethod>(innerElementsReordered.size());
+            for (Element innerElementElement : innerElementsReordered) {
+                retVal.add(new ElementAltMethodImpl(innerElementElement, processingEnv));
+            }
+            
+            methods = Collections.unmodifiableList(retVal);
+            return methods;
+        } finally {
+            lock.unlock();
         }
-        
-        List<Element> topClass = reorderByEnclosingClass.get(clazzName);
-        if (topClass != null) {
-            innerElementsReordered.addAll(topClass);
-        }
-        
-        ArrayList<AltMethod> retVal = new ArrayList<AltMethod>(innerElementsReordered.size());
-        for (Element innerElementElement : innerElementsReordered) {
-            retVal.add(new ElementAltMethodImpl(innerElementElement, processingEnv));
-        }
-        
-        methods = Collections.unmodifiableList(retVal);
-        return methods;
     }
     
     @Override

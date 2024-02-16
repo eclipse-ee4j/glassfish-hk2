@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2020 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -18,12 +18,14 @@ package org.glassfish.hk2.classmodel.reflect.impl;
 
 import org.glassfish.hk2.classmodel.reflect.*;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Implementation of an extensible type (Class or Interface)
  */
 public abstract class ExtensibleTypeImpl<T extends ExtensibleType> extends TypeImpl implements ExtensibleType<T> {
 
+    private final ReentrantLock lock = new ReentrantLock();
     protected TypeProxy<?> parent;
     private final List<FieldModel> staticFields = new ArrayList<>();
     private final List<TypeProxy<InterfaceModel>> implementedIntf = new ArrayList<>();
@@ -76,22 +78,37 @@ public abstract class ExtensibleTypeImpl<T extends ExtensibleType> extends TypeI
         return simpleName;
     }
 
-    public synchronized TypeProxy<?> setParent(final TypeProxy<?> parent) {
-        if (null == this.parent) { 
-          this.parent = parent;
+    public TypeProxy<?> setParent(final TypeProxy<?> parent) {
+        lock.lock();
+        try {
+            if (null == this.parent) { 
+              this.parent = parent;
+            }
+            return this.parent;
+        } finally {
+            lock.unlock();
         }
-        return this.parent;
     }
 
-    synchronized void isImplementing(TypeProxy<InterfaceModel> intf) {
-        implementedIntf.add(intf);
+    void isImplementing(TypeProxy<InterfaceModel> intf) {
+        try {
+            lock.lock();
+            implementedIntf.add(intf);
+        } finally {
+            lock.unlock();
+        }
     }
 
-    synchronized void isImplementing(ParameterizedInterfaceModelImpl pim) {
-        if (pim.getRawInterface() instanceof InterfaceModel) {
-            implementedIntf.add((TypeProxy<InterfaceModel>) pim.getRawInterfaceProxy());
+    void isImplementing(ParameterizedInterfaceModelImpl pim) {
+        try {
+            lock.lock();
+            if (pim.getRawInterface() instanceof InterfaceModel) {
+                implementedIntf.add((TypeProxy<InterfaceModel>) pim.getRawInterfaceProxy());
+            }
+            implementedParameterizedIntf.add(pim);
+        } finally {
+            lock.unlock();
         }
-        implementedParameterizedIntf.add(pim);
     }
 
     @Override
@@ -132,8 +149,13 @@ public abstract class ExtensibleTypeImpl<T extends ExtensibleType> extends TypeI
         return allTypes;
     }
 
-    synchronized void addStaticField(FieldModel field) {
-        staticFields.add(field);
+    void addStaticField(FieldModel field) {
+        try {
+            lock.lock();
+            staticFields.add(field);
+        } finally {
+            lock.unlock();
+        }
     }
 
     void addField(FieldModel field) {

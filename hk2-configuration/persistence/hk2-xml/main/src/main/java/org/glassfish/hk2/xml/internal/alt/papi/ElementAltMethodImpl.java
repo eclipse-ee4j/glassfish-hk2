@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
@@ -45,6 +46,7 @@ import org.glassfish.hk2.xml.internal.alt.clazz.ClassAltClassImpl;
  *
  */
 public class ElementAltMethodImpl implements AltMethod {
+    private final ReentrantLock lock = new ReentrantLock();
     private final ExecutableElement method;
     private final ProcessingEnvironment processingEnv;
     private List<AltClass> parameters;
@@ -69,36 +71,46 @@ public class ElementAltMethodImpl implements AltMethod {
      * @see org.glassfish.hk2.xml.internal.alt.AltMethod#getReturnType()
      */
     @Override
-    public synchronized AltClass getReturnType() {
-        if (returnType != null) return returnType;
-        
-        ExecutableType executable = (ExecutableType) method.asType();
-        TypeMirror returnMirror = executable.getReturnType();
-        
-        AltClass retVal = Utilities.convertTypeMirror(returnMirror, processingEnv);
-        
-        returnType = retVal;
-        return returnType;
+    public AltClass getReturnType() {
+        lock.lock();
+        try {
+            if (returnType != null) return returnType;
+            
+            ExecutableType executable = (ExecutableType) method.asType();
+            TypeMirror returnMirror = executable.getReturnType();
+            
+            AltClass retVal = Utilities.convertTypeMirror(returnMirror, processingEnv);
+            
+            returnType = retVal;
+            return returnType;
+        } finally {
+            lock.unlock();
+        }
     }
 
     /* (non-Javadoc)
      * @see org.glassfish.hk2.xml.internal.alt.AltMethod#getParameterTypes()
      */
     @Override
-    public synchronized List<AltClass> getParameterTypes() {
-        if (parameters != null) return parameters;
-        
-        ExecutableType executable = (ExecutableType) method.asType();
-        List<? extends TypeMirror> paramMirrors = executable.getParameterTypes();
-        
-        List<AltClass> retVal = new ArrayList<AltClass>(paramMirrors.size());
-        
-        for (TypeMirror paramMirror : paramMirrors) {
-            retVal.add(Utilities.convertTypeMirror(paramMirror, processingEnv));
+    public List<AltClass> getParameterTypes() {
+        lock.lock();
+        try {
+            if (parameters != null) return parameters;
+            
+            ExecutableType executable = (ExecutableType) method.asType();
+            List<? extends TypeMirror> paramMirrors = executable.getParameterTypes();
+            
+            List<AltClass> retVal = new ArrayList<AltClass>(paramMirrors.size());
+            
+            for (TypeMirror paramMirror : paramMirrors) {
+                retVal.add(Utilities.convertTypeMirror(paramMirror, processingEnv));
+            }
+            
+            parameters = Collections.unmodifiableList(retVal);
+            return parameters;
+        } finally {
+            lock.unlock();
         }
-        
-        parameters = Collections.unmodifiableList(retVal);
-        return parameters;
     }
 
     /* (non-Javadoc)
@@ -154,33 +166,43 @@ public class ElementAltMethodImpl implements AltMethod {
      * @see org.glassfish.hk2.xml.internal.alt.AltMethod#getAnnotation(java.lang.String)
      */
     @Override
-    public synchronized AltAnnotation getAnnotation(String annotation) {
-        if (annotations == null) {
-            getAnnotations();
+    public AltAnnotation getAnnotation(String annotation) {
+        lock.lock();
+        try {
+            if (annotations == null) {
+                getAnnotations();
+            }
+            
+            return annotations.get(annotation);
+        } finally {
+            lock.unlock();
         }
-        
-        return annotations.get(annotation);
     }
 
     /* (non-Javadoc)
      * @see org.glassfish.hk2.xml.internal.alt.AltMethod#getAnnotations()
      */
     @Override
-    public synchronized List<AltAnnotation> getAnnotations() {
-        if (annotations != null) {
-            return Collections.unmodifiableList(new ArrayList<AltAnnotation>(annotations.values()));
-        }
-        
-        Map<String, AltAnnotation> retVal = new LinkedHashMap<String, AltAnnotation>();
-        
-        for (AnnotationMirror annoMirror : method.getAnnotationMirrors()) {
-            AnnotationMirrorAltAnnotationImpl addMe = new AnnotationMirrorAltAnnotationImpl(annoMirror, processingEnv);
+    public List<AltAnnotation> getAnnotations() {
+        lock.lock();
+        try {
+            if (annotations != null) {
+                return Collections.unmodifiableList(new ArrayList<AltAnnotation>(annotations.values()));
+            }
             
-            retVal.put(addMe.annotationType(), addMe);
+            Map<String, AltAnnotation> retVal = new LinkedHashMap<String, AltAnnotation>();
+            
+            for (AnnotationMirror annoMirror : method.getAnnotationMirrors()) {
+                AnnotationMirrorAltAnnotationImpl addMe = new AnnotationMirrorAltAnnotationImpl(annoMirror, processingEnv);
+                
+                retVal.put(addMe.annotationType(), addMe);
+            }
+            
+            annotations = Collections.unmodifiableMap(retVal);
+            return Collections.unmodifiableList(new ArrayList<AltAnnotation>(annotations.values()));
+        } finally {
+            lock.unlock();
         }
-        
-        annotations = Collections.unmodifiableMap(retVal);
-        return Collections.unmodifiableList(new ArrayList<AltAnnotation>(annotations.values()));
     }
     
     @Override

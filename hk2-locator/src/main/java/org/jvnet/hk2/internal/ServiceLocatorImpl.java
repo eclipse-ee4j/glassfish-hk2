@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2024 Contributors to Eclipse Foundation.
- * Copyright (c) 2012, 2019 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2024 Oracle and/or its affiliates. All rights reserved.
  * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
@@ -43,6 +43,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
@@ -126,7 +127,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
     });
 
     private final static int CACHE_SIZE = 20000;
-    private final static Object sLock = new Object();
+    private final static ReentrantLock sLock = new ReentrantLock();
     private static long currentLocatorId = 0L;
 
     /* package */ final static DescriptorComparator DESCRIPTOR_COMPARATOR = new DescriptorComparator();
@@ -163,6 +164,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
             return _resolveContext(a);
         }
     });
+    private final ReentrantLock childrenLock = new ReentrantLock();
     private final Map<ServiceLocatorImpl, ServiceLocatorImpl> children =
             new WeakHashMap<ServiceLocatorImpl, ServiceLocatorImpl>(); // Must be Weak for throw away children
 
@@ -171,6 +173,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
     private String defaultClassAnalyzer = ClassAnalyzer.DEFAULT_IMPLEMENTATION_NAME;
     private volatile Unqualified defaultUnqualified = null;
 
+    private final ReentrantLock allResolversLock = new ReentrantLock();
     private ConcurrentHashMap<Class<? extends Annotation>, InjectionResolver<?>> allResolvers =
             new ConcurrentHashMap<Class<? extends Annotation>, InjectionResolver<?>>();
     private final Cache<SystemInjecteeImpl, InjectionResolver<?>> injecteeToResolverCache = 
@@ -186,8 +189,11 @@ public class ServiceLocatorImpl implements ServiceLocator {
     private ServiceLocatorState state = ServiceLocatorState.RUNNING;
 
     private static long getAndIncrementLocatorId() {
-        synchronized (sLock) {
+       sLock.lock();
+       try {
             return currentLocatorId++;
+        } finally {
+            sLock.unlock();
         }
     }
 
@@ -889,12 +895,15 @@ public class ServiceLocatorImpl implements ServiceLocator {
         try {
             if (state.equals(ServiceLocatorState.SHUTDOWN)) return;
 
-            synchronized(children) {
+            childrenLock.lock();
+            try {
                 for (Iterator<ServiceLocatorImpl> childIterator = children.keySet().iterator(); childIterator.hasNext();) {
                     ServiceLocatorImpl child = childIterator.next();
                     childIterator.remove();
                     child.shutdown();
                 }
+            } finally {
+                childrenLock.unlock();
             }
 
             if (parent != null) {
@@ -952,8 +961,11 @@ public class ServiceLocatorImpl implements ServiceLocator {
             contextCache.clear();
             perLocatorUtilities.shutdown();
             
-            synchronized (children) {
+            childrenLock.lock();
+            try {
                 children.clear();
+            } finally {
+                childrenLock.unlock();
             }
 
             Logger.getLogger().debug("Shutdown ServiceLocator " + this);
@@ -1960,9 +1972,12 @@ public class ServiceLocatorImpl implements ServiceLocator {
             }
         }
 
-        synchronized (allResolvers) {
+        allResolversLock.lock();
+        try {
             allResolvers.clear();
             allResolvers.putAll(newResolvers);
+        } finally {
+            allResolversLock.unlock();
         }
         injecteeToResolverCache.clear();
     }
@@ -2084,8 +2099,11 @@ public class ServiceLocatorImpl implements ServiceLocator {
 
     private void getAllChildren(LinkedList<ServiceLocatorImpl> allMyChildren) {
         LinkedList<ServiceLocatorImpl> addMe;
-        synchronized (children) {
+        childrenLock.lock();
+        try {
             addMe = new LinkedList<ServiceLocatorImpl>(children.keySet());
+        } finally {
+            childrenLock.unlock();
         }
 
         allMyChildren.addAll(addMe);
@@ -2382,14 +2400,20 @@ public class ServiceLocatorImpl implements ServiceLocator {
     }
 
     private void addChild(ServiceLocatorImpl child) {
-        synchronized (children) {
+        childrenLock.lock();
+        try {
             children.put(child, null);
+        } finally {
+            childrenLock.unlock();
         }
     }
 
     private void removeChild(ServiceLocatorImpl child) {
-        synchronized (children) {
+        childrenLock.lock();
+        try {
             children.remove(child);
+        } finally {
+            childrenLock.unlock();
         }
     }
 

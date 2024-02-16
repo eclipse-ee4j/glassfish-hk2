@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -68,7 +69,8 @@ import com.sun.enterprise.module.HK2Module;
  * @author Jerome Dochez
  */
 public final class ModuleImpl implements HK2Module {
-    
+
+    private final ReentrantLock lock = new ReentrantLock();
     private final ModuleDefinition moduleDef;
     private WeakReference<ClassLoaderFacade> publicCL;
     private volatile ModuleClassLoader privateCL;
@@ -139,7 +141,8 @@ public final class ModuleImpl implements HK2Module {
      */
     /*package*/ ModuleClassLoader getPrivateClassLoader() {
         if (privateCL==null) {
-            synchronized(this) {
+            lock.lock();
+            try {
                 if(privateCL==null) {
                     URI[] locations = moduleDef.getLocations();
                     URL[] urlLocations = new URL[locations.length];
@@ -161,6 +164,8 @@ public final class ModuleImpl implements HK2Module {
                         }
                     });
                 }
+            } finally {
+                lock.unlock();
             }
         }
         return privateCL;
@@ -281,78 +286,82 @@ public final class ModuleImpl implements HK2Module {
      * @throws com.sun.enterprise.module.ResolveError if any of the declared dependency of this module
      * cannot be satisfied
      */
-    public synchronized void resolve() throws ResolveError {
-        
-        // already resolved ?
-        if (state==ModuleState.ERROR)
-            throw new ResolveError("Module " + getName() + " is in ERROR state");
-        if (state.compareTo(ModuleState.RESOLVED)>=0)
-            return;
+    public void resolve() throws ResolveError {
+        lock.lock();
+        try {
+         // already resolved ?
+            if (state==ModuleState.ERROR)
+                throw new ResolveError("Module " + getName() + " is in ERROR state");
+            if (state.compareTo(ModuleState.RESOLVED)>=0)
+                return;
 
-        if (state==ModuleState.PREPARING) {
-            Utils.identifyCyclicDependency(this, Logger.getAnonymousLogger());
-            throw new ResolveError("Cyclic dependency with " + getName());
-        }
-        state = ModuleState.PREPARING;
-        
-        if (moduleDef.getImportPolicyClassName()!=null) {
-            try {
-                Class<ImportPolicy> importPolicyClass = (Class<ImportPolicy>) getPrivateClassLoader().loadClass(moduleDef.getImportPolicyClassName());
-                ImportPolicy importPolicy = importPolicyClass.newInstance();
-                importPolicy.prepare(this);
-            } catch(ClassNotFoundException e) {
-                state = ModuleState.ERROR;
-                throw new ResolveError(e);
-            } catch(java.lang.InstantiationException e) {
-                state = ModuleState.ERROR;
-                throw new ResolveError(e);
-            } catch(IllegalAccessException e) {
-                state = ModuleState.ERROR;
-                throw new ResolveError(e);
+            if (state==ModuleState.PREPARING) {
+                Utils.identifyCyclicDependency(this, Logger.getAnonymousLogger());
+                throw new ResolveError("Cyclic dependency with " + getName());
             }
-        }
-        for (ModuleDependency dependency : moduleDef.getDependencies()) {
-            ModuleImpl depModule = (ModuleImpl)registry.makeModuleFor(dependency.getName(), dependency.getVersion());
-            if (depModule==null) {
-                state = ModuleState.ERROR;                
-                throw new ResolveError(dependency + " referenced from " 
-                        + moduleDef.getName() + " is not resolved");
+            state = ModuleState.PREPARING;
+            
+            if (moduleDef.getImportPolicyClassName()!=null) {
+                try {
+                    Class<ImportPolicy> importPolicyClass = (Class<ImportPolicy>) getPrivateClassLoader().loadClass(moduleDef.getImportPolicyClassName());
+                    ImportPolicy importPolicy = importPolicyClass.newInstance();
+                    importPolicy.prepare(this);
+                } catch(ClassNotFoundException e) {
+                    state = ModuleState.ERROR;
+                    throw new ResolveError(e);
+                } catch(java.lang.InstantiationException e) {
+                    state = ModuleState.ERROR;
+                    throw new ResolveError(e);
+                } catch(IllegalAccessException e) {
+                    state = ModuleState.ERROR;
+                    throw new ResolveError(e);
+                }
+            }
+            for (ModuleDependency dependency : moduleDef.getDependencies()) {
+                ModuleImpl depModule = (ModuleImpl)registry.makeModuleFor(dependency.getName(), dependency.getVersion());
+                if (depModule==null) {
+                    state = ModuleState.ERROR;                
+                    throw new ResolveError(dependency + " referenced from " 
+                            + moduleDef.getName() + " is not resolved");
+                }
+
+                //if (Utils.isLoggable(Level.INFO)) {
+                //    Utils.getDefaultLogger().info("For module" + getName() + " adding new dependent " + module.getName());
+                //}
+                dependencies.add(depModule);
             }
 
-            //if (Utils.isLoggable(Level.INFO)) {
-            //    Utils.getDefaultLogger().info("For module" + getName() + " adding new dependent " + module.getName());
-            //}
-            dependencies.add(depModule);
-        }
+            // once we have proper import/export filtering for modules, we can
+            // build a look-up table to improve performance
 
-        // once we have proper import/export filtering for modules, we can
-        // build a look-up table to improve performance
-
-        // build up the complete list of transitive dependency modules, without any duplication,
-        // in a breadth-first fashion. The reason we do this in breadth-first is to reduce
-        // the search time based on the assumption that classes tend to be discovered in close dependencies. 
-        List<ModuleImpl> transitiveDependencies = new ArrayList<ModuleImpl>();
-        Set<ModuleImpl> transitiveDependenciesSet = new HashSet<ModuleImpl>();
-        LinkedList<ModuleImpl> q = new LinkedList<ModuleImpl>();
-        q.addAll(dependencies);
-        while(!q.isEmpty()) {
-            ModuleImpl m = q.removeFirst();
-            if(transitiveDependenciesSet.add(m)) {
-                // first time visited
-                transitiveDependencies.add(m);
-                m.resolve();
-                q.addAll(m.dependencies);
+            // build up the complete list of transitive dependency modules, without any duplication,
+            // in a breadth-first fashion. The reason we do this in breadth-first is to reduce
+            // the search time based on the assumption that classes tend to be discovered in close dependencies. 
+            List<ModuleImpl> transitiveDependencies = new ArrayList<ModuleImpl>();
+            Set<ModuleImpl> transitiveDependenciesSet = new HashSet<ModuleImpl>();
+            LinkedList<ModuleImpl> q = new LinkedList<ModuleImpl>();
+            q.addAll(dependencies);
+            while(!q.isEmpty()) {
+                ModuleImpl m = q.removeFirst();
+                if(transitiveDependenciesSet.add(m)) {
+                    // first time visited
+                    transitiveDependencies.add(m);
+                    m.resolve();
+                    q.addAll(m.dependencies);
+                }
             }
-        }
 
-        for (ModuleImpl m : transitiveDependencies) {
-            getPrivateClassLoader().addDelegate(m.getClassLoader());
-        }
+            for (ModuleImpl m : transitiveDependencies) {
+                getPrivateClassLoader().addDelegate(m.getClassLoader());
+            }
 
-        //Logger.global.info("HK2Module " + getName() + " resolved");
-        state = ModuleState.RESOLVED;
-        for (ModuleLifecycleListener l : registry.getLifecycleListeners()) {
-            l.moduleResolved(this);
+            //Logger.global.info("HK2Module " + getName() + " resolved");
+            state = ModuleState.RESOLVED;
+            for (ModuleLifecycleListener l : registry.getLifecycleListeners()) {
+                l.moduleResolved(this);
+            }
+        } finally {
+            lock.unlock();
         }
     }
 

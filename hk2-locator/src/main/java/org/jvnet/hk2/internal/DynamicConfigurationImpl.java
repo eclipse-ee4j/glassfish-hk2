@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2024 Oracle and/or its affiliates. All rights reserved.
  * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
@@ -19,6 +19,7 @@ package org.jvnet.hk2.internal;
 
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.Descriptor;
@@ -44,7 +45,7 @@ public class DynamicConfigurationImpl implements DynamicConfiguration {
     private final LinkedList<Filter> allIdempotentFilters = new LinkedList<Filter>();
     private final LinkedList<TwoPhaseResource> allResources = new LinkedList<TwoPhaseResource>();
     
-    private final Object lock = new Object();
+    private final ReentrantLock lock = new ReentrantLock();
     private boolean committed = false;
 
     /**
@@ -252,18 +253,24 @@ public class DynamicConfigurationImpl implements DynamicConfiguration {
      */
     @Override
     public void commit() throws MultiException {
-        synchronized (lock) {
+        lock.lock();
+        try {
             checkState();
             
             committed = true;
+        } finally {
+            lock.unlock();
         }
         
         locator.addConfiguration(this);
     }
     
     private void checkState() {
-        synchronized (lock) {
+        lock.lock();
+        try {
             if (committed) throw new IllegalStateException();
+        } finally {
+            lock.unlock();
         }
     }
     
