@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.glassfish.hk2</groupId>
         <artifactId>caching-aop-example</artifactId>
-        <version>3.0.7-SNAPSHOT</version>
+        <version>3.1.0</version>
     </parent>
 
     <artifactId>caching-aop-example-system</artifactId>
