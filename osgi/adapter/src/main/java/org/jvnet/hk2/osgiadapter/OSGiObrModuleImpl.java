@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2024 Oracle and/or its affiliates. All rights reserved.
  * Copyright (c) 2020Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
@@ -33,11 +33,14 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author Sanjeeb.Sahoo@Sun.COM
  */
 public class OSGiObrModuleImpl extends OSGiModuleImpl {
+
+    private final ReentrantLock lock = new ReentrantLock();
 
     public OSGiObrModuleImpl(OSGiObrModulesRegistryImpl registry, File file) throws IOException {
         this(registry, new OSGiModuleDefinition(file));
@@ -51,21 +54,31 @@ public class OSGiObrModuleImpl extends OSGiModuleImpl {
         super(registry, bundle, moduleDef);
     }
 
-    private synchronized boolean isUninitialized() {
-        return getBundle() == null;
+    private boolean isUninitialized() {
+        lock.lock();
+        try {
+            return getBundle() == null;
+        } finally {
+            lock.unlock();
+        }
     }
 
-    private synchronized void init() {
-        if (isUninitialized()) {
-            final ModuleDefinition moduleDefinition = getModuleDefinition();
-            Bundle bundle = getRegistry().getObrHandler().deploy(moduleDefinition.getName(), moduleDefinition.getVersion());
-            if (bundle != null) {
-                setBundle(bundle);
-            } else {
-                throw new RuntimeException("Unable to install module [ "
-                        + this
-                        + "] due to unsatisfied dependencies. See previous log messages.");
+    private void init() {
+        lock.lock();
+        try {
+            if (isUninitialized()) {
+                final ModuleDefinition moduleDefinition = getModuleDefinition();
+                Bundle bundle = getRegistry().getObrHandler().deploy(moduleDefinition.getName(), moduleDefinition.getVersion());
+                if (bundle != null) {
+                    setBundle(bundle);
+                } else {
+                    throw new RuntimeException("Unable to install module [ "
+                            + this
+                            + "] due to unsatisfied dependencies. See previous log messages.");
+                }
             }
+        } finally {
+            lock.unlock();
         }
     }
 

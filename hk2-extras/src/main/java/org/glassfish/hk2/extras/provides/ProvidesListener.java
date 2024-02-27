@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2020 TechEmpower. All rights reserved.
+ * Copyright (c) 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -35,6 +36,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -71,6 +73,7 @@ import org.jvnet.hk2.annotations.Optional;
 public class ProvidesListener implements DynamicConfigurationListener {
   private final ServiceLocator locator;
   private final ProvidersSeen seen = new ProvidersSeen();
+  private static final ReentrantLock slock = new ReentrantLock();
   private static final Object UNIQUE = new Object() {};
 
   @Inject
@@ -80,7 +83,8 @@ public class ProvidesListener implements DynamicConfigurationListener {
     // Two listeners registered with the same locator could cause a feedback
     // loop since they can't share the cache of the providers they have seen.
     // Defend against this by disallowing the second listener.
-    synchronized (UNIQUE) {
+    slock.lock();
+    try {
       if (locator.getService(UNIQUE.getClass()) != null) {
         throw new IllegalStateException(
             "There is already a "
@@ -88,6 +92,8 @@ public class ProvidesListener implements DynamicConfigurationListener {
                 + " registered with this locator");
       }
       ServiceLocatorUtilities.addOneConstant(locator, UNIQUE);
+    } finally {
+      slock.unlock();
     }
   }
 
