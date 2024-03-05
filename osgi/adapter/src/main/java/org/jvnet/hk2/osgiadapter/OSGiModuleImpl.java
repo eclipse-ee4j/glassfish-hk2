@@ -17,6 +17,7 @@
 
 package org.jvnet.hk2.osgiadapter;
 
+import static org.jvnet.hk2.osgiadapter.FelixPrettyPrinter.prettyPrintFelixMessage;
 import static org.jvnet.hk2.osgiadapter.Logger.logger;
 
 import java.io.*;
@@ -180,7 +181,9 @@ public class OSGiModuleImpl implements HK2Module {
                             "start", "Started bundle {0}", bundle);
                 }
             } catch (BundleException e) {
-                throw new ResolveError("Failed to start "+this,e);
+                throw new ResolveError(
+                        "Failed to start " + this + prettyPrintFelixMessage(registry.getBundleContext(), e.getMessage()),
+                        e);
             }
 
             // TODO(Sahoo): Remove this when hk2-apt generates equivalent BundleActivator
