@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -20,6 +20,7 @@ import java.lang.ref.ReferenceQueue;
 import java.util.LinkedList;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.glassfish.hk2.utilities.cache.CacheKeyFilter;
 import org.glassfish.hk2.utilities.general.WeakHashLRU;
@@ -32,7 +33,8 @@ import org.glassfish.hk2.utilities.general.WeakHashLRU;
  */
 public class WeakHashLRUImpl<K> implements WeakHashLRU<K> {
     private final static Object VALUE = new Object();
-    
+
+    private final ReentrantLock lock = new ReentrantLock();
     private final boolean isWeak;
     private final WeakHashMap<K, DoubleNode<K, Object>> byKey;
     private final ConcurrentHashMap<K, DoubleNode<K, Object>> byKeyNotWeak;
@@ -98,32 +100,37 @@ public class WeakHashLRUImpl<K> implements WeakHashLRU<K> {
      * @see org.glassfish.hk2.utilities.general.WeakHashLRU#add(java.lang.Object)
      */
     @Override
-    public synchronized void add(K key) {
-        if (key == null) {
-            throw new IllegalArgumentException("key may not be null");
-        }
-        
-        DoubleNode<K, Object> existing;
-        if (isWeak) {
-            clearStale();
+    public void add(K key) {
+        lock.lock();
+        try {
+            if (key == null) {
+                throw new IllegalArgumentException("key may not be null");
+            }
             
-            existing = byKey.get(key);
-        }
-        else {
-            existing = byKeyNotWeak.get(key);
-        }
-        
-        if (existing != null) {
-            remove(existing);
-        }
-        
-        DoubleNode<K, Object> added = addToHead(key);
-        
-        if (isWeak) {
-            byKey.put(key, added);
-        }
-        else {
-            byKeyNotWeak.put(key, added);
+            DoubleNode<K, Object> existing;
+            if (isWeak) {
+                clearStale();
+                
+                existing = byKey.get(key);
+            }
+            else {
+                existing = byKeyNotWeak.get(key);
+            }
+            
+            if (existing != null) {
+                remove(existing);
+            }
+            
+            DoubleNode<K, Object> added = addToHead(key);
+            
+            if (isWeak) {
+                byKey.put(key, added);
+            }
+            else {
+                byKeyNotWeak.put(key, added);
+            }
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -133,10 +140,13 @@ public class WeakHashLRUImpl<K> implements WeakHashLRU<K> {
     @Override
     public boolean contains(K key) {
         if (isWeak) {
-            synchronized (this) {
+            lock.lock();
+            try {
                 clearStale();
         
                 return byKey.containsKey(key);
+            } finally {
+                lock.unlock();
             }
         }
         
@@ -147,12 +157,17 @@ public class WeakHashLRUImpl<K> implements WeakHashLRU<K> {
      * @see org.glassfish.hk2.utilities.general.WeakHashLRU#remove(java.lang.Object)
      */
     @Override
-    public synchronized boolean remove(K key) {
-        if (isWeak) {
-            clearStale();
+    public boolean remove(K key) {
+        lock.lock();
+        try {
+            if (isWeak) {
+                clearStale();
+            }
+            
+            return removeNoClear(key);
+        } finally {
+            lock.unlock();
         }
-        
-        return removeNoClear(key);
     }
     
     private boolean removeNoClear(K key) {
@@ -178,10 +193,13 @@ public class WeakHashLRUImpl<K> implements WeakHashLRU<K> {
     @Override
     public int size() {
         if (isWeak) {
-            synchronized (this) {
+            lock.lock();
+            try {
                 clearStale();
-        
+                
                 return byKey.size();
+            } finally {
+                lock.unlock();
             }
         }
         
@@ -192,7 +210,8 @@ public class WeakHashLRUImpl<K> implements WeakHashLRU<K> {
      * @see org.glassfish.hk2.utilities.general.WeakHashLRU#remove()
      */
     @Override
-    public synchronized K remove() {
+    public K remove() {
+        lock.lock();
         try {
             if (lru == null) return null;
         
@@ -217,7 +236,11 @@ public class WeakHashLRUImpl<K> implements WeakHashLRU<K> {
             return null;
         }
         finally {
-            clearStale();
+            try {
+                clearStale();
+            } finally {
+                lock.unlock();
+            }
         }
     }
     
@@ -225,25 +248,30 @@ public class WeakHashLRUImpl<K> implements WeakHashLRU<K> {
      * @see org.glassfish.hk2.utilities.general.WeakHashLRU#releaseMatching(org.glassfish.hk2.utilities.cache.CacheKeyFilter)
      */
     @Override
-    public synchronized void releaseMatching(CacheKeyFilter<K> filter) {
-        if (filter == null) return;
-        if (isWeak) {
-            clearStale();
-        }
-        
-        LinkedList<K> removeMe = new LinkedList<K>();
-        DoubleNode<K, Object> current = mru;
-        while (current != null) {
-            K key = current.getWeakKey().get();
-            if (key != null && filter.matches(key)) {
-                removeMe.add(key);
+    public void releaseMatching(CacheKeyFilter<K> filter) {
+        lock.lock();
+        try {
+            if (filter == null) return;
+            if (isWeak) {
+                clearStale();
             }
             
-            current = current.getNext();
-        }
-        
-        for (K removeKey : removeMe) {
-            removeNoClear(removeKey);
+            LinkedList<K> removeMe = new LinkedList<K>();
+            DoubleNode<K, Object> current = mru;
+            while (current != null) {
+                K key = current.getWeakKey().get();
+                if (key != null && filter.matches(key)) {
+                    removeMe.add(key);
+                }
+                
+                current = current.getNext();
+            }
+            
+            for (K removeKey : removeMe) {
+                removeNoClear(removeKey);
+            }
+        } finally {
+            lock.unlock();
         }
     }
     
@@ -251,26 +279,36 @@ public class WeakHashLRUImpl<K> implements WeakHashLRU<K> {
      * @see org.glassfish.hk2.utilities.general.WeakHashLRU#clear()
      */
     @Override
-    public synchronized void clear() {
-        if (isWeak) {
-            clearStale();
+    public void clear() {
+        lock.lock();
+        try {
+            if (isWeak) {
+                clearStale();
+                
+                byKey.clear();
+            }
+            else {
+                byKeyNotWeak.clear();
+            }
             
-            byKey.clear();
+            mru = null;
+            lru = null;
+        } finally {
+            lock.unlock();
         }
-        else {
-            byKeyNotWeak.clear();
-        }
-        
-        mru = null;
-        lru = null;
     }
 
     /* (non-Javadoc)
      * @see org.glassfish.hk2.utilities.general.WeakHashLRU#clearStaleReferences()
      */
     @Override
-    public synchronized void clearStaleReferences() {
-        clearStale();
+    public void clearStaleReferences() {
+        lock.lock();
+        try {
+            clearStale();
+        } finally {
+            lock.unlock();
+        }
     }
     
     private void clearStale() {
@@ -296,29 +334,34 @@ public class WeakHashLRUImpl<K> implements WeakHashLRU<K> {
     }
     
     @Override
-    public synchronized String toString() {
-        StringBuffer sb = new StringBuffer("WeakHashLRUImpl({");
-        
-        boolean first = true;
-        DoubleNode<K,Object> current = mru;
-        while (current != null) {
-            K key = current.getWeakKey().get();
-            String keyString = (key == null) ? "null" : key.toString();
+    public String toString() {
+        lock.lock();
+        try {
+            StringBuffer sb = new StringBuffer("WeakHashLRUImpl({");
             
-            if (first) {
-                first = false;
+            boolean first = true;
+            DoubleNode<K,Object> current = mru;
+            while (current != null) {
+                K key = current.getWeakKey().get();
+                String keyString = (key == null) ? "null" : key.toString();
                 
-                sb.append(keyString);
-            }
-            else {
-                sb.append("," + keyString);
+                if (first) {
+                    first = false;
+                    
+                    sb.append(keyString);
+                }
+                else {
+                    sb.append("," + keyString);
+                }
+                
+                current = current.getNext();
             }
             
-            current = current.getNext();
+            sb.append("}," + System.identityHashCode(this) + ")");
+                  
+            return sb.toString();
+        } finally {
+            lock.unlock();
         }
-        
-        sb.append("}," + System.identityHashCode(this) + ")");
-              
-        return sb.toString();
     }
 }

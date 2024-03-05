@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2024 Oracle and/or its affiliates. All rights reserved.
  * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
@@ -34,6 +34,7 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 
 import static org.glassfish.hk2.utilities.ServiceLocatorUtilities.createDynamicConfiguration;
@@ -51,6 +52,7 @@ public abstract class AbstractOSGiModulesRegistryImpl extends AbstractModulesReg
     protected PackageAdmin pa;
     private Map<ModuleChangeListener, BundleListener> moduleChangeListeners = new HashMap<>();
     private Map<ModuleLifecycleListener, BundleListener> moduleLifecycleListeners = new HashMap<>();
+    private final ReentrantLock lock = new ReentrantLock();
 
     protected AbstractOSGiModulesRegistryImpl(BundleContext bctx) {
         super(null);
@@ -138,9 +140,14 @@ public abstract class AbstractOSGiModulesRegistryImpl extends AbstractModulesReg
     }
 
     @Override
-    public synchronized void detachAll() {
-        for (HK2Module m : modules.values()) {
-            m.detach();
+    public void detachAll() {
+        lock.lock();
+        try {
+            for (HK2Module m : modules.values()) {
+                m.detach();
+            }
+        } finally {
+            lock.unlock();
         }
     }
 

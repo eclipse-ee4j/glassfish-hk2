@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024 Oracle and/or its affiliates. All rights reserved.
  * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
@@ -17,19 +17,13 @@
 
 package org.jvnet.hk2.osgiadapter;
 
-import static org.jvnet.hk2.osgiadapter.FelixPrettyPrinter.addBundleInfo;
-import static org.jvnet.hk2.osgiadapter.FelixPrettyPrinter.prettyPrintExceptionMessage;
-import static org.jvnet.hk2.osgiadapter.FelixPrettyPrinter.prettyPrintFelixMessage;
 import static org.jvnet.hk2.osgiadapter.Logger.logger;
 
 import java.io.*;
 import java.net.URI;
 import java.net.URL;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 
 import org.glassfish.hk2.api.ActiveDescriptor;
@@ -58,6 +52,7 @@ import com.sun.enterprise.module.bootstrap.BootException;
  * @author Sanjeeb.Sahoo@Sun.COM
  */
 public class OSGiModuleImpl implements HK2Module {
+    private final ReentrantLock lock = new ReentrantLock();
     private volatile Bundle bundle; // made volatile as it is accessed from multiple threads
 
     private ModuleDefinition md;
@@ -145,75 +140,67 @@ public class OSGiModuleImpl implements HK2Module {
     }
 
     @Override
-    public synchronized void resolve() throws ResolveError {
+    public void resolve() throws ResolveError {
         // Since OSGi bundle does not have a separate resolve method,
         // we use the same implementation as start();
-        start();
+        lock.lock();
+        try {
+            start();
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
-    public synchronized void start() throws ResolveError {
-        int state = bundle.getState();
-        if (((Bundle.STARTING | Bundle.ACTIVE | Bundle.STOPPING) & state) != 0) {
-            if (logger.isLoggable(Level.FINER)) {
-                logger.logp(Level.FINER, "OSGiModuleImpl", "start",
-                        "Ignoring start of bundle {0} as it is in {1} state",
-                        new Object[]{bundle, toString(bundle.getState())} );
-            }
-            return;
-        }
-        if (registry.getPackageAdmin().getBundleType(bundle) == PackageAdmin.BUNDLE_TYPE_FRAGMENT) {
-            if (logger.isLoggable(Level.FINER)) {
-                logger.logp(Level.FINER, "OSGiModuleImpl", "start",
-                        "Ignoring start of bundle {0} as it is a fragment bundle",
-                        new Object[]{bundle} );
-            }
-            return;
-        }
+    public void start() throws ResolveError {
+        lock.lock();
         try {
-            SecurityManager sm = System.getSecurityManager();
-            if (sm != null) {
-                try {
-                    AccessController.doPrivileged(new PrivilegedExceptionAction(){
-                        @Override
-                        public Object run() throws BundleException
-                        {
-                            startBundle();
-                            return null;
-                        }
-                    });
-                } catch (PrivilegedActionException e) {
-                    throw (BundleException)e.getException();
+            int state = bundle.getState();
+            if (((Bundle.STARTING | Bundle.ACTIVE | Bundle.STOPPING) & state) != 0) {
+                if (logger.isLoggable(Level.FINER)) {
+                    logger.logp(Level.FINER, "OSGiModuleImpl", "start",
+                            "Ignoring start of bundle {0} as it is in {1} state",
+                            new Object[]{bundle, toString(bundle.getState())} );
                 }
-            } else {
-                startBundle();
+                return;
             }
-            isTransientlyActive = true;
-            if (logger.isLoggable(Level.FINE)) {
-                logger.logp(Level.FINE, "OSGiModuleImpl",
-                        "start", "Started bundle {0}", bundle);
+            if (registry.getPackageAdmin().getBundleType(bundle) == PackageAdmin.BUNDLE_TYPE_FRAGMENT) {
+                if (logger.isLoggable(Level.FINER)) {
+                    logger.logp(Level.FINER, "OSGiModuleImpl", "start",
+                            "Ignoring start of bundle {0} as it is a fragment bundle",
+                            new Object[]{bundle} );
+                }
+                return;
             }
-        } catch (BundleException e) {
-            throw new ResolveError(
-                "Failed to start " + this + prettyPrintFelixMessage(registry.getBundleContext(), e.getMessage()),
-                e);
-        }
-
-        // TODO(Sahoo): Remove this when hk2-apt generates equivalent BundleActivator
-        // if there is a LifecyclePolicy, then instantiate and invoke.
-        if (md.getLifecyclePolicyClassName()!=null) {
             try {
-                Class<LifecyclePolicy> lifecyclePolicyClass =
-                        (Class<LifecyclePolicy>) bundle.loadClass(md.getLifecyclePolicyClassName());
-                lifecyclePolicy = lifecyclePolicyClass.newInstance();
-            } catch(ClassNotFoundException e) {
-                throw new ResolveError("ClassNotFound : " + e.getMessage(), e);
-            } catch(java.lang.InstantiationException | IllegalAccessException e) {
-                throw new ResolveError(e);
+                startBundle();
+                isTransientlyActive = true;
+                if (logger.isLoggable(Level.FINE)) {
+                    logger.logp(Level.FINE, "OSGiModuleImpl",
+                            "start", "Started bundle {0}", bundle);
+                }
+            } catch (BundleException e) {
+                throw new ResolveError("Failed to start "+this,e);
             }
-        }
-        if (lifecyclePolicy!=null) {
-            lifecyclePolicy.start(this);
+
+            // TODO(Sahoo): Remove this when hk2-apt generates equivalent BundleActivator
+            // if there is a LifecyclePolicy, then instantiate and invoke.
+            if (md.getLifecyclePolicyClassName()!=null) {
+                try {
+                    Class<LifecyclePolicy> lifecyclePolicyClass =
+                            (Class<LifecyclePolicy>) bundle.loadClass(md.getLifecyclePolicyClassName());
+                    lifecyclePolicy = lifecyclePolicyClass.newInstance();
+                } catch(ClassNotFoundException e) {
+                    throw new ResolveError("ClassNotFound : " + e.getMessage(), e);
+                } catch(java.lang.InstantiationException | IllegalAccessException e) {
+                    throw new ResolveError(e);
+                }
+            }
+            if (lifecyclePolicy!=null) {
+                lifecyclePolicy.start(this);
+            }
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -280,11 +267,16 @@ public class OSGiModuleImpl implements HK2Module {
     }
 
     @Override
-    public synchronized boolean stop() {
-        detach();
+    public boolean stop() {
+        lock.lock();
+        try {
+            detach();
         // Don't refresh packages, as we are not uninstalling the bundle.
 //        registry.getPackageAdmin().refreshPackages(new Bundle[]{bundle});
-        return true;
+            return true;
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
@@ -424,12 +416,7 @@ public class OSGiModuleImpl implements HK2Module {
      * This method is used as the parent loader of the class loader that we return in {@link #getClassLoader}
      */
     private ClassLoader getParentLoader() {
-        return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-            @Override
-            public ClassLoader run() {
-                return Bundle.class.getClassLoader();
-            }
-        });
+        return Bundle.class.getClassLoader();
     }
 
     @Override
@@ -446,22 +433,14 @@ public class OSGiModuleImpl implements HK2Module {
          * class loader.
          */
         return new ClassLoader(getParentLoader()) {
-
+            private final ReentrantLock lock = new ReentrantLock();
             @Override
-            protected synchronized Class<?> loadClass(final String name, boolean resolve) throws ClassNotFoundException {
+            protected Class<?> loadClass(final String name, boolean resolve) throws ClassNotFoundException {
+                lock.lock();
                 try {
-                    //doprivileged needed for running with SecurityManager
-                    return AccessController.doPrivileged(new PrivilegedExceptionAction<Class>() {
-                        @Override
-                        public Class run() throws ClassNotFoundException {
-
-                        	Class c = bundle.loadClass(name);
-
-                            return c;
-                        }
-                    });
-                } catch (PrivilegedActionException e) {
-                    throw (ClassNotFoundException)e.getException();
+                    return bundle.loadClass(name);
+                } finally {
+                    lock.unlock();
                 }
 
             }

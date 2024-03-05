@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -24,6 +24,7 @@ import java.io.*;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -33,7 +34,9 @@ import static org.jvnet.hk2.osgiadapter.Logger.logger;
 class ModuleDefinitionCacheSingleton {
 
     private static ModuleDefinitionCacheSingleton _instance;
+    private static final ReentrantLock slock = new ReentrantLock();
 
+    private final ReentrantLock lock = new ReentrantLock();
     private Map<URI, ModuleDefinition> cachedData = new HashMap<>();
     private boolean cacheInvalidated = false;
 
@@ -45,27 +48,42 @@ class ModuleDefinitionCacheSingleton {
         }
     }
 
-    public synchronized static ModuleDefinitionCacheSingleton getInstance() {
-       if (_instance == null) {
-           _instance = new ModuleDefinitionCacheSingleton();
-       }
+    public static ModuleDefinitionCacheSingleton getInstance() {
+        slock.lock();
+        try {
+            if (_instance == null) {
+                _instance = new ModuleDefinitionCacheSingleton();
+            }
 
-       return _instance;
+            return _instance;
+        } finally {
+            slock.unlock();
+        }
     }
 
-    public synchronized  void cacheModuleDefinition(URI uri, ModuleDefinition md) {
-       if (!cachedData.containsKey(uri)) {
-           cacheInvalidated = true;
-       } else {
-           // should check if md is the same
-       }
+    public void cacheModuleDefinition(URI uri, ModuleDefinition md) {
+        lock.lock();
+        try {
+            if (!cachedData.containsKey(uri)) {
+                cacheInvalidated = true;
+            } else {
+                // should check if md is the same
+            }
 
-       cachedData.put(uri, md);
+            cachedData.put(uri, md);
+        } finally {
+            lock.unlock();
+        }
     }
 
-    public synchronized void remove(URI uri) {
-        if (cachedData.remove(uri) != null) {
-            cacheInvalidated =true;
+    public void remove(URI uri) {
+        lock.lock();
+        try {
+            if (cachedData.remove(uri) != null) {
+                cacheInvalidated =true;
+            }
+        } finally {
+            lock.unlock();
         }
     }
     /**
@@ -94,32 +112,36 @@ class ModuleDefinitionCacheSingleton {
      * Saves the inhabitants metadata to the cache in a file called inhabitants
      * @throws java.io.IOException if the file cannot be saved successfully
      */
-    public synchronized void saveCache() throws IOException {
+    public void saveCache() throws IOException {
+        lock.lock();
+        try {
+            if (!cacheInvalidated) {
+                return;
+            }
 
-        if (!cacheInvalidated) {
-            return;
-        }
+            String cacheLocation = getProperty(Constants.HK2_CACHE_DIR);
+            if (cacheLocation == null) {
+                return;
+            }
+            File io = new File(cacheLocation, Constants.INHABITANTS_CACHE);
+            if(logger.isLoggable(Level.FINE)) {
+                logger.logp(Level.INFO, getClass().getSimpleName(), "saveCache", "HK2 cache file = {0}", new Object[]{io});
+            }
+            if (io.exists()) io.delete();
+            io.createNewFile();
+            Map<URI, ModuleDefinition> data = new HashMap<>();
+            for (ModuleDefinition m : cachedData.values()) {
+                data.put(m.getLocations()[0], m);
+            }
+            ObjectOutputStream os = new ObjectOutputStream(new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(io)), getBufferSize()));
 
-        String cacheLocation = getProperty(Constants.HK2_CACHE_DIR);
-        if (cacheLocation == null) {
-            return;
-        }
-        File io = new File(cacheLocation, Constants.INHABITANTS_CACHE);
-        if(logger.isLoggable(Level.FINE)) {
-            logger.logp(Level.INFO, getClass().getSimpleName(), "saveCache", "HK2 cache file = {0}", new Object[]{io});
-        }
-        if (io.exists()) io.delete();
-        io.createNewFile();
-        Map<URI, ModuleDefinition> data = new HashMap<>();
-        for (ModuleDefinition m : cachedData.values()) {
-            data.put(m.getLocations()[0], m);
-        }
-        ObjectOutputStream os = new ObjectOutputStream(new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(io)), getBufferSize()));
+            os.writeObject(data);
+            os.close();
 
-        os.writeObject(data);
-        os.close();
-
-        cacheInvalidated =false;
+            cacheInvalidated =false;
+        } finally {
+            lock.unlock();
+        }
     }
 
     private int getBufferSize() {
@@ -134,10 +156,15 @@ class ModuleDefinitionCacheSingleton {
         return bufsize;
     }
 
-    public synchronized ModuleDefinition get(URI uri) {
-        ModuleDefinition md = cachedData.get(uri);
+    public ModuleDefinition get(URI uri) {
+        lock.lock();
+        try {
+            ModuleDefinition md = cachedData.get(uri);
 
-        return md;
+            return md;
+        } finally {
+            lock.unlock();
+        }
     }
 
     public void invalidate() {

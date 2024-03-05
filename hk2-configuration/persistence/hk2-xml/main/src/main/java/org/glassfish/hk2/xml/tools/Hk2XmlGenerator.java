@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -24,6 +24,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -48,6 +49,7 @@ import org.glassfish.hk2.xml.internal.alt.papi.TypeElementAltClassImpl;
  */
 @SupportedAnnotationTypes("org.glassfish.hk2.xml.api.annotations.Hk2XmlPreGenerate")
 public class Hk2XmlGenerator extends AbstractProcessor {
+    private final ReentrantLock lock = new ReentrantLock();
     private volatile boolean initialized;
     private ClassPool defaultClassPool;
     private CtClass superClazz;
@@ -62,8 +64,8 @@ public class Hk2XmlGenerator extends AbstractProcessor {
     
     private  void initializeHk2XmlGenerator() {
         if (initialized) return;
-        
-        synchronized (this) {
+        lock.lock();
+        try {
             if (initialized) return;
             
             defaultClassPool = new ClassPool(true);
@@ -103,6 +105,8 @@ public class Hk2XmlGenerator extends AbstractProcessor {
             catch (NotFoundException e) {
                 throw new RuntimeException(e);
             }
+        } finally {
+            lock.unlock();
         }
     }
     

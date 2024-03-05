@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024 Oracle and/or its affiliates. All rights reserved.
  * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 
 import org.osgi.framework.Bundle;
@@ -43,6 +44,8 @@ import com.sun.enterprise.module.ModuleDefinition;
 public class OSGiModulesRegistryImpl
         extends AbstractOSGiModulesRegistryImpl
         implements SynchronousBundleListener {
+
+    private final ReentrantLock lock = new ReentrantLock();
 
     ModuleDefinitionCacheSingleton cache = ModuleDefinitionCacheSingleton.getInstance();
 
@@ -164,25 +167,34 @@ public class OSGiModulesRegistryImpl
     }
 
     @Override
-    protected synchronized void add(HK2Module newModule) {
-        // It is overridden to make it synchronized as it is called from
-        // BundleListener.
-        super.add(newModule);
-        // don't set cacheInvalidated = true here, as this method is called while iterating initial
-        // set of bundles when this module is started. Instead, we invalidate the cache makeModuleDef().
+    protected void add(HK2Module newModule) {
+        lock.lock();
+        try {
+            // It is overridden to make it synchronized as it is called from
+            // BundleListener.
+            super.add(newModule);
+            // don't set cacheInvalidated = true here, as this method is called while iterating initial
+            // set of bundles when this module is started. Instead, we invalidate the cache makeModuleDef().
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
-    public synchronized void remove(HK2Module module) {
-    	
-        // It is overridden to make it synchronized as it is called from
-        // BundleListener.
-        super.remove(module);
+    public void remove(HK2Module module) {
+        lock.lock();
+        try {
+            // It is overridden to make it synchronized as it is called from
+            // BundleListener.
+            super.remove(module);
 
-        // Update cache. 
-        final URI location = module.getModuleDefinition().getLocations()[0];
+            // Update cache. 
+            final URI location = module.getModuleDefinition().getLocations()[0];
 
-        cache.remove(location);
+            cache.remove(location);
+        } finally {
+            lock.unlock();
+        }
     }
 
     // factory method
@@ -210,26 +222,30 @@ public class OSGiModulesRegistryImpl
     }
 
     @Override
-    public synchronized void shutdown() {
-
-        for (HK2Module m : modules.values()) {
-            // Only stop modules that were started after ModulesRegistry
-            // came into existence.
-            if (OSGiModuleImpl.class.cast(m).isTransientlyActive()) {
-                 m.stop();
-            }
-        }
-        
-        // Save the cache before clearing modules
+    public void shutdown() {
+        lock.lock();
         try {
-            cache.saveCache();
-        } catch (IOException e) {
-            Logger.logger.log(Level.WARNING, "Cannot save metadata to cache", e);
+            for (HK2Module m : modules.values()) {
+                // Only stop modules that were started after ModulesRegistry
+                // came into existence.
+                if (OSGiModuleImpl.class.cast(m).isTransientlyActive()) {
+                     m.stop();
+                }
             }
+            
+            // Save the cache before clearing modules
+            try {
+                cache.saveCache();
+            } catch (IOException e) {
+                Logger.logger.log(Level.WARNING, "Cannot save metadata to cache", e);
+                }
 
-        bctx.removeBundleListener(this);
+            bctx.removeBundleListener(this);
 
-        super.shutdown();
+            super.shutdown();
+        } finally {
+            lock.unlock();
+        }
     }
 
     protected String getProperty(String property) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024 Oracle and/or its affiliates. All rights reserved.
  * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
@@ -23,6 +23,7 @@ import com.sun.enterprise.module.common_impl.ModuleId;
 import com.sun.enterprise.module.ModuleDefinition;
 import org.osgi.framework.BundleContext;
 
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 
 /**
@@ -30,15 +31,21 @@ import java.util.logging.Level;
  */
 public class OSGiFactoryImpl extends AbstractFactory {
 
+    private static final ReentrantLock slock = new ReentrantLock();
     private BundleContext ctx;
 
-    public static synchronized void initialize(BundleContext ctx) {
-        if (Instance != null) {
-            // TODO : this is somehow invoked twice during gf startup, we need to investigate.
-            logger.logp(Level.FINE, "OSGiFactoryImpl", "initialize",
-                    "Singleton already initialized as {0}", getInstance());
+    public static void initialize(BundleContext ctx) {
+        slock.lock();
+        try {
+            if (Instance != null) {
+                // TODO : this is somehow invoked twice during gf startup, we need to investigate.
+                logger.logp(Level.FINE, "OSGiFactoryImpl", "initialize",
+                        "Singleton already initialized as {0}", getInstance());
+            }
+            Instance = new OSGiFactoryImpl(ctx);
+        } finally {
+            slock.unlock();
         }
-        Instance = new OSGiFactoryImpl(ctx);
     }
 
     private OSGiFactoryImpl(BundleContext ctx) {

@@ -346,8 +346,13 @@ public abstract class OperationContext<T extends Annotation> implements Context<
         return true;
     }
 
-    public synchronized void setOperationManager(SingleOperationManager<T> manager) {
-        this.manager = manager;
+    public void setOperationManager(SingleOperationManager<T> manager) {
+        lock.lock();
+        try {
+            this.manager = manager;
+        } finally {
+            lock.unlock();
+        }
     }
     
     @Override
