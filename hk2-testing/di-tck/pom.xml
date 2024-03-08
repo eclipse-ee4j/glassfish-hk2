@@ -22,13 +22,13 @@
     <parent>
         <groupId>org.glassfish.hk2</groupId>
         <artifactId>hk2-testing</artifactId>
-        <version>3.0.7-SNAPSHOT</version>
+        <version>3.1.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>hk2-di-tck-runner</artifactId>
     <name>DI TCK Runner</name>
     <description>Runner for the Jakarta DI TCK</description>
-    
+
     <properties>
         <ditck.version>2.0.1</ditck.version>
     </properties>
