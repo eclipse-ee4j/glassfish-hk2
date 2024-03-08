@@ -22,13 +22,13 @@
     <parent>
         <groupId>org.glassfish.hk2</groupId>
         <artifactId>osgi-adapter-tests-parent</artifactId>
-        <version>3.1.0</version>
+        <version>3.1.1-SNAPSHOT</version>
     </parent>
     <groupId>org.glassfish.hk2</groupId>
     <artifactId>osgi-adapter-test</artifactId>
     <name>HK2 OSGi Adapter Test</name>
-    
-    <properties>        
+
+    <properties>
         <manifest.location></manifest.location>
     </properties>
 
@@ -148,7 +148,7 @@
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
-            <artifactId>pax-exam-inject</artifactId> 
+            <artifactId>pax-exam-inject</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
@@ -162,7 +162,7 @@
                     <groupId>avalon-framework</groupId>
                     <artifactId>avalon-framework-api</artifactId>
                 </exclusion>
-            </exclusions> 
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
