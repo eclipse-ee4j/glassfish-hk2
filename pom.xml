@@ -150,7 +150,7 @@
         <jaxb-api.version>4.0.2</jaxb-api.version>
         <jaxb-runtime.version>4.0.5</jaxb-runtime.version>
         <java.net.username>${user.name}</java.net.username>
-        <jakarta.enterprise.cdi-api.version>4.0.1</jakarta.enterprise.cdi-api.version>
+        <jakarta.enterprise.cdi-api.version>4.1.0</jakarta.enterprise.cdi-api.version>
         <hibernate-validator.version>8.0.1.Final</hibernate-validator.version>
         <jakarta.validation.version>3.0.2</jakarta.validation.version>
         <glassfish.jakarta.el.version>4.0.2</glassfish.jakarta.el.version>
