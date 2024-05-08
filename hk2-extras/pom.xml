@@ -84,6 +84,17 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Export-Package>
+                            org.glassfish.hk2.extras; \
+                            org.glassfish.hk2.extras.events; \
+                            org.glassfish.hk2.extras.interception; \
+                            org.glassfish.hk2.extras.operation; \
+                            org.glassfish.hk2.extras.provides; version=${project.osgi.version}
+                        </Export-Package>
+                    </instructions>
+                </configuration>
                 <executions>
                     <execution>
                         <id>bundle-manifest</id>
