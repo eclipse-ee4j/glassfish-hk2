@@ -43,6 +43,7 @@
     <properties>
         <asm.version>9.7</asm.version>
         <jakarta-inject.version>2.0.1</jakarta-inject.version>
+        <jakarta-annotation.version>3.0.0</jakarta-annotation.version>
         <project.build.outputTimestamp>2023-04-09T08:38:05Z</project.build.outputTimestamp>
     </properties>
 
@@ -197,6 +198,11 @@
                 <groupId>jakarta.inject</groupId>
                 <artifactId>jakarta.inject-api</artifactId>
                 <version>${jakarta-inject.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.annotation</groupId>
+                <artifactId>jakarta.annotation-api</artifactId>
+                <version>${jakarta-annotation.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
