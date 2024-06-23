@@ -91,6 +91,13 @@
                         <goals>
                             <goal>manifest</goal>
                         </goals>
+                        <configuration>
+                            <instructions>
+                                <Export-Package>
+                                    !*.internal,*;version=${project.osgi.version}
+                                </Export-Package>
+                            </instructions>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
