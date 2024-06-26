@@ -616,6 +616,12 @@
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-bundle-plugin</artifactId>
                     <version>5.1.9</version>
+                    <configuration>
+                        <instructions>
+                            <niceManifest>true</niceManifest>
+                            <_noimportjava>true</_noimportjava>
+                        </instructions>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -799,17 +805,6 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                <configuration>
-                    <!-- By default, we don't export anything. -->
-                    <instructions>
-                        <Export-Package />
-                        <!-- Read all the configuration from osgi.bundle file, if it exists.
-                             See Felix-699 to find out why we use ${basedir}.
-                        -->
-                        <_include>-${basedir}/osgi.bundle</_include>
-                        <_noimportjava>true</_noimportjava>
-                    </instructions>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
