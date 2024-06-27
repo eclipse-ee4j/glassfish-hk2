@@ -84,7 +84,7 @@ public class OSGiTest {
                 systemProperty("java.io.tmpdir").value(System.getProperty("basedir") + "/target"),
                 systemProperty("pax.exam.osgi.unresolved.fail").value("true"),
                 systemProperty("org.jboss.logging.provider").value("slf4j"),
-                systemProperty("org.jvnet.hk2.logger.debugToStdout").value("true"),
+                systemProperty("org.jvnet.hk2.logger.debugToStdout").value("false"),
                 frameworkProperty("org.osgi.framework.storage").value(System.getProperty("basedir") + "/target/felix"),
 
                 systemPackage("javax.net.ssl"),

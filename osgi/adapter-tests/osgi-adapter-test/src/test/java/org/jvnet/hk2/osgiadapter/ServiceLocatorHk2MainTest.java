@@ -86,7 +86,7 @@ public class ServiceLocatorHk2MainTest {
                 systemProperty("java.io.tmpdir").value(System.getProperty("basedir") + "/target"),
                 systemProperty("pax.exam.osgi.unresolved.fail").value("true"),
                 systemProperty("org.jboss.logging.provider").value("slf4j"),
-                systemProperty("org.jvnet.hk2.logger.debugToStdout").value("true"),
+                systemProperty("org.jvnet.hk2.logger.debugToStdout").value("false"),
                 systemProperty("org.jvnet.hk2.properties.debug.service.locator.lifecycle").value("true"),
                 frameworkProperty("org.osgi.framework.storage").value(System.getProperty("basedir") + "/target/felix"),
 
