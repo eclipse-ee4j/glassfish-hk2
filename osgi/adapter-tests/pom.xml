@@ -36,7 +36,7 @@
         <module>sdp-management-bundle</module>
         <module>test-module-startup</module>
 <!-- Fails with incomprehensible error messages, also the PAX Exam project seems dead. -->
-<!--        <module>osgi-adapter-test</module> -->
+        <module>osgi-adapter-test</module>
         <module>no-hk2-bundle</module>
     </modules>
 </project>
