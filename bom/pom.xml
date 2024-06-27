@@ -43,7 +43,7 @@
     <properties>
         <asm.version>9.7</asm.version>
         <jakarta-inject.version>2.0.1</jakarta-inject.version>
-        <jakarta-annotation.version>3.0.0</jakarta-annotation.version>
+        <jakarta-annotation.version>2.1.1</jakarta-annotation.version>
         <project.build.outputTimestamp>2023-04-09T08:38:05Z</project.build.outputTimestamp>
     </properties>
 

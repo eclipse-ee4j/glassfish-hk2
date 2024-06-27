@@ -36,7 +36,7 @@
             <groupId>org.osgi</groupId>
             <artifactId>osgi.core</artifactId>
             <scope>provided</scope>
-        </dependency> 
+        </dependency>
     </dependencies>
 
     <build>
@@ -48,6 +48,17 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Bundle-Activator>com.oracle.sdp.management.Activator</Bundle-Activator>
+                        <!-- Wider range for framework -->
+                        <Import-Package>
+                            org.osgi.framework;version="[1.5,2)",
+                            *
+                        </Import-Package>
+                    </instructions>
+                    <unpackBundle>true</unpackBundle>
+                </configuration>
                 <executions>
                    <execution>
                       <id>bundle-manifest</id>

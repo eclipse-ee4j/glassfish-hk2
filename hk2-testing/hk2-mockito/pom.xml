@@ -32,7 +32,7 @@
     <name>HK2 Mockito</name>
     <description>A utility for spying on HK2 services using Mockito</description>
 
-    <properties>        
+    <properties>
         <manifest.location></manifest.location> <!-- to make nullifiy the property -->
     </properties>
 
@@ -70,27 +70,22 @@
         <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm</artifactId>
-            <version>${asm.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm-analysis</artifactId>
-            <version>${asm.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm-commons</artifactId>
-            <version>${asm.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm-tree</artifactId>
-            <version>${asm.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm-util</artifactId>
-            <version>${asm.version}</version>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
