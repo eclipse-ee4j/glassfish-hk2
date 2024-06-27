@@ -271,7 +271,8 @@
             <dependency>
                 <groupId>org.glassfish.hk2</groupId>
                 <artifactId>osgi-resource-locator</artifactId>
-                <version>2.4.0</version>
+                <!-- Unfortunately we use the same coordinates as old Oracle, but versioning started from 1.0.0 -->
+                <version>1.0.3</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.ant</groupId>
