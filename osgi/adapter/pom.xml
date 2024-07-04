@@ -74,6 +74,7 @@
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.bundlerepository</artifactId>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 
@@ -86,6 +87,19 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Bundle-Activator>org.jvnet.hk2.osgiadapter.HK2Main</Bundle-Activator>
+                        <!-- Export nothing. -->
+                        <Export-Package />
+                        <!-- Wider range for framework -->
+                        <Import-Package>
+                            org.osgi.framework;version="[1.5,2)",
+                            *
+                        </Import-Package>
+                    </instructions>
+                    <unpackBundle>true</unpackBundle>
+                </configuration>
                 <executions>
                    <execution>
                       <id>bundle-manifest</id>
