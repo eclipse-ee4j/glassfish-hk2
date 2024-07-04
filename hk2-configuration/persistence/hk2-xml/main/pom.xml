@@ -143,7 +143,9 @@
                 <configuration>
                     <instructions>
                         <Import-Package>
-                            jakarta.validation.*;resolution:=optional,org.hibernate.validator.*;resolution:=optional,*
+                            jakarta.validation.*;resolution:=optional,
+                            org.hibernate.validator.*;resolution:=optional,
+                            *
                         </Import-Package>
                     </instructions>
                     <unpackBundle>true</unpackBundle>

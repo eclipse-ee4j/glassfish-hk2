@@ -64,6 +64,17 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Export-Package>org.glassfish.hk2.runlevel</Export-Package>
+                        <DynamicImport-Package>*</DynamicImport-Package>
+                        <Import-Package>
+                            *,
+                            org.objectweb.asm;password=GlassFish;resolution:=optional,
+                            org.objectweb.asm.commons;password=GlassFish;resolution:=optional
+                        </Import-Package>
+                    </instructions>
+                </configuration>
                 <executions>
                     <execution>
                         <id>bundle-manifest</id>

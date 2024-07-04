@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation.
  * Copyright (c) 2010, 2018 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -16,16 +17,20 @@
 
 package com.sun.enterprise.module.single;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.jar.Manifest;
-import java.util.jar.Attributes;
-import java.util.jar.JarFile;
-import java.util.*;
-import java.net.URL;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.InaccessibleObjectException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URL;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -36,9 +41,9 @@ import java.util.logging.Logger;
  */
 public class ManifestProxy extends Manifest {
 
-    public final Map<String, Attributes> attributes = new HashMap<String, Attributes>();
+    public final Map<String, Attributes> attributes = new HashMap<>();
     public final Attributes mainAttributes = new Attributes();
-    public final Map<String, String> mappings = new HashMap<String, String>();
+    public final Map<String, String> mappings = new HashMap<>();
 
     public ManifestProxy(ClassLoader cl, List<SeparatorMappings> mappings) throws IOException {
         try {
@@ -65,11 +70,7 @@ public class ManifestProxy extends Manifest {
             try {
                 met.setAccessible(true);
                 urls = (Enumeration<URL>) met.invoke(cl, JarFile.MANIFEST_NAME);
-            } catch (IllegalAccessException ex) {
-                Logger.getLogger(ManifestProxy.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IllegalArgumentException ex) {
-                Logger.getLogger(ManifestProxy.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (InvocationTargetException ex) {
+            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | InaccessibleObjectException ex) {
                 Logger.getLogger(ManifestProxy.class.getName()).log(Level.SEVERE, null, ex);
             }
             if (urls==null) {
@@ -115,7 +116,7 @@ public class ManifestProxy extends Manifest {
     }
 
     @Override
-    public Attributes getMainAttributes() {        
+    public Attributes getMainAttributes() {
         return mainAttributes;
     }
 

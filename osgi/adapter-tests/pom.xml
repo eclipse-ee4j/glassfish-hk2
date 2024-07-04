@@ -35,7 +35,7 @@
         <module>faux-sdp-bundle</module>
         <module>sdp-management-bundle</module>
         <module>test-module-startup</module>
-        <!-- <module>osgi-adapter-test</module> -->
+        <module>osgi-adapter-test</module>
         <module>no-hk2-bundle</module>
     </modules>
 </project>

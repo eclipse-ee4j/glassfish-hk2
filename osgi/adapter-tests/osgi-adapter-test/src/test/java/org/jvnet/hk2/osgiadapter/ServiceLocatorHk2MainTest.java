@@ -16,6 +16,34 @@
  */
 package org.jvnet.hk2.osgiadapter;
 
+import com.sun.enterprise.module.ModulesRegistry;
+import com.sun.enterprise.module.bootstrap.Main;
+import com.sun.enterprise.module.bootstrap.ModuleStartup;
+import com.sun.enterprise.module.bootstrap.StartupContext;
+
+import java.io.File;
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.glassfish.hk2.api.ServiceLocator;
+import org.glassfish.hk2.utilities.BuilderHelper;
+import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.ops4j.pax.exam.Configuration;
+import org.ops4j.pax.exam.Option;
+import org.ops4j.pax.exam.junit.PaxExam;
+import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
+import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.util.tracker.ServiceTracker;
+
+import test.TestModuleStartup;
+
 import static org.ops4j.pax.exam.CoreOptions.cleanCaches;
 import static org.ops4j.pax.exam.CoreOptions.frameworkProperty;
 import static org.ops4j.pax.exam.CoreOptions.junitBundles;
@@ -25,34 +53,6 @@ import static org.ops4j.pax.exam.CoreOptions.provision;
 import static org.ops4j.pax.exam.CoreOptions.systemPackage;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 import static org.ops4j.pax.exam.CoreOptions.workingDirectory;
-
-import java.io.File;
-import java.util.List;
-
-import jakarta.inject.Inject;
-
-import org.glassfish.hk2.api.ServiceLocator;
-import org.glassfish.hk2.utilities.BuilderHelper;
-import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.ops4j.pax.exam.junit.PaxExam;
-import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
-import org.ops4j.pax.exam.spi.reactors.PerClass;
-import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.Configuration;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.util.tracker.ServiceTracker;
-
-import test.TestModuleStartup;
-
-import com.sun.enterprise.module.ModulesRegistry;
-import com.sun.enterprise.module.bootstrap.Main;
-import com.sun.enterprise.module.bootstrap.ModuleStartup;
-import com.sun.enterprise.module.bootstrap.StartupContext;
 
 /**
  * Tests to be run under OSGi
@@ -67,6 +67,7 @@ public class ServiceLocatorHk2MainTest {
     /* package */ static final String HK2_EXT_GROUP_ID = "org.glassfish.hk2.external";
     /* package */ static final String ASM_GROUP_ID = "org.ow2.asm";
 
+    // Don't change to Jakarta until PAX moves there!
     @Inject
     private BundleContext bundleContext;
 
@@ -84,12 +85,12 @@ public class ServiceLocatorHk2MainTest {
         return options(workingDirectory(System.getProperty("basedir") + "/target/wd"),
                 systemProperty("java.io.tmpdir").value(System.getProperty("basedir") + "/target"),
                 systemProperty("pax.exam.osgi.unresolved.fail").value("true"),
+                systemProperty("org.jboss.logging.provider").value("slf4j"),
+                systemProperty("org.jvnet.hk2.logger.debugToStdout").value("false"),
+                systemProperty("org.jvnet.hk2.properties.debug.service.locator.lifecycle").value("true"),
                 frameworkProperty("org.osgi.framework.storage").value(System.getProperty("basedir") + "/target/felix"),
-                systemPackage("sun.misc"),
+
                 systemPackage("javax.net.ssl"),
-                systemPackage("jakarta.xml.bind"),
-                systemPackage("jakarta.xml.bind.annotation"),
-                systemPackage("jakarta.xml.bind.annotation.adapters"),
                 systemPackage("javax.xml.namespace"),
                 systemPackage("javax.xml.parsers"),
                 systemPackage("javax.xml.stream"),
@@ -102,34 +103,35 @@ public class ServiceLocatorHk2MainTest {
                 systemPackage("org.w3c.dom"),
                 systemPackage("org.xml.sax"),
                 junitBundles(),
-                provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("hk2-utils").version(projectVersion).startLevel(4)),
-                provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("hk2-api").version(projectVersion).startLevel(4)),
-                provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("hk2-runlevel").version(projectVersion).startLevel(4)),
-                provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("hk2-core").version(projectVersion).startLevel(4)),
-                provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("hk2-locator").version(projectVersion).startLevel(4)),
-                provision(mavenBundle().groupId("jakarta.inject").artifactId("jakarta.inject-api").versionAsInProject().startLevel(4)),
-                provision(mavenBundle().groupId("org.javassist").artifactId("javassist").versionAsInProject().startLevel(4)),
+                provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("osgi-adapter").version(projectVersion).startLevel(1)),
+                provision(mavenBundle().groupId("org.jboss.logging").artifactId("jboss-logging").versionAsInProject().startLevel(1)),
+
                 provision(mavenBundle().groupId(ASM_GROUP_ID).artifactId("asm").version(asmVersion).startLevel(4)),
                 provision(mavenBundle().groupId(ASM_GROUP_ID).artifactId("asm-analysis").version(asmVersion).startLevel(4)),
                 provision(mavenBundle().groupId(ASM_GROUP_ID).artifactId("asm-commons").version(asmVersion).startLevel(4)),
                 provision(mavenBundle().groupId(ASM_GROUP_ID).artifactId("asm-tree").version(asmVersion).startLevel(4)),
                 provision(mavenBundle().groupId(ASM_GROUP_ID).artifactId("asm-util").version(asmVersion).startLevel(4)),
-                provision(mavenBundle().groupId(HK2_EXT_GROUP_ID).artifactId("aopalliance-repackaged").version(projectVersion).startLevel(4)),
-                provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("osgi-resource-locator").version("1.0.1").startLevel(4)),
-                provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("class-model").version(projectVersion).startLevel(4)),
-                provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("osgi-adapter").version(projectVersion).startLevel(1)),
-                provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("test-module-startup").version(projectVersion).startLevel(4)),
-                provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("contract-bundle").version(projectVersion).startLevel(4)),
+                provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("class-model").version(projectVersion).startLevel(1)),
+                provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("contract-bundle").version(projectVersion).startLevel(1)),
+                provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("hk2-api").version(projectVersion).startLevel(1)),
+                provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("hk2-core").version(projectVersion).startLevel(1)),
+                provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("hk2-locator").version(projectVersion).startLevel(1)),
+                provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("hk2-runlevel").version(projectVersion).startLevel(1)),
+                provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("hk2-utils").version(projectVersion).startLevel(1)),
                 provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("no-hk2-bundle").version(projectVersion).startLevel(4)),
+                provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("osgi-resource-locator").versionAsInProject().startLevel(4)),
                 provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("sdp-management-bundle").version(projectVersion).startLevel(4)),
+                provision(mavenBundle().groupId(HK2_GROUP_ID).artifactId("test-module-startup").version(projectVersion).startLevel(4)),
+                provision(mavenBundle().groupId(HK2_EXT_GROUP_ID).artifactId("aopalliance-repackaged").version(projectVersion).startLevel(4)),
+                provision(mavenBundle().groupId("com.fasterxml").artifactId("classmate").versionAsInProject()),
+                provision(mavenBundle().groupId("jakarta.activation").artifactId("jakarta.activation-api").versionAsInProject()),
                 provision(mavenBundle().groupId("jakarta.annotation").artifactId("jakarta.annotation-api").versionAsInProject()),
                 provision(mavenBundle().groupId("jakarta.el").artifactId("jakarta.el-api").versionAsInProject()),
+                provision(mavenBundle().groupId("jakarta.inject").artifactId("jakarta.inject-api").versionAsInProject().startLevel(2)),
                 provision(mavenBundle().groupId("jakarta.validation").artifactId("jakarta.validation-api").versionAsInProject()),
+                provision(mavenBundle().groupId("jakarta.xml.bind").artifactId("jakarta.xml.bind-api").versionAsInProject()),
                 provision(mavenBundle().groupId("org.hibernate.validator").artifactId("hibernate-validator").versionAsInProject()),
-                provision(mavenBundle().groupId("com.fasterxml").artifactId("classmate").versionAsInProject()),
-                provision(mavenBundle().groupId("org.jboss.logging").artifactId("jboss-logging").versionAsInProject()),
-                // systemProperty("org.ops4j.pax.logging.DefaultServiceLog.level")
-                //		.value("DEBUG"),
+                provision(mavenBundle().groupId("org.javassist").artifactId("javassist").versionAsInProject().startLevel(4)),
                 cleanCaches()
         // systemProperty("com.sun.enterprise.hk2.repositories").value(cacheDir.toURI().toString()),
         // vmOption(
