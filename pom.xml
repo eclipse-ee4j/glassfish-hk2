@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (c) 2022, 2023 Contributors to Eclipse Foundation. All rights reserved.
+    Copyright (c) 2022, 2024 Contributors to Eclipse Foundation. All rights reserved.
     Copyright (c) 2020, 2021 Payara Services Ltd.
     Copyright (c) 2010, 2020 Oracle and/or its affiliates. All rights reserved.
 
@@ -154,7 +154,7 @@
         
         <parsson.version>1.1.5</parsson.version>
         <jaxb-api.version>4.0.1</jaxb-api.version>
-        <jaxb-runtime.version>4.0.4</jaxb-runtime.version>
+        <jaxb-runtime.version>4.0.5</jaxb-runtime.version>
         <java.net.username>${user.name}</java.net.username>
         <hibernate-validator.version>8.0.1.Final</hibernate-validator.version>
         
@@ -259,7 +259,7 @@
             <dependency>
                 <groupId>args4j</groupId>
                 <artifactId>args4j</artifactId>
-                <version>2.33</version>
+                <version>2.37</version>
             </dependency>
             <dependency>
                 <groupId>jakarta.inject</groupId>
@@ -377,16 +377,6 @@
                 <groupId>org.ops4j.pax.url</groupId>
                 <artifactId>pax-url-aether</artifactId>
                 <version>2.6.14</version>
-            </dependency>
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-core</artifactId>
-                <version>1.4.14</version>
-            </dependency>
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-classic</artifactId>
-                <version>1.4.14</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.felix</groupId>
