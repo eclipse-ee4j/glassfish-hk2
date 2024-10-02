@@ -19,7 +19,7 @@ pipeline {
   agent any
   options {
     // keep at most 50 builds
-    buildDiscarder(logRotator(numToKeepStr: '50'))
+    buildDiscarder(logRotator(numToKeepStr: '50', artifactNumToKeepStr: '2'))
     // abort pipeline if previous stage is unstable
     skipStagesAfterUnstable()
     // show timestamps in logs
