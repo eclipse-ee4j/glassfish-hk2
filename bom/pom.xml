@@ -123,7 +123,7 @@
                 <groupId>org.glassfish.hk2</groupId>
                 <artifactId>osgi-resource-locator</artifactId>
                 <!-- Unfortunately we use the same coordinates as old Oracle, but versioning started from 1.0.0 -->
-                <version>1.0.3</version>
+                <version>3.0.0</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.hk2</groupId>
