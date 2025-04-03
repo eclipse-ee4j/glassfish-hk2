@@ -892,14 +892,14 @@
                             <dependency>
                                 <groupId>org.jacoco</groupId>
                                 <artifactId>jacoco-maven-plugin</artifactId>
-                                <version>0.8.12</version>
+                                <version>0.8.13</version>
                             </dependency>
                         </dependencies>
                     </plugin>
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>0.8.12</version>
+                        <version>0.8.13</version>
                         <executions>
                             <!-- Prepares the property pointing to the JaCoCo runtime agent which
                                  is passed as VM argument when Maven the Surefire plugin is executed. -->
