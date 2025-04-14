@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (c) 2022, 2024 Contributors to Eclipse Foundation. All rights reserved.
+    Copyright (c) 2022, 2025 Contributors to Eclipse Foundation.
     Copyright (c) 2020, 2021 Payara Services Ltd.
     Copyright (c) 2010, 2020 Oracle and/or its affiliates. All rights reserved.
 
@@ -186,6 +186,8 @@
         <release.arguments />
 
         <manifest.location>target/classes/META-INF/MANIFEST.MF</manifest.location>
+        
+        <activate.securitymanager></activate.securitymanager>
     </properties>
 
     <dependencyManagement>
@@ -775,6 +777,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <release>11</release>
+                    <compilerArgument>-proc:full</compilerArgument>
                 </configuration>
             </plugin>
             <plugin>
@@ -783,6 +786,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <java.util.logging.config.file>logging.properties</java.util.logging.config.file>
+                        <net.bytebuddy.experimental>true</net.bytebuddy.experimental>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
@@ -871,6 +875,16 @@
     </build>
 
     <profiles>
+        <profile>
+            <id>securitymanager</id>
+            <activation>
+                <jdk>(,23]</jdk>
+            </activation>
+            <properties>
+                <activate.securitymanager>-Djava.security.manager</activate.securitymanager>
+            </properties>
+        </profile>
+    
         <profile>
             <id>jacoco</id>
             <build>
