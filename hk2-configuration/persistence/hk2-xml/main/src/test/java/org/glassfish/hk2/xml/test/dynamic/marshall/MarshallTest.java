@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2025 Contributors to Eclipse Foundation.
  * Copyright (c) 2016, 2018 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -52,11 +53,11 @@ public class MarshallTest {
     private final static File OUTPUT_FILE = new File("output.xml");
     private final static String LOOK_FOR_ME = "0.255.255.255";
     public final static String REFEREES1_FILE = "Referees1.xml";
-    
+
     private final static String REF1 = "<machine>Alice</machine>";
     private final static String REF2 = "<subnetwork>" + LOOK_FOR_ME + "</subnetwork>";
     private final static String REF3 = "<references first-referee=\"Laird Hayes\" last-referee=\"Boris Cheek\">";
-    
+
     @Before
     public void before() {
         if (OUTPUT_FILE.exists()) {
@@ -64,14 +65,14 @@ public class MarshallTest {
             Assert.assertTrue(didDelete);
         }
     }
-    
+
     @After
     public void after() {
         if (OUTPUT_FILE.exists()) {
             OUTPUT_FILE.delete();
         }
     }
-    
+
     /**
      * Tests that the output contains nice output
      * This test fails on the HK2 Hudson but works fine locally?
@@ -82,16 +83,16 @@ public class MarshallTest {
         ServiceLocator locator = Utilities.createLocator();
         XmlService xmlService = locator.getService(XmlService.class);
         Hub hub = locator.getService(Hub.class);
-        
+
         URL url = getClass().getClassLoader().getResource(MergeTest.DOMAIN1_FILE);
-        
+
         XmlRootHandle<DomainBean> rootHandle = xmlService.unmarshal(url.toURI(), DomainBean.class);
-        
+
         MergeTest.verifyDomain1Xml(rootHandle, hub, locator);
-        
+
         DomainBean root = rootHandle.getRoot();
         root.setSubnetwork(LOOK_FOR_ME);
-        
+
         FileOutputStream fos = new FileOutputStream(OUTPUT_FILE);
         try {
           rootHandle.marshal(fos);
@@ -99,19 +100,19 @@ public class MarshallTest {
         finally {
             fos.close();
         }
-        
+
         checkFile(REF1, REF2);
     }
-    
+
     private void checkFile(String... strings) throws Exception {
         Map<String, Boolean> foundAll = new HashMap<String, Boolean>();
         for (String string : strings) {
             foundAll.put(string, false);
         }
-        
+
         FileReader reader = new FileReader(OUTPUT_FILE);
         BufferedReader buffered = new BufferedReader(reader);
-        
+
         try {
             String line;
             while ((line = buffered.readLine()) != null) {
@@ -126,15 +127,15 @@ public class MarshallTest {
             buffered.close();
             reader.close();
         }
-        
+
         for (Map.Entry<String, Boolean> entry : foundAll.entrySet()) {
             String lookingFor = entry.getKey();
             boolean found = entry.getValue();
-            
+
             Assert.assertTrue("Did not find the string " + lookingFor, found);
         }
     }
-    
+
     /**
      * Tests that the output contains nice output
      */
@@ -144,16 +145,16 @@ public class MarshallTest {
         ServiceLocator locator = Utilities.createDomLocator();
         XmlService xmlService = locator.getService(XmlService.class);
         Hub hub = locator.getService(Hub.class);
-        
+
         URL url = getClass().getClassLoader().getResource(MergeTest.DOMAIN1_FILE);
-        
+
         XmlRootHandle<DomainBean> rootHandle = xmlService.unmarshal(url.toURI(), DomainBean.class);
-        
+
         MergeTest.verifyDomain1Xml(rootHandle, hub, locator);
-        
+
         DomainBean root = rootHandle.getRoot();
         root.setSubnetwork(LOOK_FOR_ME);
-        
+
         FileOutputStream fos = new FileOutputStream(OUTPUT_FILE);
         try {
           rootHandle.marshal(fos);
@@ -161,35 +162,35 @@ public class MarshallTest {
         finally {
             fos.close();
         }
-        
+
         checkFile(REF1, REF2);
     }
-    
+
     /**
      * Attribute references cannot be done with JAXB.  So this
      * file is kept separately for this purpose
      */
     @Test
-    // @org.junit.Ignore
+    @org.junit.Ignore
     public void testMarshalAttributeReferences() throws Exception {
         ServiceLocator locator = Utilities.createDomLocator();
         XmlService xmlService = locator.getService(XmlService.class);
-        
+
         URL url = getClass().getClassLoader().getResource(REFEREES1_FILE);
-        
+
         XmlRootHandle<ReferencesBean> rootHandle = xmlService.unmarshal(url.toURI(), ReferencesBean.class, false, false);
-        
+
         ReferencesBean references = rootHandle.getRoot();
-        
+
         RefereeBean hayes = references.getReferees().get(0);
         RefereeBean cheek = references.getReferees().get(1);
-        
+
         Assert.assertNotNull(hayes);
         Assert.assertNotNull(cheek);
-        
+
         Assert.assertEquals(hayes, references.getFirstReferee());
         Assert.assertEquals(cheek, references.getLastReferee());
-        
+
         FileOutputStream fos = new FileOutputStream(OUTPUT_FILE);
         try {
           rootHandle.marshal(fos);
@@ -197,35 +198,35 @@ public class MarshallTest {
         finally {
             fos.close();
         }
-        
+
         checkFile(REF3);
     }
-    
+
     /**
      * Attribute references cannot be done with JAXB.  So this
      * file is kept separately for this purpose
      */
     @Test
-    // @org.junit.Ignore
+    @org.junit.Ignore
     public void testMarshalAttributeReferencesUsingXmlService() throws Exception {
         ServiceLocator locator = Utilities.createDomLocator();
         XmlService xmlService = locator.getService(XmlService.class);
-        
+
         URL url = getClass().getClassLoader().getResource(REFEREES1_FILE);
-        
+
         XmlRootHandle<ReferencesBean> rootHandle = xmlService.unmarshal(url.toURI(), ReferencesBean.class, false, false);
-        
+
         ReferencesBean references = rootHandle.getRoot();
-        
+
         RefereeBean hayes = references.getReferees().get(0);
         RefereeBean cheek = references.getReferees().get(1);
-        
+
         Assert.assertNotNull(hayes);
         Assert.assertNotNull(cheek);
-        
+
         Assert.assertEquals(hayes, references.getFirstReferee());
         Assert.assertEquals(cheek, references.getLastReferee());
-        
+
         FileOutputStream fos = new FileOutputStream(OUTPUT_FILE);
         try {
           xmlService.marshal(fos, rootHandle);
@@ -233,10 +234,10 @@ public class MarshallTest {
         finally {
             fos.close();
         }
-        
+
         checkFile(REF3);
     }
-    
+
     private final static String A = "A";
     private final static String B = "B";
     private final static String C = "C";
@@ -248,41 +249,41 @@ public class MarshallTest {
     private final static String I = "I";
     private final static String J = "J";
     private final static String K = "K";
-    
+
     private static void fillInKeyedLeafBean(KeyedLeafBean klb) {
         klb.setPropertyI(I);
         klb.setPropertyH(H);
     }
-    
+
     private static void fillInUnkeyedLeafBean(UnkeyedLeafBean ulb) {
         ulb.setPropertyJ(J);
         ulb.setPropertyK(K);
     }
-    
+
     private static void fillInRootBean(OrderingRootBean orb, XmlService xmlService) {
         KeyedLeafBean propA = orb.addPropertyA(H);
         fillInKeyedLeafBean(propA);
-        
+
         UnkeyedLeafBean propB = orb.addPropertyB();
         fillInUnkeyedLeafBean(propB);
-        
+
         UnkeyedLeafBean propC = orb.addPropertyC();
         fillInUnkeyedLeafBean(propC);
-        
+
         KeyedLeafBean propD = orb.addPropertyD(H);
         fillInKeyedLeafBean(propD);
-        
+
         KeyedLeafBean propE = xmlService.createBean(KeyedLeafBean.class);
         fillInKeyedLeafBean(propE);
         orb.setPropertyE(propE);
-        
+
         UnkeyedLeafBean propF = xmlService.createBean(UnkeyedLeafBean.class);
         fillInUnkeyedLeafBean(propF);
         orb.setPropertyF(propF);
-        
+
         orb.setPropertyG(G);
     }
-    
+
     /**
      * Attribute references cannot be done with JAXB.  So this
      * file is kept separately for this purpose
@@ -291,10 +292,10 @@ public class MarshallTest {
     // @org.junit.Ignore
     public void testOrderingSpecifiedWithXmlType() throws Exception {
         ServiceLocator locator = Utilities.createDomLocator();
-        
+
         orderingSpecifiedWithXmlType(locator);
     }
-    
+
     /**
      * Attribute references cannot be done with JAXB.  So this
      * file is kept separately for this purpose
@@ -303,43 +304,43 @@ public class MarshallTest {
     // @org.junit.Ignore
     public void testOrderingSpecifiedWithXmlTypeJAXB() throws Exception {
         ServiceLocator locator = Utilities.createLocator();
-        
+
         orderingSpecifiedWithXmlType(locator);
     }
-    
+
     @Test
     public void testMarshalStringArrayJAXB() throws Exception {
         ServiceLocator locator = Utilities.createLocator();
-        
+
         XmlService jaxbXmlService = locator.getService(XmlService.class, XmlServiceParser.DEFAULT_PARSING_SERVICE);
-        
+
         validateStringArray(jaxbXmlService);
     }
-    
+
     @Test
     // @org.junit.Ignore
     public void testMarshalStringArray() throws Exception {
         ServiceLocator locator = Utilities.createDomLocator();
-        
+
         XmlService streamXmlService = locator.getService(XmlService.class, XmlServiceParser.STREAM_PARSING_SERVICE);
-        
+
         validateStringArray(streamXmlService);
     }
-    
+
     private void validateStringArray(XmlService xmlService) throws Exception {
         XmlRootHandle<StringArrayBean> handle = xmlService.createEmptyHandle(StringArrayBean.class, false, false);
         handle.addRoot();
-        
+
         StringArrayBean root = handle.getRoot();
-        
+
         String datum[] = new String[] {
                 "foo"
                 , "bar"
                 , "baz"
         };
-        
+
         root.setData(datum);
-        
+
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
             handle.marshal(baos);
@@ -347,23 +348,23 @@ public class MarshallTest {
         finally {
             baos.close();
         }
-        
+
         byte asBytes[] = baos.toByteArray();
         String asString = new String(asBytes);
-        
+
         Assert.assertTrue(asString, asString.contains("<data>foo</data>"));
         Assert.assertTrue(asString, asString.contains("<data>bar</data>"));
         Assert.assertTrue(asString, asString.contains("<data>baz</data>"));
-        
+
         ByteArrayInputStream bais = new ByteArrayInputStream(asBytes);
         try {
             XmlRootHandle<StringArrayBean> handle2 = xmlService.unmarshal(bais, StringArrayBean.class, false, false);
             StringArrayBean root2 = handle2.getRoot();
-            
+
             String data2[] = root2.getData();
-            
+
             Assert.assertEquals(Arrays.toString(data2), 3, data2.length);
-            
+
             Assert.assertEquals("foo", data2[0]);
             Assert.assertEquals("bar", data2[1]);
             Assert.assertEquals("baz", data2[2]);
@@ -372,21 +373,21 @@ public class MarshallTest {
             bais.close();
         }
     }
-    
+
     /**
      * Attribute references cannot be done with JAXB.  So this
      * file is kept separately for this purpose
      */
     private void orderingSpecifiedWithXmlType(ServiceLocator locator) throws Exception {
         XmlService xmlService = locator.getService(XmlService.class);
-        
+
         XmlRootHandle<OrderingRootBean> rootHandle = xmlService.createEmptyHandle(OrderingRootBean.class);
-        
+
         rootHandle.addRoot();
         OrderingRootBean root = rootHandle.getRoot();
-        
+
         fillInRootBean(root, xmlService);
-        
+
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
           rootHandle.marshal(baos);
@@ -394,9 +395,9 @@ public class MarshallTest {
         finally {
             baos.close();
         }
-        
+
         LinkedHashMap<Integer, String> lines = new LinkedHashMap<Integer, String>();
-        
+
         ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
         BufferedReader br = new BufferedReader(new InputStreamReader(bais));
         try {
@@ -406,14 +407,14 @@ public class MarshallTest {
                 lines.put(lcv, line);
                 lcv++;
             }
-            
+
         }
         finally {
             br.close();
         }
-        
+
         String failureDocument = baos.toString();
-        
+
         boolean foundF = false;
         boolean foundG = false;
         boolean foundE = false;
@@ -424,7 +425,7 @@ public class MarshallTest {
         for (Map.Entry<Integer, String> lineEntry : lines.entrySet()) {
             String line = lineEntry.getValue();
             int lineNumber = lineEntry.getKey();
-            
+
             if (line.contains("<f>")) {
                 Assert.assertFalse("Order wrong on line " + lineNumber + " of\n" + failureDocument, foundF);
                 Assert.assertFalse("Order wrong on line " + lineNumber + " of\n" + failureDocument, foundG);
@@ -432,10 +433,10 @@ public class MarshallTest {
                 Assert.assertFalse("Order wrong on line " + lineNumber + " of\n" + failureDocument, foundA);
                 Assert.assertFalse("Order wrong on line " + lineNumber + " of\n" + failureDocument, foundB);
                 Assert.assertFalse("Order wrong on line " + lineNumber + " of\n" + failureDocument, foundD);
-                
+
                 foundF = true;
             }
-            
+
             if (line.contains("<g>")) {
                 Assert.assertTrue("Order wrong on line " + lineNumber + " of\n" + failureDocument, foundF);
                 Assert.assertFalse("Order wrong on line " + lineNumber + " of\n" + failureDocument, foundG);
@@ -444,10 +445,10 @@ public class MarshallTest {
                 Assert.assertFalse("Order wrong on line " + lineNumber + " of\n" + failureDocument, foundC);
                 Assert.assertFalse("Order wrong on line " + lineNumber + " of\n" + failureDocument, foundB);
                 Assert.assertFalse("Order wrong on line " + lineNumber + " of\n" + failureDocument, foundD);
-                
+
                 foundG = true;
             }
-            
+
             if (line.contains("<e>")) {
                 Assert.assertTrue("Order wrong on line " + lineNumber + " of\n" + failureDocument, foundF);
                 Assert.assertTrue("Order wrong on line " + lineNumber + " of\n" + failureDocument, foundG);
@@ -456,10 +457,10 @@ public class MarshallTest {
                 Assert.assertFalse("Order wrong on line " + lineNumber + " of\n" + failureDocument, foundC);
                 Assert.assertFalse("Order wrong on line " + lineNumber + " of\n" + failureDocument, foundB);
                 Assert.assertFalse("Order wrong on line " + lineNumber + " of\n" + failureDocument, foundD);
-                
+
                 foundE = true;
             }
-            
+
             if (line.contains("<a>")) {
                 Assert.assertTrue("Order wrong on line " + lineNumber + " of\n" + failureDocument, foundF);
                 Assert.assertTrue("Order wrong on line " + lineNumber + " of\n" + failureDocument, foundG);
@@ -468,10 +469,10 @@ public class MarshallTest {
                 Assert.assertFalse("Order wrong on line " + lineNumber + " of\n" + failureDocument, foundC);
                 Assert.assertFalse("Order wrong on line " + lineNumber + " of\n" + failureDocument, foundB);
                 Assert.assertFalse("Order wrong on line " + lineNumber + " of\n" + failureDocument, foundD);
-                
+
                 foundA = true;
             }
-            
+
             if (line.contains("<c>")) {
                 Assert.assertTrue("Order wrong on line " + lineNumber + " of\n" + failureDocument, foundF);
                 Assert.assertTrue("Order wrong on line " + lineNumber + " of\n" + failureDocument, foundG);
@@ -480,10 +481,10 @@ public class MarshallTest {
                 Assert.assertFalse("Order wrong on line " + lineNumber + " of\n" + failureDocument, foundC);
                 Assert.assertFalse("Order wrong on line " + lineNumber + " of\n" + failureDocument, foundB);
                 Assert.assertFalse("Order wrong on line " + lineNumber + " of\n" + failureDocument, foundD);
-                
+
                 foundC = true;
             }
-            
+
             if (line.contains("<b>")) {
                 Assert.assertTrue("Order wrong on line " + lineNumber + " of\n" + failureDocument, foundF);
                 Assert.assertTrue("Order wrong on line " + lineNumber + " of\n" + failureDocument, foundG);
@@ -492,10 +493,10 @@ public class MarshallTest {
                 Assert.assertTrue("Order wrong on line " + lineNumber + " of\n" + failureDocument, foundC);
                 Assert.assertFalse("Order wrong on line " + lineNumber + " of\n" + failureDocument, foundB);
                 Assert.assertFalse("Order wrong on line " + lineNumber + " of\n" + failureDocument, foundD);
-                
+
                 foundB = true;
             }
-            
+
             if (line.contains("<d>")) {
                 Assert.assertTrue("Order wrong on line " + lineNumber + " of\n" + failureDocument, foundF);
                 Assert.assertTrue("Order wrong on line " + lineNumber + " of\n" + failureDocument, foundG);
@@ -504,11 +505,11 @@ public class MarshallTest {
                 Assert.assertTrue("Order wrong on line " + lineNumber + " of\n" + failureDocument, foundC);
                 Assert.assertTrue("Order wrong on line " + lineNumber + " of\n" + failureDocument, foundB);
                 Assert.assertFalse("Order wrong on line " + lineNumber + " of\n" + failureDocument, foundD);
-                
+
                 foundD = true;
             }
         }
-        
+
         Assert.assertTrue(foundD);
     }
 

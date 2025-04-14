@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2025 Contributors to Eclipse Foundation.
  * Copyright (c) 2012, 2018 Oracle and/or its affiliates. All rights reserved.
  * Copyright (c) 2020 Payara Services Ltd.
  *
@@ -17,22 +18,30 @@
 
 package org.glassfish.securitylockdown.test;
 
-import org.junit.Assert;
-
-import org.glassfish.hk2.api.MultiException;
-import org.junit.Test;
-import org.jvnet.hk2.testing.junit.HK2Runner;
-
 import com.alice.application.AliceApp;
 import com.mallory.application.MalloryApp;
 
+import org.glassfish.hk2.api.MultiException;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.jvnet.hk2.testing.junit.HK2Runner;
+
+import static org.junit.Assume.assumeTrue;
+
 /**
- * 
+ *
  * @author jwells
  *
  */
 public class SecurityLockdownTest extends HK2Runner {
-    
+
+    @Before
+    public void beforeMethod() {
+        // Security Manager tests using "AccessController.checkPermission(p);" don't work in JDK24+
+        assumeTrue(System.getProperty("java.vm.specification.version").compareTo("24") < 0);
+    }
+
     /**
      * Tests that we can do a lookup of AliceApp
      */
@@ -41,7 +50,7 @@ public class SecurityLockdownTest extends HK2Runner {
         AliceApp aa = testLocator.getService(AliceApp.class);
         Assert.assertNotNull(aa);
     }
-    
+
     /**
      * Tests that we can do a lookup of AliceApp
      */
@@ -50,7 +59,7 @@ public class SecurityLockdownTest extends HK2Runner {
         MalloryApp ma = testLocator.getService(MalloryApp.class);
         Assert.assertNotNull(ma);
     }
-    
+
     /**
      * Tests that we can have Alice perform an operation on Mallory's behalf
      */
@@ -58,10 +67,10 @@ public class SecurityLockdownTest extends HK2Runner {
     public void testMalloryCanLegallyHaveAliceDoAnOperation() {
         MalloryApp ma = testLocator.getService(MalloryApp.class);
         Assert.assertNotNull(ma);
-        
+
         ma.doAnApprovedOperation();
     }
-    
+
     /**
      * Tests that we can have Alice perform an operation on Mallory's behalf
      */
@@ -69,7 +78,7 @@ public class SecurityLockdownTest extends HK2Runner {
     public void testMalloryCannotGetTheAuditServiceHimself() {
         MalloryApp ma = testLocator.getService(MalloryApp.class);
         Assert.assertNotNull(ma);
-        
+
         try {
             ma.tryToGetTheAuditServiceMyself();
             Assert.fail("Mallory should not be able to get the audit service himself");
@@ -78,7 +87,7 @@ public class SecurityLockdownTest extends HK2Runner {
             // Good, should have failed for him!
         }
     }
-    
+
     /**
      * Tests that Mallory cannot advertise a service
      */
@@ -86,7 +95,7 @@ public class SecurityLockdownTest extends HK2Runner {
     public void testMalloryCannotAdvertiseAService() {
         MalloryApp ma = testLocator.getService(MalloryApp.class);
         Assert.assertNotNull(ma);
-        
+
         try {
             ma.tryToAdvertiseAService();
             Assert.fail("Mallory should not be able to advertise a service himself");
@@ -95,7 +104,7 @@ public class SecurityLockdownTest extends HK2Runner {
             // Good, should have failed for him!
         }
     }
-    
+
     /**
      * Tests that Mallory cannot advertise a service
      */
@@ -103,7 +112,7 @@ public class SecurityLockdownTest extends HK2Runner {
     public void testMalloryCannotUnAdvertiseAService() {
         MalloryApp ma = testLocator.getService(MalloryApp.class);
         Assert.assertNotNull(ma);
-        
+
         try {
             ma.tryToUnAdvertiseAService();
             Assert.fail("Mallory should not be able to unadvertise a service");
@@ -112,7 +121,7 @@ public class SecurityLockdownTest extends HK2Runner {
             // Good, should have failed for him!
         }
     }
-    
+
     /**
      * Tests that Mallory cannot have a service that injects something it cannot
      */
@@ -120,13 +129,13 @@ public class SecurityLockdownTest extends HK2Runner {
     public void testMalloryCannotInjectAnUnAuthorizedThing() {
         MalloryApp ma = testLocator.getService(MalloryApp.class);
         Assert.assertNotNull(ma);
-        
+
         try {
             ma.tryToInstantiateAServiceWithABadInjectionPoint();
             Assert.fail("Mallory should not be able to inject a service it has no rights to");
         }
         catch (MultiException multi) {
-            Assert.assertTrue(multi.getMessage(), multi.getMessage().contains("There was no object available in " + SecurityLockdownTest.class.getCanonicalName() 
+            Assert.assertTrue(multi.getMessage(), multi.getMessage().contains("There was no object available in " + SecurityLockdownTest.class.getCanonicalName()
                     + " for injection at SystemInjecteeImpl"));
         }
     }
