@@ -25,7 +25,7 @@ pipeline {
     // show timestamps in logs
     timestamps()
     // global timeout
-    timeout(time: 20, unit: 'MINUTES')
+    timeout(time: 120, unit: 'MINUTES')
   }
   stages {
     stage('build') {
