@@ -113,9 +113,9 @@ public class ServiceLocatorImpl implements ServiceLocator {
         public String run() {
             return System.getProperty(BIND_TRACING_PATTERN_PROPERTY);
         }
-
+            
     });
-
+    
     private final static String BIND_TRACING_STACKS_PROPERTY = "org.jvnet.hk2.properties.bind.tracing.stacks";
     private static final boolean BIND_TRACING_STACKS = AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
         @Override
@@ -123,7 +123,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
             return Boolean.parseBoolean(
                 System.getProperty(BIND_TRACING_STACKS_PROPERTY, "false"));
         }
-
+            
     });
 
     private final static int CACHE_SIZE = 20000;
@@ -152,7 +152,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
     private final LinkedHashSet<ValidationService> allValidators = new LinkedHashSet<>();
     private final LinkedList<ErrorService> errorHandlers = new LinkedList<>(Collections.singletonList(new RethrowErrorService()));
     private final LinkedList<ServiceHandle<?>> configListeners = new LinkedList<>();
-
+    
     private volatile boolean hasInterceptionServices = false;
     private final LinkedList<InterceptionService> interceptionServices =
             new LinkedList<InterceptionService>();
@@ -176,14 +176,14 @@ public class ServiceLocatorImpl implements ServiceLocator {
     private final ReentrantLock allResolversLock = new ReentrantLock();
     private ConcurrentHashMap<Class<? extends Annotation>, InjectionResolver<?>> allResolvers =
             new ConcurrentHashMap<Class<? extends Annotation>, InjectionResolver<?>>();
-    private final Cache<SystemInjecteeImpl, InjectionResolver<?>> injecteeToResolverCache =
+    private final Cache<SystemInjecteeImpl, InjectionResolver<?>> injecteeToResolverCache = 
             new Cache<SystemInjecteeImpl, InjectionResolver<?>>(new Computable<SystemInjecteeImpl, InjectionResolver<?>>() {
 
         @Override
         public InjectionResolver<?> compute(SystemInjecteeImpl key) {
             return perLocatorUtilities.getInjectionResolver(getMe(), key);
         }
-
+        
     });
 
     private ServiceLocatorState state = ServiceLocatorState.RUNNING;
@@ -218,10 +218,10 @@ public class ServiceLocatorImpl implements ServiceLocator {
                     " with stacks " + BIND_TRACING_STACKS + " in " + this);
         }
     }
-
+    
     /**
      * Must have read lock held
-     *
+     * 
      * @param vi The non-null validation
      * @return
      */
@@ -231,7 +231,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
         }
         catch (Throwable th) {
             List<ErrorService> localErrorServices = new LinkedList<ErrorService>(errorHandlers);
-
+            
             MultiException useException;
             if (th instanceof MultiException) {
                 useException = (MultiException) th;
@@ -239,13 +239,13 @@ public class ServiceLocatorImpl implements ServiceLocator {
             else {
                 useException = new MultiException(th);
             }
-
+            
             ErrorInformationImpl ei = new ErrorInformationImpl(
                     ErrorType.VALIDATE_FAILURE,
                     vi.getCandidate(),
                     vi.getInjectee(),
                     useException);
-
+            
             for (ErrorService errorService : localErrorServices) {
                 try {
                     errorService.onFailure(ei);
@@ -254,9 +254,9 @@ public class ServiceLocatorImpl implements ServiceLocator {
                     Logger.getLogger().debug("ServiceLocatorImpl", "callValidate", th2);
                 }
             }
-
+            
         }
-
+        
         return false;
     }
 
@@ -534,7 +534,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
 
         if (Provider.class.equals(rawType) || Iterable.class.equals(rawType) || IterableProvider.class.equals(rawType) ) {
             boolean isIterable = (IterableProvider.class.equals(rawType));
-
+            
             IterableProviderImpl<?> value = new IterableProviderImpl<Object>(this,
                     (ReflectionHelper.getFirstTypeArgument(requiredType)),
                     injectee.getRequiredQualifiers(),
@@ -562,12 +562,12 @@ public class ServiceLocatorImpl implements ServiceLocator {
             }
             return descriptor;
         }
-
+        
         if (Topic.class.equals(rawType)) {
             TopicImpl<?> value = new TopicImpl<Object>(this,
                     ReflectionHelper.getFirstTypeArgument(requiredType),
                     injectee.getRequiredQualifiers());
-
+            
             return new ConstantActiveDescriptor<Object>(value, this);
         }
 
@@ -601,28 +601,28 @@ public class ServiceLocatorImpl implements ServiceLocator {
                 throw new IllegalArgumentException("The descriptor passed to getServiceHandle must have been bound into a ServiceLocator.  " +
                     "The descriptor is of type " + activeDescriptor.getClass().getName());
             }
-
+            
             Long sdLocator = activeDescriptor.getLocatorId();
             if (sdLocator == null) {
                 throw new IllegalArgumentException("The descriptor passed to getServiceHandle is not associated with any ServiceLocator");
             }
-
+            
             if (sdLocator != id) {
                 if (parent != null) {
                     return parent.getServiceHandle(activeDescriptor, injectee);
                 }
-
+                
                 throw new IllegalArgumentException("The descriptor passed to getServiceHandle is not associated with this ServiceLocator (id=" +
                     id + ").  It is associated ServiceLocator id=" + sdLocator);
             }
-
+            
            Long sdSID = activeDescriptor.getServiceId();
            if ((activeDescriptor instanceof SystemDescriptor) && (sdSID == null)) {
                throw new IllegalArgumentException("The descriptor passed to getServiceHandle was never added to this ServiceLocator (id=" +
                    id + ")");
            }
         }
-
+        
         return getServiceHandleImpl(activeDescriptor, injectee);
     }
 
@@ -682,7 +682,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
             ServiceHandleImpl<T> tmpRoot = new ServiceHandleImpl<T>(this, activeDescriptor, originalRequest);
             return Utilities.createService(activeDescriptor, originalRequest, this, tmpRoot, rawClass);
         }
-
+        
         ServiceHandleImpl<?> rootImpl = (ServiceHandleImpl<?>) root;
 
         ServiceHandleImpl<T> subHandle = internalGetServiceHandle(activeDescriptor, contractOrImpl, originalRequest);
@@ -733,38 +733,38 @@ public class ServiceLocatorImpl implements ServiceLocator {
             throws MultiException {
         return internalGetService(contractOrImpl, name, null, qualifiers);
     }
-
+    
     private <T> T internalGetService(Type contractOrImpl, String name, Unqualified unqualified, Annotation... qualifiers) {
         return internalGetService(contractOrImpl, name, unqualified, false, qualifiers);
-
+        
     }
 
     @SuppressWarnings("unchecked")
     private <T> T internalGetService(Type contractOrImpl, String name, Unqualified unqualified, boolean calledFromSecondChanceResolveMethod, Annotation... qualifiers) {
         checkState();
-
+        
         Class<?> rawType = ReflectionHelper.getRawClass(contractOrImpl);
         if (rawType != null &&
                 (Provider.class.equals(rawType) || IterableProvider.class.equals(rawType)) ) {
             boolean isIterable = IterableProvider.class.equals(rawType);
-
+            
             Type requiredType = ReflectionHelper.getFirstTypeArgument(contractOrImpl);
             HashSet<Annotation> requiredQualifiers = new HashSet<Annotation>();
             for (Annotation qualifier : qualifiers) {
                 requiredQualifiers.add(qualifier);
             }
-
+            
             InjecteeImpl injectee = new InjecteeImpl(requiredType);
             injectee.setRequiredQualifiers(requiredQualifiers);
             injectee.setUnqualified(unqualified);
-
+            
             IterableProviderImpl<?> retVal = new IterableProviderImpl<Object>(this,
                     requiredType,
                     requiredQualifiers,
                     unqualified,
                     injectee,
                     isIterable);
-
+            
             return (T) retVal;
         }
 
@@ -878,7 +878,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
             rLock.unlock();
         }
     }
-
+    
     @Override
     public boolean isShutdown() {
         return state.equals(ServiceLocatorState.SHUTDOWN);
@@ -889,8 +889,8 @@ public class ServiceLocatorImpl implements ServiceLocator {
      */
     @Override
     public void shutdown() {
-
-
+        
+        
         wLock.lock();
         try {
             if (state.equals(ServiceLocatorState.SHUTDOWN)) return;
@@ -914,7 +914,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
         finally {
             wLock.unlock();
         }
-
+        
         // These things must be done OUTSIDE the lock
         List<ServiceHandle<?>> handles = getAllServiceHandles(new IndexedFilter() {
 
@@ -932,7 +932,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
             public String getName() {
                 return null;
             }
-
+            
         });
 
         for (ServiceHandle<?> handle : handles) {
@@ -960,7 +960,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
             classReflectionHelper.dispose();
             contextCache.clear();
             perLocatorUtilities.shutdown();
-
+            
             childrenLock.lock();
             try {
                 children.clear();
@@ -1003,16 +1003,16 @@ public class ServiceLocatorImpl implements ServiceLocator {
     public void inject(Object injectMe) {
         inject(injectMe, null);
     }
-
+    
     @Override
     public Object assistedInject(Object injectMe, Method method, MethodParameter... params) {
         return assistedInject(injectMe, method, null, params);
     }
-
+    
     @Override
     public Object assistedInject(Object injectMe, Method method, ServiceHandle<?> root, MethodParameter... params) {
         checkState();
-
+        
         return Utilities.justAssistedInject(injectMe, method, this, root, params);
     }
 
@@ -1171,7 +1171,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
             }
             return true;
         }
-
+        
         @Override
         public String toString() {
             return "IgdCacheKey(" + cacheKey + "," + name + "," + onBehalfOf + "," +
@@ -1198,7 +1198,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
                     return igdCacheCompute(key);
                 }
             }, CACHE_SIZE, false);
-
+    
     private IgdValue igdCacheCompute(final IgdCacheKey key) {
         final List<SystemDescriptor<?>> candidates = getDescriptors(key.filter, key.onBehalfOf, true, false, true);
         final ImmediateResults immediate = narrow(ServiceLocatorImpl.this, // locator
@@ -1211,21 +1211,21 @@ public class ServiceLocatorImpl implements ServiceLocator {
                 null, // cachedResults
                 key.filter, // filter
                 key.qualifiers); // qualifiers
-
+        
         final NarrowResults results = immediate.getTimelessResults();
         if (!results.getErrors().isEmpty()) {
             Utilities.handleErrors(results, new LinkedList<ErrorService>(errorHandlers));
             throw new ComputationErrorException(new IgdValue(results, immediate));
         }
-
+        
         return new IgdValue(results, immediate);
     }
-
+    
     private Unqualified getEffectiveUnqualified(Unqualified givenUnqualified, boolean isIterable, Annotation qualifiers[]) {
         if (givenUnqualified != null) return givenUnqualified;
         if (qualifiers.length > 0) return null;
         if (isIterable) return null;
-
+        
         // Given unqualified is null and there are no qualifiers
         return defaultUnqualified;
     }
@@ -1237,7 +1237,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
             Annotation... qualifiers) throws MultiException {
       return internalGetDescriptor(onBehalfOf, contractOrImpl, name, unqualified, isIterable, false, qualifiers);
     }
-
+  
     @SuppressWarnings("unchecked")
     private <T> ActiveDescriptor<T> internalGetDescriptor(Injectee onBehalfOf, Type contractOrImpl,
             String name,
@@ -1260,7 +1260,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
         LinkedList<ErrorService> currentErrorHandlers = null;
 
         ImmediateResults immediate = null;
-
+        
         unqualified = getEffectiveUnqualified(unqualified, isIterable, qualifiers);
 
         final CacheKey cacheKey = new CacheKey(contractOrImpl, name, unqualified, qualifiers);
@@ -1331,7 +1331,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
             }
             postValidateResult = (ActiveDescriptor<T>)secondChanceResolve(injectee);
         }
-
+        
         return postValidateResult;
     }
 
@@ -1425,7 +1425,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
                 Utilities.handleErrors(results, new LinkedList<ErrorService>(errorHandlers));
                 throw new ComputationErrorException(new IgdValue(results, immediate)) ;
             }
-
+            
             return new IgdValue(results, immediate);
         }
     }, CACHE_SIZE, false);
@@ -1452,7 +1452,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
         LinkedList<ErrorService> currentErrorHandlers = null;
 
         ImmediateResults immediate = null;
-
+        
         unqualified = getEffectiveUnqualified(unqualified, isIterable, qualifiers);
 
         final CacheKey cacheKey = new CacheKey(contractOrImpl, null, unqualified, qualifiers);
@@ -1604,10 +1604,10 @@ public class ServiceLocatorImpl implements ServiceLocator {
 
         });
     }
-
+    
     /* package */ List<InterceptionService> getInterceptionServices() {
         if (!hasInterceptionServices) return null;
-
+        
         rLock.lock();
         try {
             return new LinkedList<InterceptionService>(interceptionServices);
@@ -1676,7 +1676,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
 
         for (SystemDescriptor<?> sd : dci.getAllDescriptors()) {
             transactionData.toAdd(sd);
-
+            
             affectedContracts.addAll(getAllContracts(sd));
 
             boolean checkScope = false;
@@ -1714,13 +1714,13 @@ public class ServiceLocatorImpl implements ServiceLocator {
 
                 addOrRemoveOfInjectionResolver = true;
             }
-
+            
             if (sd.getAdvertisedContracts().contains(DynamicConfigurationListener.class.getName())) {
                 // This gets reified right away
                 reifyDescriptor(sd);
-
+                
                 checkScope = true;
-
+                
                 addOrRemoveOfConfigListener = true;
             }
 
@@ -1754,29 +1754,29 @@ public class ServiceLocatorImpl implements ServiceLocator {
                 }
             }
         }
-
+        
         List<Filter> idempotentFilters = dci.getIdempotentFilters();
         if (!idempotentFilters.isEmpty()) {
             List<ActiveDescriptor<?>> allValidatedDescriptors = getDescriptors(BuilderHelper.allFilter());
-
+            
             List<Throwable> idempotentFailures = new LinkedList<>();
             for (ActiveDescriptor<?> aValidatedDescriptor : allValidatedDescriptors) {
                 for (Filter idempotentFilter : idempotentFilters) {
                     if (BuilderHelper.filterMatches(aValidatedDescriptor, idempotentFilter)) {
                         idempotentFailures.add(new DuplicateServiceException(aValidatedDescriptor, locatorName));
                     }
-
+                    
                 }
             }
-
+            
             if (!idempotentFailures.isEmpty()) {
                 throw new MultiException(idempotentFailures);
             }
         }
-
+        
         LinkedList<TwoPhaseResource> resources = dci.getResources();
         List<TwoPhaseResource> completedPrepares = new LinkedList<TwoPhaseResource>();
-
+        
         for (TwoPhaseResource resource : resources) {
             try {
                 resource.prepareDynamicConfiguration(transactionData);
@@ -1791,11 +1791,11 @@ public class ServiceLocatorImpl implements ServiceLocator {
                         Logger.getLogger().debug("Rollback of TwoPhaseResource " + resource + " failed with exception", ignore);
                     }
                 }
-
+                
                 if (th instanceof RuntimeException) {
                     throw (RuntimeException) th;
                 }
-
+                
                 throw new RuntimeException(th);
             }
         }
@@ -1856,18 +1856,18 @@ public class ServiceLocatorImpl implements ServiceLocator {
                 ValidationService vs = handle.getService();
                 allValidators.remove(vs);
             }
-
+            
             if (unbind.isReified()) {
                 for (Injectee injectee : unbind.getInjectees()) {
                     if (injectee instanceof SystemInjecteeImpl) {
                         injecteeToResolverCache.remove((SystemInjecteeImpl) injectee);
                     }
                 }
-
+                
                 classReflectionHelper.clean(unbind.getImplementationClass());
             }
         }
-
+        
         boolean hasOneUnbind = false;
         for (SystemDescriptor<?> unbind : unbinds) {
             hasOneUnbind = true;
@@ -1876,7 +1876,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
             // as the validation service while we are unbinding
             unbind.close();
         }
-
+        
         if (hasOneUnbind) {
             perLocatorUtilities.releaseCaches();
         }
@@ -1981,13 +1981,13 @@ public class ServiceLocatorImpl implements ServiceLocator {
         }
         injecteeToResolverCache.clear();
     }
-
+    
     private void reupInterceptionServices() {
         List<InterceptionService> allInterceptionServices = protectedGetAllServices(InterceptionService.class);
 
         interceptionServices.clear();
         interceptionServices.addAll(allInterceptionServices);
-
+        
         hasInterceptionServices = !interceptionServices.isEmpty();
     }
 
@@ -1997,7 +1997,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
         errorHandlers.clear();
         errorHandlers.addAll(allErrorServices);
     }
-
+    
     private void reupConfigListeners() {
         List<ServiceHandle<?>> allConfigListeners = protectedGetAllServiceHandles(DynamicConfigurationListener.class);
 
@@ -2072,7 +2072,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
         if (errorHandlersModified) {
             reupErrorHandlers();
         }
-
+        
         if (dynamicConfigurationListenersModified) {
             reupConfigListeners();
         }
@@ -2087,7 +2087,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
         if (classAnalyzersModified) {
             reupClassAnalyzers();
         }
-
+        
         // Should be last in order to ensure none of the
         // things added in this update are intercepted
         if (interceptionServicesModified) {
@@ -2112,14 +2112,14 @@ public class ServiceLocatorImpl implements ServiceLocator {
             sli.getAllChildren(allMyChildren);
         }
     }
-
+    
     private void callAllConfigurationListeners(List<ServiceHandle<?>> allListeners) {
         if (allListeners == null) return;
-
+        
         for (ServiceHandle<?> listener : allListeners) {
             ActiveDescriptor<?> listenerDescriptor = listener.getActiveDescriptor();
             if (listenerDescriptor.getLocatorId() != id) continue;
-
+            
             try {
                 ((DynamicConfigurationListener) listener.getService()).configurationChanged();
             }
@@ -2131,7 +2131,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
 
     /* package */ void addConfiguration(DynamicConfigurationImpl dci) {
         CheckConfigurationData checkData;
-
+        
         List<ServiceHandle<?>> allConfigurationListeners = null;
         MultiException configurationError = null;
 
@@ -2151,7 +2151,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
                     checkData.getDynamicConfigurationListenerModificationMade(),
                     checkData.getAffectedContracts(),
                     checkData.getInterceptionServiceModificationMade());
-
+            
             allConfigurationListeners = new LinkedList<ServiceHandle<?>>(configListeners);
         } catch (MultiException me) {
             configurationError = me;
@@ -2161,9 +2161,9 @@ public class ServiceLocatorImpl implements ServiceLocator {
             if (configurationError != null) {
                 errorServices = new LinkedList<ErrorService>(errorHandlers);
             }
-
+            
             wLock.unlock();
-
+            
             if (errorServices != null && !errorServices.isEmpty()) {
                 for (ErrorService errorService : errorServices) {
                     try {
@@ -2177,7 +2177,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
                         // Ignore
                     }
                 }
-
+                
             }
         }
 
@@ -2187,9 +2187,9 @@ public class ServiceLocatorImpl implements ServiceLocator {
         for (ServiceLocatorImpl sli : allMyChildren) {
             sli.reupCache(checkData.getAffectedContracts());
         }
-
+        
         callAllConfigurationListeners(allConfigurationListeners);
-
+        
         LinkedList<TwoPhaseResource> resources = dci.getResources();
         for (TwoPhaseResource resource : resources) {
             try {
@@ -2224,12 +2224,6 @@ public class ServiceLocatorImpl implements ServiceLocator {
 
     private Context<?> _resolveContext(final Class<? extends Annotation> scope) throws IllegalStateException {
         Context<?> retVal = null;
-        if (parent != null) {
-            retVal = parent._resolveContext(scope);
-            if (retVal != null) {
-                return retVal;
-            }
-        }
         Type actuals[] = new Type[1];
         actuals[0] = scope;
         ParameterizedType findContext = new ParameterizedTypeImpl(Context.class, actuals);
@@ -2257,7 +2251,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
         if (scope.equals(PerLookup.class)) return perLookupContext;
         Context<?> retVal = contextCache.compute(scope);
         if (retVal.isActive()) return retVal;
-
+        
         // Not active anymore, maybe there is another.  But first, clear the cache!
         contextCache.remove(scope);
         return contextCache.compute(scope);
@@ -2464,7 +2458,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
             wLock.unlock();
         }
     }
-
+    
     @Override
     public Unqualified getDefaultUnqualified() {
         rLock.lock();
@@ -2475,7 +2469,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
             rLock.unlock();
         }
     }
-
+    
     @Override
     public void setDefaultUnqualified(Unqualified unqualified) {
         wLock.lock();
@@ -2485,7 +2479,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
         finally {
             wLock.unlock();
         }
-
+        
     }
 
     /* package */ ClassAnalyzer getAnalyzer(String name, Collector collector) {
@@ -2562,7 +2556,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
         private boolean getClassAnalyzerModificationMade() {
             return classAnalyzerModificationMade;
         }
-
+        
         private boolean getDynamicConfigurationListenerModificationMade() {
             return dynamicConfigurationListenerModificationMade;
         }
@@ -2570,11 +2564,11 @@ public class ServiceLocatorImpl implements ServiceLocator {
         private HashSet<String> getAffectedContracts() {
             return affectedContracts;
         }
-
+        
         private boolean getInterceptionServiceModificationMade() {
             return interceptionServiceModificationMade;
         }
-
+        
         private TwoPhaseTransactionData getTransactionData() {
             return transactionData;
         }
@@ -2594,7 +2588,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
         @Override
         public boolean matches(Descriptor d) {
             if (unqualified == null) return true;
-
+            
             Class<? extends Annotation> unqualifiedAnnos[] = unqualified.value();
 
             if (unqualifiedAnnos.length <= 0) {
@@ -2622,7 +2616,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
         public String getName() {
             return name;
         }
-
+        
         @Override
         public String toString() {
             return "UnqualifiedIndexFilter(" + contract + "," + name + "," + unqualified + "," + System.identityHashCode(this) + ")";
@@ -2651,28 +2645,28 @@ public class ServiceLocatorImpl implements ServiceLocator {
         }
 
     }
-
+    
     /**
      * Used to get the ServiceLocatorImpl in inner classes
-     *
+     * 
      * @return This current object
      */
     private ServiceLocatorImpl getMe() {
         return this;
     }
-
+    
     /* package */ boolean hasInjectAnnotation(AnnotatedElement annotated) {
         return perLocatorUtilities.hasInjectAnnotation(annotated);
     }
-
+    
     /* package */ InjectionResolver<?> getInjectionResolverForInjectee(SystemInjecteeImpl injectee) {
-        return injecteeToResolverCache.compute(injectee);
+        return injecteeToResolverCache.compute(injectee);  
     }
-
+    
     /* package */ ClassReflectionHelper getClassReflectionHelper() {
         return classReflectionHelper;
     }
-
+    
     /* package */ LinkedList<ErrorService> getErrorHandlers() {
         rLock.lock();
         try {
@@ -2682,7 +2676,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
             rLock.unlock();
         }
     }
-
+    
     /* package */ PerLocatorUtilities getPerLocatorUtilities() {
         return perLocatorUtilities;
     }
@@ -2711,7 +2705,7 @@ public class ServiceLocatorImpl implements ServiceLocator {
 
     /* package */ void clearServiceCache() {
         igdCache.clear();
-
+        
     }
 
     /* package */ int getReflectionCacheSize() {
@@ -2727,22 +2721,22 @@ public class ServiceLocatorImpl implements ServiceLocator {
             wLock.unlock();
         }
     }
-
+    
     /* package */ int unsortIndexes(int newRank, SystemDescriptor<?> desc, Set<IndexedListData> myLists) {
         wLock.lock();
         try {
             int retVal = desc.setRankWithLock(newRank);
-
+            
             for (IndexedListData myList : myLists) {
                 myList.unSort();
             }
-
+            
             return retVal;
         }
         finally {
             wLock.unlock();
         }
-
+        
     }
 
     @Override
