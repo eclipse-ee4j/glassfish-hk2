@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2020-2022 Contributors to Eclipse Foundation. All rights reserved.
+ * Copyright (c) 2020-2025 Contributors to Eclipse Foundation. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -35,8 +35,8 @@ pipeline {
         maven 'apache-maven-latest'
       }
       steps {
-        sh 'mvn clean install -P jacoco'
-        sh 'mvn clean install -P jacoco -f hk2-testing/di-tck'
+        sh 'mvn clean install -P jacoco -DskipSBOM=true'
+        sh 'mvn clean install -P jacoco -DskipSBOM=true -f hk2-testing/di-tck'
         junit testResults: '**/target/surefire-reports/*.xml', allowEmptyResults: true
         jacoco execPattern: '**/**.exec',
                classPattern: '**/classes',
