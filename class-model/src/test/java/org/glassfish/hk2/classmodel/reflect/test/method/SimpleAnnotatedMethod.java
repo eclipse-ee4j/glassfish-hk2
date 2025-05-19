@@ -44,7 +44,7 @@ public class SimpleAnnotatedMethod {
             List<String> input,
             SampleType<Double, String, SampleType<Short, Float, Long>> sampleType,
             int count,
-            Object value) {
+            Object value) throws IllegalArgumentException {
         return null;
     }
 }
