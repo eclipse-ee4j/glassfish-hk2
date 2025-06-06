@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 2014, 2018 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2023 Payara Foundation and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -18,7 +17,6 @@
 package org.glassfish.hk2.internal;
 
 import java.lang.annotation.Annotation;
-import org.glassfish.hk2.utilities.CleanerFactory;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.HashMap;
@@ -116,13 +114,9 @@ public class InheritableThreadContext implements Context<InheritableThread> {
     }
 
     private static class InheritableContextThreadWrapper {
-        
-        private final HashMap<ActiveDescriptor<?>, Object> instances = new HashMap<>();
+        private final HashMap<ActiveDescriptor<?>, Object> instances =
+                new HashMap<ActiveDescriptor<?>, Object>();
         private final long id = Thread.currentThread().getId();
-
-        public InheritableContextThreadWrapper() {
-            registerStopEvent();
-        }
 
         public boolean has(ActiveDescriptor<?> d) {
             return instances.containsKey(d);
@@ -136,14 +130,13 @@ public class InheritableThreadContext implements Context<InheritableThread> {
             instances.put(d, v);
         }
 
-        public final void registerStopEvent() {
-            CleanerFactory.create().register(this, () -> {
-                instances.clear();
+        @Override
+        public void finalize() throws Throwable {
+            instances.clear();
 
-                if (LOG_THREAD_DESTRUCTION) {
-                    Logger.getLogger().debug("Removing PerThreadContext data for thread " + id);
-                }
-            });
+            if (LOG_THREAD_DESTRUCTION) {
+                Logger.getLogger().debug("Removing PerThreadContext data for thread " + id);
+            }
         }
 
     }
