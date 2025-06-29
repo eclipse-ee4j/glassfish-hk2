@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 2007, 2018 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2023 Payara Foundation and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -24,7 +23,6 @@ import java.net.URL;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.io.IOException;
-import org.glassfish.hk2.utilities.CleanerFactory;
 
 /**
  * ClassLoaderProxy capable of loading classes from itself but also from other class loaders
@@ -39,7 +37,11 @@ public class ClassLoaderProxy extends URLClassLoader {
     /** Creates a new instance of ClassLoader */
     public ClassLoaderProxy(URL[] shared, ClassLoader parent) {
         super(shared, parent);
-        registerStopEvent();
+    }
+
+    protected void finalize() throws Throwable {
+        super.finalize();
+        stop();
     }
 
     protected Class<?> loadClass(String name, boolean resolve, boolean followImports)
@@ -191,7 +193,7 @@ public class ClassLoaderProxy extends URLClassLoader {
     }
 
     public Collection<ClassLoader> getDelegates() {
-        return new ArrayList<>(surrogates);
+        return new ArrayList<ClassLoader>(surrogates);
     }
 
 
@@ -199,18 +201,11 @@ public class ClassLoaderProxy extends URLClassLoader {
      * called by the facade class loader when it is garbage collected.
      * this is a good time to see if this module should be unloaded.
      */
-    public final void registerStopEvent() {
-        CleanerFactory.create().register(this, () -> {
-            stop();
-        });
-    }
-
     public void stop() {
-        surrogates.clear();
-        facadeSurrogates.clear();
+       surrogates.clear();
+       facadeSurrogates.clear();
     }
 
-    @Override
     public String toString() {
         StringBuffer s= new StringBuffer();
         s.append(",URls[]=");

@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 2007, 2018 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2023 Payara Foundation and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -50,6 +49,12 @@ final class ModuleClassLoader extends ClassLoaderProxy {
         super(shared, parent);
         this.module = owner;
     }
+    
+    protected void finalize() throws Throwable {
+        super.finalize();
+        LogHelper.getDefaultLogger().info("ModuleClassLoader gc'ed " + module.getModuleDefinition().getName());
+    }
+
 
     protected synchronized Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         initialize(name);

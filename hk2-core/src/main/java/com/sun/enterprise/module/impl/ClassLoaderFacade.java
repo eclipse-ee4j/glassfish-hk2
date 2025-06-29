@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 2007, 2018 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2023 Payara Foundation and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -21,13 +20,11 @@ import com.sun.enterprise.module.common_impl.LogHelper;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import org.glassfish.hk2.utilities.CleanerFactory;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.ArrayList;
-import java.util.logging.Level;
 
 /**
  * Facade for {@link ModuleClassLoader} to only expose public classes.
@@ -46,14 +43,12 @@ final class ClassLoaderFacade extends URLClassLoader {
     public ClassLoaderFacade(ModuleClassLoader privateLoader) {
         super(EMPTY_URLS, privateLoader.getParent());
         this.privateLoader = privateLoader;
-        registerStopEvent();
     }
 
-    public final void registerStopEvent() {
-        CleanerFactory.create().register(this, () -> {
-            LogHelper.getDefaultLogger().log(Level.FINE, "Facade ClassLoader killed {0}", privateLoader.getOwner().getModuleDefinition().getName());
-            privateLoader.stop();
-        });
+    protected void finalize() throws Throwable {
+        super.finalize();
+        LogHelper.getDefaultLogger().fine("Facade ClassLoader killed " + privateLoader.getOwner().getModuleDefinition().getName());
+        privateLoader.stop();
     }
 
     public void setPublicPkgs(String[] publicPkgs) {
