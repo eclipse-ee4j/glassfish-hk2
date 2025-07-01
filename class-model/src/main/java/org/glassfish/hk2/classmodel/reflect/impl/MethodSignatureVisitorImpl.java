@@ -69,6 +69,9 @@ public class MethodSignatureVisitorImpl extends SignatureVisitor {
 
     @Override
     public SignatureVisitor visitExceptionType() {
+        ParameterizedTypeImpl exceptionType = new ParameterizedTypeImpl();
+        exceptionTypes.add(exceptionType);
+        parentType.add(exceptionType);
         return this;
     }
 
