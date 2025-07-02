@@ -48,6 +48,12 @@ public interface MethodModel extends Member, AnnotatedElement {
     String[] getArgumentTypes();
 
     /**
+     * @return the checked exception types, or an empty array if the method doesn't
+     *         declare any thrown exceptions
+     */
+    String[] getExceptionTypes();
+
+    /**
      * Returns the list of parameter
      *
      * @return the list of parameter
