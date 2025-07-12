@@ -40,7 +40,7 @@ import java.util.logging.Logger;
 public class ModelClassVisitor extends ClassVisitor {
 
     private static Logger logger = Logger.getLogger(ModelClassVisitor.class.getName());
-  
+
     private final ParsingContext ctx;
     private final TypeBuilder typeBuilder;
     private final URI definingURI;
@@ -60,7 +60,7 @@ public class ModelClassVisitor extends ClassVisitor {
     public ModelClassVisitor(ParsingContext ctx, URI definingURI, String entryName,
                              boolean isApplicationClass) {
         super(Opcodes.ASM9);
-        
+
         this.ctx = ctx;
         this.definingURI = definingURI;
         this.entryName = entryName;
@@ -83,7 +83,7 @@ public class ModelClassVisitor extends ClassVisitor {
             parent = (parentName!=null?typeBuilder.getHolder(parentName, typeType):null);
         }
         if (parent!=null && !parentName.equals(Object.class.getName())) {
-            // put a temporary parent until we eventually visit it. 
+            // put a temporary parent until we eventually visit it.
             TypeImpl parentType = typeBuilder.getType(access, parentName, null);
             parent.set(parentType);
         }
@@ -100,7 +100,7 @@ public class ModelClassVisitor extends ClassVisitor {
         } catch (URISyntaxException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
-        
+
         if (logger.isLoggable(Level.FINER)) {
           logger.log(Level.FINER, "visiting {0} with classDefURI={1}", new Object[] {entryName, classDefURI});
         }
@@ -108,7 +108,7 @@ public class ModelClassVisitor extends ClassVisitor {
 //        if (!new File(classDefURI).exists()) {
 //          throw new IllegalStateException(entryName + ": " + classDefURI.toString());
 //        }
-        
+
         type = ctx.getTypeBuilder(classDefURI).getType(access, className, parent);
         type.setApplicationClass(isApplicationClass);
         type.getProxy().visited();
@@ -151,7 +151,7 @@ public class ModelClassVisitor extends ClassVisitor {
                         if (typeProxy.get() == null) {
                             typeProxy.set((InterfaceModel) interfaceModel);
                         }
-                        
+
                         classModel.isImplementing(typeProxy);
                         if (classModel instanceof ClassModel) {
                             typeProxy.addImplementation((ClassModel) classModel);
@@ -180,7 +180,7 @@ public class ModelClassVisitor extends ClassVisitor {
     @Override
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
         desc = unwrap(desc);
-        
+
         final AnnotationTypeImpl at = (AnnotationTypeImpl) typeBuilder.getType(Opcodes.ACC_ANNOTATION, desc, null);
         final AnnotationModelImpl am = new AnnotationModelImpl(type, at);
 
@@ -271,10 +271,11 @@ public class ModelClassVisitor extends ClassVisitor {
 
         SignatureReader reader = new SignatureReader(signature == null ? desc : signature);
         MethodSignatureVisitorImpl visitor = new MethodSignatureVisitorImpl(typeBuilder, methodModel);
-        reader.accept(visitor);
+        acceptSignatureAndExceptions(reader, exceptions, visitor);
 
         methodModel.setParameters(visitor.getParameters());
         methodModel.setReturnType(visitor.getReturnType());
+        methodModel.setExceptionTypes(visitor.getExceptionTypes());
 
         // fallback for void, primitive data types, java.lang.Object and generic wildcards types
         ParameterizedTypeImpl returnType = (ParameterizedTypeImpl) methodModel.getReturnType();
@@ -291,10 +292,22 @@ public class ModelClassVisitor extends ClassVisitor {
         return methodVisitor;
     }
 
+    private void acceptSignatureAndExceptions(SignatureReader reader, String[] exceptions, MethodSignatureVisitorImpl visitor) {
+        reader.accept(visitor);
+        // if info about exceptions isn't in the signature and the visitor didn't receive it,
+        // pass this info from the exceptions array
+        if (exceptions != null && visitor.getExceptionTypes().isEmpty()) {
+            for (String exceptionType : exceptions) {
+                visitor.visitExceptionType();
+                visitor.visitClassType(exceptionType);
+            }
+        }
+    }
+
     @Override
     public void visitEnd() {
         type=null;
-    }                                                            
+    }
 
     private String unwrap(String desc) {
         return org.objectweb.asm.Type.getType(desc).getClassName();
@@ -344,7 +357,7 @@ public class ModelClassVisitor extends ClassVisitor {
 
         private ModelMethodVisitor(MemberVisitingContext context) {
             super(Opcodes.ASM9);
-            
+
             this.context = new MethodVisitingContext(context.modelUnAnnotatedMembers);
         }
 
@@ -358,7 +371,7 @@ public class ModelClassVisitor extends ClassVisitor {
                 // probably an annotation method, ignore
                 return null;
             }
-          
+
             AnnotationTypeImpl annotationType = (AnnotationTypeImpl) typeBuilder.getType(Opcodes.ACC_ANNOTATION, unwrap(desc), null);
             AnnotationModelImpl annotationModel = new AnnotationModelImpl(context.method, annotationType);
 
@@ -405,8 +418,8 @@ public class ModelClassVisitor extends ClassVisitor {
           return defaultAnnotationVisitor;
         }
     }
-    
-    
+
+
     private class ModelDefaultAnnotationVisitor extends AnnotationVisitor {
 
         private final MethodVisitingContext context;
