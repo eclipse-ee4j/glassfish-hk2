@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2025 Contributors to Eclipse Foundation.
  * Copyright (c) 2007, 2024 Oracle and/or its affiliates. All rights reserved.
  * Copyright (c) 2023 Payara Foundation and/or its affiliates. All rights reserved.
  *
@@ -19,6 +20,7 @@ package com.sun.enterprise.module.impl;
 
 import com.sun.enterprise.module.common_impl.FlattenEnumeration;
 
+import java.lang.ref.Cleaner;
 import java.net.URLClassLoader;
 import java.net.URL;
 import java.util.*;
@@ -37,11 +39,12 @@ public class ClassLoaderProxy extends URLClassLoader {
     private final ReentrantLock lock = new ReentrantLock();
     private final List<ClassLoader> surrogates = new CopyOnWriteArrayList<ClassLoader>();
     private final List<ClassLoaderFacade> facadeSurrogates = new CopyOnWriteArrayList<ClassLoaderFacade>();
+    private final Cleaner.Cleanable cleanable;
 
     /** Creates a new instance of ClassLoader */
     public ClassLoaderProxy(URL[] shared, ClassLoader parent) {
         super(shared, parent);
-        registerStopEvent();
+        this.cleanable = registerStopEvent();
     }
 
     protected Class<?> loadClass(String name, boolean resolve, boolean followImports)
@@ -206,15 +209,12 @@ public class ClassLoaderProxy extends URLClassLoader {
      * called by the facade class loader when it is garbage collected.
      * this is a good time to see if this module should be unloaded.
      */
-    public final void registerStopEvent() {
-        CleanerFactory.create().register(this, () -> {
-            stop();
-        });
+    public final Cleaner.Cleanable registerStopEvent() {
+        return CleanerFactory.create().register(this, new DelegateCleaner(surrogates, facadeSurrogates));
     }
 
     public void stop() {
-        surrogates.clear();
-        facadeSurrogates.clear();
+        cleanable.clean();
     }
 
     @Override
@@ -240,5 +240,22 @@ public class ClassLoaderProxy extends URLClassLoader {
        */
     public void addURL(URL url) {
         super.addURL(url);
+    }
+
+    private static final class DelegateCleaner implements Runnable {
+
+        private final List<ClassLoader> surrogates;
+        private final List<ClassLoaderFacade> facadeSurrogates;
+
+        DelegateCleaner(List<ClassLoader> surrogates, List<ClassLoaderFacade> facadeSurrogates) {
+            this.surrogates = surrogates;
+            this.facadeSurrogates = facadeSurrogates;
+        }
+
+        @Override
+        public void run() {
+            surrogates.clear();
+            facadeSurrogates.clear();
+        }
     }
 }
