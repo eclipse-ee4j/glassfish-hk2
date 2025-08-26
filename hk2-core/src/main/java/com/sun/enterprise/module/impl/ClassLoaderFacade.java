@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2025 Contributors to Eclipse Foundation.
  * Copyright (c) 2007, 2018 Oracle and/or its affiliates. All rights reserved.
  * Copyright (c) 2023 Payara Foundation and/or its affiliates. All rights reserved.
  *
@@ -50,10 +51,7 @@ final class ClassLoaderFacade extends URLClassLoader {
     }
 
     public final void registerStopEvent() {
-        CleanerFactory.create().register(this, () -> {
-            LogHelper.getDefaultLogger().log(Level.FINE, "Facade ClassLoader killed {0}", privateLoader.getOwner().getModuleDefinition().getName());
-            privateLoader.stop();
-        });
+        CleanerFactory.create().register(this, new FacadeCleaner(privateLoader));
     }
 
     public void setPublicPkgs(String[] publicPkgs) {
@@ -175,4 +173,19 @@ final class ClassLoaderFacade extends URLClassLoader {
         return super.toString() + " Facade for " + privateLoader.toString();
     }
 
+    private static final class FacadeCleaner implements Runnable {
+
+        private final ModuleClassLoader moduleClassLoader;
+
+        FacadeCleaner(ModuleClassLoader moduleClassLoader) {
+            this.moduleClassLoader = moduleClassLoader;
+        }
+
+        @Override
+        public void run() {
+            LogHelper.getDefaultLogger().log(Level.FINE, "Facade ClassLoader killed {0}",
+                moduleClassLoader.getOwner().getModuleDefinition().getName());
+            moduleClassLoader.stop();
+        }
+    }
 }

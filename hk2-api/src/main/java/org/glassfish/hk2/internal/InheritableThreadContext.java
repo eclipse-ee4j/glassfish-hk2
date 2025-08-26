@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2025 Contributors to Eclipse Foundation.
  * Copyright (c) 2014, 2018 Oracle and/or its affiliates. All rights reserved.
  * Copyright (c) 2023 Payara Foundation and/or its affiliates. All rights reserved.
  *
@@ -22,6 +23,8 @@ import org.glassfish.hk2.utilities.CleanerFactory;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.HashMap;
+import java.util.Map;
+
 import jakarta.inject.Singleton;
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.Context;
@@ -117,34 +120,53 @@ public class InheritableThreadContext implements Context<InheritableThread> {
 
     private static class InheritableContextThreadWrapper {
         
-        private final HashMap<ActiveDescriptor<?>, Object> instances = new HashMap<>();
-        private final long id = Thread.currentThread().getId();
+        private final CleanableContext context = new CleanableContext();
 
         public InheritableContextThreadWrapper() {
             registerStopEvent();
         }
 
-        public boolean has(ActiveDescriptor<?> d) {
-            return instances.containsKey(d);
+        public boolean has(ActiveDescriptor<?> descriptor) {
+            return context.has(descriptor);
         }
 
-        public Object get(ActiveDescriptor<?> d) {
-            return instances.get(d);
+        public Object get(ActiveDescriptor<?> descriptor) {
+            return context.get(descriptor);
         }
 
-        public void put(ActiveDescriptor<?> d, Object v) {
-            instances.put(d, v);
+        public void put(ActiveDescriptor<?> descriptor, Object value) {
+            context.put(descriptor, value);
         }
 
         public final void registerStopEvent() {
-            CleanerFactory.create().register(this, () -> {
-                instances.clear();
+            CleanerFactory.create().register(this, context);
+        }
+    }
 
-                if (LOG_THREAD_DESTRUCTION) {
-                    Logger.getLogger().debug("Removing PerThreadContext data for thread " + id);
-                }
-            });
+    private static final class CleanableContext implements Runnable {
+
+        private final Map<ActiveDescriptor<?>, Object> instances = new HashMap<>();
+        private final long id = Thread.currentThread().getId();
+
+        public boolean has(ActiveDescriptor<?> descriptor) {
+            return instances.containsKey(descriptor);
         }
 
+        public Object get(ActiveDescriptor<?> descriptor) {
+            return instances.get(descriptor);
+        }
+
+        public void put(ActiveDescriptor<?> descriptor, Object value) {
+            instances.put(descriptor, value);
+        }
+
+        @Override
+        public void run() {
+            instances.clear();
+
+            if (LOG_THREAD_DESTRUCTION) {
+                Logger.getLogger().debug("Removing PerThreadContext data for thread " + id);
+            }
+        }
     }
 }
