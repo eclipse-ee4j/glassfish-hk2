@@ -164,7 +164,7 @@
         <stax-api.version>1.0-2</stax-api.version>
         <aopalliance.version>1.0</aopalliance.version>
         <testng.version>7.11.0</testng.version>
-        <assertj.version>3.27.5</assertj.version>
+        <assertj.version>3.27.6</assertj.version>
         <pax-exam-version>4.14.0</pax-exam-version>
         <jakarta-inject.version>2.0.1</jakarta-inject.version>
         <org.jboss.logging.version>3.6.1.Final</org.jboss.logging.version>
