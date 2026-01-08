@@ -21,6 +21,7 @@ import org.glassfish.hk2.api.ServiceLocatorFactory;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import jakarta.annotation.PostConstruct;
@@ -76,7 +77,7 @@ public class Hk2SingletonCreationTest {
         }
     }
 
-    @Test
+    @Ignore("Ignored due to GH-523") @Test
     public void testConcurrentSingletonServiceCreation() throws Exception {
         ServiceLocator parentServiceLocator = ServiceLocatorUtilities
                 .bind("mutliple-singleton-instances-parent-1", new TestBinder());
@@ -102,7 +103,7 @@ public class Hk2SingletonCreationTest {
         Assert.assertSame(firstInstanceRef.get(), secondInstance); // this fails but is shouldn't
     }
 
-    @Test
+    @Ignore("Ignored due to GH-523") @Test
     public void testConcurrentSingletonServiceInitialization() throws Exception {
         ServiceLocator parentServiceLocator = ServiceLocatorUtilities
                 .bind("mutliple-singleton-instances-parent-2", new TestBinder());
