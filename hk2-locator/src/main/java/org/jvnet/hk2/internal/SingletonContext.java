@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2026 Contributors to Eclipse Foundation.
  * Copyright (c) 2012, 2024 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -50,21 +51,27 @@ public class SingletonContext implements Context<Singleton> {
 
         @Override
         public Object compute(ContextualInput<Object> a) {
-
             final ActiveDescriptor<Object> activeDescriptor = a.getDescriptor();
 
-            final Object cachedVal = activeDescriptor.getCache();
+            Object cachedVal = activeDescriptor.getCache();
             if (cachedVal != null) {
                 return cachedVal;
             }
+            // Synchronize on the descriptor to prevent race conditions
+            synchronized (activeDescriptor) {
+                cachedVal = activeDescriptor.getCache();
+                if (cachedVal != null) {
+                    return cachedVal;
+                }
 
-            final Object createdVal = activeDescriptor.create(a.getRoot());
-            activeDescriptor.setCache(createdVal);
-            if (activeDescriptor instanceof SystemDescriptor) {
-                ((SystemDescriptor<?>) activeDescriptor).setSingletonGeneration(generationNumber++);
+                final Object createdVal = activeDescriptor.create(a.getRoot());
+                activeDescriptor.setCache(createdVal);
+                if (activeDescriptor instanceof SystemDescriptor) {
+                    ((SystemDescriptor<?>) activeDescriptor).setSingletonGeneration(generationNumber++);
+                }
+
+                return createdVal;
             }
-
-            return createdVal;
         }
     }, new Cache.CycleHandler<ContextualInput<Object>>(){
 
