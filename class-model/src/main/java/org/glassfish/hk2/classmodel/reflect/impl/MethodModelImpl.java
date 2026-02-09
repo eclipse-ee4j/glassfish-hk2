@@ -26,6 +26,7 @@ import java.util.List;
 public class MethodModelImpl extends AnnotatedElementImpl implements MethodModel {
 
     private List<Parameter> parameters;
+    private List<ParameterizedType> exceptionTypes;
     private ParameterizedType returnType;
     final ExtensibleType<?> owner;
     private final String signature;
@@ -72,6 +73,24 @@ public class MethodModelImpl extends AnnotatedElementImpl implements MethodModel
             stringTypes = new String[0];
         }
         return stringTypes;
+    }
+
+    @Override
+    public String[] getExceptionTypes() {
+        String[] stringTypes;
+        if (exceptionTypes != null) {
+            stringTypes = new String[exceptionTypes.size()];
+            for (int i = 0; i < exceptionTypes.size(); i++) {
+                stringTypes[i] = exceptionTypes.get(i).getTypeName();
+            }
+        } else {
+            stringTypes = new String[0];
+        }
+        return stringTypes;
+    }
+
+    public void setExceptionTypes(List<ParameterizedType> exceptionTypes) {
+        this.exceptionTypes = exceptionTypes;
     }
 
     @Override

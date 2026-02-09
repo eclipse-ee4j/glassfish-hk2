@@ -82,6 +82,11 @@ public class MethodTest {
                         Assert.assertEquals("yellow", gradientColor2.get(0).getValues().get("name"));
                         Assert.assertEquals("orange", gradientColor2.get(1).getValues().get("name"));
 
+                        // Exception types
+                        final String[] exceptionTypes = mm.getExceptionTypes();
+                        Assert.assertEquals(1, exceptionTypes.length);
+                        Assert.assertEquals(IllegalArgumentException.class.getName(), exceptionTypes[0]);
+
                         // Parameter annotations, type and generic types check
                         Assert.assertEquals(5, mm.getParameters().size());
 

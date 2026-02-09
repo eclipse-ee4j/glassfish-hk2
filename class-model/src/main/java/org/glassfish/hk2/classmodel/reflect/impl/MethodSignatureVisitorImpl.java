@@ -36,6 +36,7 @@ public class MethodSignatureVisitorImpl extends SignatureVisitor {
     private final MethodModel methodModel;
 
     private final List<Parameter> parameters = new ArrayList<>();
+    private final List<ParameterizedType> exceptionTypes = new ArrayList<>();
     private final ParameterizedType returnType = new ParameterizedTypeImpl();
     private final ArrayDeque<ParameterizedType> parentType = new ArrayDeque<>();
 
@@ -50,6 +51,10 @@ public class MethodSignatureVisitorImpl extends SignatureVisitor {
         return parameters;
     }
 
+    public List<ParameterizedType> getExceptionTypes() {
+        return exceptionTypes;
+    }
+
     public ParameterizedType getReturnType() {
         return returnType;
     }
@@ -59,6 +64,14 @@ public class MethodSignatureVisitorImpl extends SignatureVisitor {
         ParameterImpl parameter = new ParameterImpl(parameters.size(), null, methodModel);
         parameters.add(parameter);
         parentType.add(parameter);
+        return this;
+    }
+
+    @Override
+    public SignatureVisitor visitExceptionType() {
+        ParameterizedTypeImpl exceptionType = new ParameterizedTypeImpl();
+        exceptionTypes.add(exceptionType);
+        parentType.add(exceptionType);
         return this;
     }
 
