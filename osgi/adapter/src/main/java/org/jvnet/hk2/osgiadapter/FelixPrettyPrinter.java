@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2026 Contributors to the Eclipse Foundation
  * Copyright (c) 2008, 2021 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -17,8 +17,6 @@
 
 package org.jvnet.hk2.osgiadapter;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -26,14 +24,22 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.wiring.BundleRevision;
+import org.osgi.resource.Capability;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.osgi.framework.namespace.PackageNamespace.PACKAGE_NAMESPACE;
 
 /**
  * Tools for obtaining readable information from the {@link BundleException}
@@ -43,25 +49,29 @@ public class FelixPrettyPrinter {
     private static final Pattern BUNDLE_PATTERN = Pattern.compile("\\[(\\d+)\\]", Pattern.MULTILINE);
 
     public static void main(String[] args) {
-        System.out.println(prettyPrintExceptionMessage("missing requirement [org.glassfish.hk2.osgi-adapter [142](R 142.0)] osgi.wiring.package; (&(osgi.wiring.package=com.sun.enterprise.module.bootstrap)(version>=3.0.0)(!(version>=4.0.0))) [caused by: Unable to resolve org.glassfish.hk2.core [232](R 232.0): missing requirement [org.glassfish.hk2.core [232](R 232.0)] osgi.wiring.package; (&(osgi.wiring.package=org.glassfish.hk2.utilities)(version>=3.0.0)(!(version>=4.0.0))) [caused by: Unable to resolve org.glassfish.hk2.api [3](R 3.0): missing requirement [org.glassfish.hk2.api [3](R 3.0)] osgi.wiring.package; (&(osgi.wiring.package=org.glassfish.hk2.utilities.reflection)(version>=3.0.0)(!(version>=4.0.0))) [caused by: Unable to resolve org.glassfish.hk2.utils [2](R 2.0): missing requirement [org.glassfish.hk2.utils [2](R 2.0)] osgi.wiring.package; (&(osgi.wiring.package=jakarta.annotation)(version>=2.1.0)(!(version>=3.0.0)))]]] Unresolved requirements: [[org.glassfish.hk2.osgi-adapter [142](R 142.0)] osgi.wiring.package; (&(osgi.wiring.package=com.sun.enterprise.module.bootstrap)(version>=3.0.0)(!(version>=4.0.0)))]"));
+        System.out.println(prettyPrintExceptionMessage("org.osgi.framework.BundleException: Unable to resolve org.glassfish.main.web.weld-integration [41](R 41.0): missing requirement [org.glassfish.main.web.weld-integration [41](R 41.0)] osgi.wiring.package; (&(osgi.wiring.package=jakarta.faces.application)(version>=4.1.0)(!(version>=5.0.0))) [caused by: Unable to resolve org.glassfish.jakarta.faces [291](R 291.0): missing requirement [org.glassfish.jakarta.faces [291](R 291.0)] osgi.wiring.package; (&(osgi.wiring.package=jakarta.enterprise.inject)(version>=4.1.0)(!(version>=5.0.0)))] Unresolved requirements: [[org.glassfish.main.web.weld-integration [41](R 41.0)] osgi.wiring.package; (&(osgi.wiring.package=jakarta.faces.application)(version>=4.1.0)(!(version>=5.0.0)))]"));
     }
 
     public static String prettyPrintFelixMessage(BundleContext context, final String bundleMessage) {
-        final String prettyMessage = FelixPrettyPrinter.prettyPrintExceptionMessage(bundleMessage);
-        List<Integer> bundleIDs = FelixPrettyPrinter.findBundleIds(prettyMessage);
-        if (bundleIDs.isEmpty()) {
-            return prettyMessage;
-        }
+        final String prettyMessage = prettyPrintExceptionMessage(bundleMessage);
 
         final StringBuilder bundleBuilder = new StringBuilder(1024);
         bundleBuilder.append(prettyMessage);
-        for (Integer bundleId : bundleIDs) {
-            Bundle bundle = context.getBundle(bundleId);
-            if (bundle != null) {
-                bundleBuilder.append('[').append(bundleId).append("] \n");
-                bundleBuilder.append("jar = ").append(bundle.getLocation());
-                tryAddPomProperties(bundle, bundleBuilder);
-                bundleBuilder.append('\n');
+
+        List<Long> bundleIDs = new ArrayList<>();
+
+        bundleIDs.addAll(addExportingBundles(context, prettyMessage, bundleBuilder));
+        bundleIDs.addAll(findBundleIds(prettyMessage));
+
+        if (!bundleIDs.isEmpty()) {
+            for (Long bundleId : bundleIDs) {
+                Bundle bundle = context.getBundle(bundleId);
+                if (bundle != null) {
+                    bundleBuilder.append('[').append(bundleId).append("] \n");
+                    bundleBuilder.append("jar = ").append(bundle.getLocation());
+                    tryAddPomProperties(bundle, bundleBuilder);
+                    bundleBuilder.append('\n');
+                }
             }
         }
 
@@ -107,13 +117,17 @@ public class FelixPrettyPrinter {
                     int indexPackage = message.indexOf("osgi.wiring.package; ", index);
                     int indexHost = message.indexOf("osgi.wiring.host; ", index);
 
-                    boolean isPackage;
-                    if (indexPackage < indexHost) {
+                    boolean hasPackage = indexPackage >= 0;
+                    boolean hasHost = indexHost >= 0;
+
+                    boolean isPackage = false;
+                    if (hasPackage && (!hasHost || indexPackage < indexHost)) {
                         index = indexPackage;
                         isPackage = true;
-                    } else {
+                    } else if (hasHost) {
                         index = indexHost;
-                        isPackage = false;
+                    } else {
+                        index = -1;
                     }
 
                     if (index >= 0) {
@@ -221,8 +235,69 @@ public class FelixPrettyPrinter {
         return bundleBuilder.toString();
     }
 
+    private static List<Long> addExportingBundles(BundleContext context, String prettyMessage, StringBuilder bundleBuilder) {
+        Set<Bundle> exportingBundles = new HashSet<>();
+        List<Long> bundleIDs = new ArrayList<>();
+
+        int lastPackageindex = prettyMessage.lastIndexOf("package = ");
+        if (lastPackageindex != -1) {
+            String lastPackage = prettyMessage.substring(lastPackageindex + "package = ".length(), prettyMessage.indexOf(")", lastPackageindex));
+
+            exportingBundles.addAll(findExporters(context, lastPackage));
+
+            if (exportingBundles.isEmpty()) {
+                bundleBuilder.append("\nNo bundles found to export " + lastPackage + "\n");
+            } else {
+                bundleBuilder.append("\nThe following bundles export \"" + lastPackage + "\"\n");
+                for (Bundle bundle : exportingBundles) {
+                    bundleIDs.add(bundle.getBundleId());
+
+                    bundleBuilder.append(bundle.getSymbolicName())
+                                 .append(" ")
+                                 .append(bundle.getVersion())
+                                 .append(" [")
+                                 .append(bundle.getBundleId())
+                                 .append("]")
+                                 .append("\n")
+                                 ;
+                }
+            }
+            bundleBuilder.append("\n");
+        }
+
+        return bundleIDs;
+    }
+
+    private static List<Bundle> findExporters(BundleContext ctx, String packageName) {
+        List<Bundle> exporters = new ArrayList<>();
+
+        for (Bundle b : ctx.getBundles()) {
+            BundleRevision rev = b.adapt(BundleRevision.class);
+            if (rev == null) {
+                continue;
+            }
+
+            List<Capability> caps = rev.getCapabilities(PACKAGE_NAMESPACE);
+            for (Capability cap : caps) {
+                Map<String, Object> attrs = cap.getAttributes();
+                Object exportedPkg = attrs.get(PACKAGE_NAMESPACE);
+
+                if (packageName.equals(exportedPkg)) {
+                    exporters.add(b);
+                    break; // one match is enough per bundle
+                }
+            }
+        }
+
+        return exporters;
+    }
+
     private static void tryAddPomProperties(Bundle bundle, StringBuilder bundleBuilder) {
         Enumeration<URL> entries = bundle.findEntries("META-INF/maven/", "pom.properties", true);
+        if (entries == null) {
+            return;
+        }
+
         while (entries.hasMoreElements()) {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(entries.nextElement().openStream(), UTF_8))) {
                 reader.lines()
@@ -240,15 +315,15 @@ public class FelixPrettyPrinter {
      * @param message - error message from the exception
      * @return list of bundle ids (are in square brackets in the message)
      */
-    public static List<Integer> findBundleIds(final String message) {
+    public static List<Long> findBundleIds(final String message) {
         if (message == null || message.isEmpty()) {
             return Collections.emptyList();
         }
-        Set<Integer> bundleIds = new LinkedHashSet<>();
+        Set<Long> bundleIds = new LinkedHashSet<>();
         Matcher bundlePattern = BUNDLE_PATTERN.matcher(message);
         while (bundlePattern.find()) {
             String number = bundlePattern.group(1);
-            bundleIds.add(Integer.valueOf(number));
+            bundleIds.add(Long.valueOf(number));
         }
         return new ArrayList<>(bundleIds);
     }
