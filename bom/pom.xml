@@ -31,7 +31,7 @@
 
     <groupId>org.glassfish.hk2</groupId>
     <artifactId>hk2-bom</artifactId>
-    <version>3.1.2-SNAPSHOT</version>
+    <version>4.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>HK2 Bom Pom</name>
@@ -44,8 +44,8 @@
     <properties>
         <asm.version>9.9.1</asm.version>
         <jakarta-inject.version>2.0.1</jakarta-inject.version>
-        <jakarta-annotation.version>2.1.1</jakarta-annotation.version>
-        <project.build.outputTimestamp>2023-04-09T08:38:05Z</project.build.outputTimestamp>
+        <jakarta-annotation.version>3.0.0</jakarta-annotation.version>
+        <project.build.outputTimestamp>2025-04-09T08:38:05Z</project.build.outputTimestamp>
     </properties>
 
     <dependencyManagement>
