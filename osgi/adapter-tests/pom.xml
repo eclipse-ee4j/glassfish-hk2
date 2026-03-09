@@ -29,6 +29,9 @@
     <groupId>org.glassfish.hk2</groupId>
     <artifactId>osgi-adapter-tests-parent</artifactId>
     <packaging>pom</packaging>
+    
+    <name>osgi-adapter-tests-parent</name>
+    <description>osgi-adapter-tests-parent</description>
 
     <modules>
         <module>contract-bundle</module>
