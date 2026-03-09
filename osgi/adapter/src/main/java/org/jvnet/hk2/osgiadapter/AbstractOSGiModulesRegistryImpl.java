@@ -61,9 +61,6 @@ public abstract class AbstractOSGiModulesRegistryImpl extends AbstractModulesReg
         pa = PackageAdmin.class.cast(bctx.getService(ref));
     }
 
-    /**
-     * @return the BundleContext
-     */
     public BundleContext getBundleContext() {
         return bctx;
     }

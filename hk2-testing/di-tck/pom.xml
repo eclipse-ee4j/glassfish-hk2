@@ -28,7 +28,7 @@
     <artifactId>hk2-di-tck-runner</artifactId>
     <name>DI TCK Runner</name>
     <description>Runner for the Jakarta DI TCK</description>
-    
+
     <properties>
         <ditck.version>2.0.1</ditck.version>
     </properties>
