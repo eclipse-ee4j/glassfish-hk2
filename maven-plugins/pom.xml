@@ -28,6 +28,9 @@
 
     <artifactId>maven-plugins</artifactId>
     <packaging>pom</packaging>
+    
+    <name>maven-plugins</name>
+    <description>maven-plugins</description>
 
     <modules>
         <module>consolidatedbundle-maven-plugin</module>
