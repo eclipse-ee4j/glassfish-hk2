@@ -17,15 +17,12 @@
 
 package org.jvnet.hk2.osgiadapter;
 
+import static org.jvnet.hk2.osgiadapter.FelixPrettyPrinter.prettyPrintFelixMessage;
 import static org.jvnet.hk2.osgiadapter.Logger.logger;
 
 import java.io.*;
 import java.net.URI;
 import java.net.URL;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
@@ -177,29 +174,16 @@ public class OSGiModuleImpl implements HK2Module {
                 return;
             }
             try {
-                SecurityManager sm = System.getSecurityManager();
-                if (sm != null) {
-                    try {
-                        AccessController.doPrivileged(new PrivilegedExceptionAction(){
-                            public Object run() throws BundleException
-                            {
-                                startBundle();
-                                return null;
-                            }
-                        });
-                    } catch (PrivilegedActionException e) {
-                        throw (BundleException)e.getException();
-                    }
-                } else {
-                    startBundle();
-                }
+                startBundle();
                 isTransientlyActive = true;
                 if (logger.isLoggable(Level.FINE)) {
                     logger.logp(Level.FINE, "OSGiModuleImpl",
                             "start", "Started bundle {0}", bundle);
                 }
             } catch (BundleException e) {
-                throw new ResolveError("Failed to start "+this,e);
+                throw new ResolveError(
+                        "Failed to start " + this + prettyPrintFelixMessage(registry.getBundleContext(), e.getMessage()),
+                        e);
             }
 
             // TODO(Sahoo): Remove this when hk2-apt generates equivalent BundleActivator
@@ -298,6 +282,7 @@ public class OSGiModuleImpl implements HK2Module {
         }
     }
 
+    @Override
     public void detach() {
         if (bundle.getState() != Bundle.ACTIVE) {
             if (logger.isLoggable(Level.FINER)) {
@@ -400,7 +385,7 @@ public class OSGiModuleImpl implements HK2Module {
 
     /**
      * Parses all the inhabitants descriptors of the given name in this module.
-     * @return 
+     * @return
      */
     List<ActiveDescriptor> parseInhabitants(String name, ServiceLocator serviceLocator, List<PopulatorPostProcessor> populatorPostProcessors) throws IOException, BootException {
 
@@ -414,7 +399,7 @@ public class OSGiModuleImpl implements HK2Module {
             dff = new URLDescriptorFileFinder(entry);
         }
 
-        
+
         if (dff != null) {
 
         	final OSGiModuleImpl module = this;
@@ -426,7 +411,7 @@ public class OSGiModuleImpl implements HK2Module {
             }
     	    this.activeDescriptors = HK2Populator.populate(serviceLocator, dff, allPostProcessors);
         }
-        
+
         return this.activeDescriptors;
     }
 
@@ -434,11 +419,7 @@ public class OSGiModuleImpl implements HK2Module {
      * This method is used as the parent loader of the class loader that we return in {@link #getClassLoader}
      */
     private ClassLoader getParentLoader() {
-        return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-            public ClassLoader run() {
-                return Bundle.class.getClassLoader();
-            }
-        });
+        return Bundle.class.getClassLoader();
     }
 
     @Override
@@ -457,20 +438,10 @@ public class OSGiModuleImpl implements HK2Module {
         return new ClassLoader(getParentLoader()) {
             private final ReentrantLock lock = new ReentrantLock();
             @Override
-            protected Class<?> loadClass(final String name, boolean resolve) throws ClassNotFoundException {        	
+            protected Class<?> loadClass(final String name, boolean resolve) throws ClassNotFoundException {
                 lock.lock();
                 try {
-                    //doprivileged needed for running with SecurityManager
-                    return AccessController.doPrivileged(new PrivilegedExceptionAction<Class>() {
-                        public Class run() throws ClassNotFoundException {
-                        	
-                        	Class c = bundle.loadClass(name);
-                         
-                            return c;                         
-                        }
-                    });
-                } catch (PrivilegedActionException e) {
-                    throw (ClassNotFoundException)e.getException();
+                    return bundle.loadClass(name);
                 } finally {
                     lock.unlock();
                 }
@@ -480,7 +451,7 @@ public class OSGiModuleImpl implements HK2Module {
             @Override
             public URL getResource(String name) {
                 URL result = bundle.getResource(name);
-                               
+
                 if (result != null) return result;
                 return null;
             }
@@ -589,11 +560,11 @@ public class OSGiModuleImpl implements HK2Module {
                     "] is already associated with bundle [" + this.bundle + "]");
         } else {
             this.bundle = bundle;
-            
+
             logger.logp(Level.INFO, "OSGiModuleImpl", "setBundle", "module [{0}] is now associated with bundle [{1}]",
                     new Object[]{this, bundle});
         }
     }
-    
+
 }
 
