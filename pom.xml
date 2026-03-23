@@ -39,12 +39,9 @@
 
     <name>GlassFish HK2</name>
     <description>Dependency Injection Kernel</description>
+
     <url>https://github.com/eclipse-ee4j/glassfish-hk2</url>
     <inceptionYear>2009</inceptionYear>
-    <organization>
-        <name>Oracle Corporation</name>
-        <url>http://www.oracle.com</url>
-    </organization>
     <licenses>
         <license>
             <name>EPL 2.0</name>
@@ -57,6 +54,29 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+
+    <mailingLists>
+        <mailingList>
+            <name>GlassFish HK2 mailing list</name>
+            <post>glassfish-hk2-dev@eclipse.org</post>
+            <subscribe>https://dev.eclipse.org/mailman/listinfo/glassfish-hk2-dev</subscribe>
+            <unsubscribe>https://dev.eclipse.org/mailman/listinfo/glassfish-hk2-dev</unsubscribe>
+            <archive>https://dev.eclipse.org/mhonarc/lists/glassfish-hk2-dev/</archive>
+        </mailingList>
+    </mailingLists>
+
+    <scm child.scm.connection.inherit.append.path="false"
+     child.scm.developerConnection.inherit.append.path="false"
+     child.scm.url.inherit.append.path="false">
+        <connection>scm:git:https://github.com/eclipse-ee4j/glassfish-hk2.git</connection>
+        <developerConnection>scm:git:git@github.com:eclipse-ee4j/glassfish-hk2.git</developerConnection>
+        <url>https://github.com/eclipse-ee4j/glassfish-hk2</url>
+        <tag>HEAD</tag>
+    </scm>
+    <issueManagement>
+        <system>Github</system>
+        <url>https://github.com/eclipse-ee4j/glassfish-hk2/issues</url>
+    </issueManagement>
 
     <developers>
         <developer>
@@ -98,17 +118,8 @@
         </contributor>
     </contributors>
 
-    <mailingLists>
-        <mailingList>
-            <name>GlassFish HK2 mailing list</name>
-            <post>glassfish-hk2-dev@eclipse.org</post>
-            <subscribe>https://dev.eclipse.org/mailman/listinfo/glassfish-hk2-dev</subscribe>
-            <unsubscribe>https://dev.eclipse.org/mailman/listinfo/glassfish-hk2-dev</unsubscribe>
-            <archive>https://dev.eclipse.org/mhonarc/lists/glassfish-hk2-dev/</archive>
-        </mailingList>
-    </mailingLists>
-
     <modules>
+        <module>bom</module>
         <module>maven-plugins</module>
         <module>hk2-metadata-generator</module>
         <module>hk2-runlevel</module>
@@ -122,7 +133,6 @@
         <module>spring-bridge</module>
         <module>hk2-jmx</module>
         <module>hk2</module>
-        <module>bom</module>
         <module>external</module>
         <module>hk2-utils</module>
         <module>hk2-api</module>
@@ -130,23 +140,10 @@
         <module>hk2-extras</module>
     </modules>
 
-    <scm child.scm.connection.inherit.append.path="false"
-     child.scm.developerConnection.inherit.append.path="false"
-     child.scm.url.inherit.append.path="false">
-        <connection>scm:git:https://github.com/eclipse-ee4j/glassfish-hk2.git</connection>
-        <developerConnection>scm:git:git@github.com:eclipse-ee4j/glassfish-hk2.git</developerConnection>
-        <url>https://github.com/eclipse-ee4j/glassfish-hk2</url>
-        <tag>HEAD</tag>
-    </scm>
-    <issueManagement>
-        <system>Github</system>
-        <url>https://github.com/eclipse-ee4j/glassfish-hk2/issues</url>
-    </issueManagement>
-
     <properties>
         <jdk.version>17</jdk.version>
-        <mvn.version>3.2.5</mvn.version>
-        <project.build.outputTimestamp>2023-10-04T08:38:05Z</project.build.outputTimestamp>
+        <mvn.version>3.9.0</mvn.version>
+        <project.build.outputTimestamp>2026-03-23T22:50:00Z</project.build.outputTimestamp>
 
         <jakarta.activation.version>2.1.4</jakarta.activation.version>
         <jakarta.annotation.version>3.0.0</jakarta.annotation.version>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-
+    Copyright (c) 2026 Contributors to Eclipse Foundation.
     Copyright (c) 2013, 2018 Oracle and/or its affiliates. All rights reserved.
 
     This program and the accompanying materials are made available under the
@@ -28,7 +28,7 @@
 
     <artifactId>maven-plugins</artifactId>
     <packaging>pom</packaging>
-    
+
     <name>maven-plugins</name>
     <description>maven-plugins</description>
 
@@ -37,13 +37,6 @@
         <module>hk2-inhabitant-generator</module>
         <module>osgiversion-maven-plugin</module>
     </modules>
-
-    <scm>
-        <connection>scm:git:https://github.com/eclipse-ee4j/glassfish-hk2.git</connection>
-        <developerConnection>scm:git:git@github.com:eclipse-ee4j/hk2.git</developerConnection>
-        <url>https://github.com/eclipse-ee4j/glassfish-hk2</url>
-        <tag>HEAD</tag>
-    </scm>
 
     <properties>
         <manifest.location></manifest.location> <!-- to make nullifiy the property -->
