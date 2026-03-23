@@ -189,6 +189,7 @@
         <release.arguments />
 
         <manifest.location>target/classes/META-INF/MANIFEST.MF</manifest.location>
+        <activate.securitymanager></activate.securitymanager>
     </properties>
 
     <dependencyManagement>
