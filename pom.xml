@@ -174,7 +174,7 @@
         <jakarta-inject.version>2.0.1</jakarta-inject.version>
         <org.jboss.logging.version>3.6.3.Final</org.jboss.logging.version>
         <jersey.version>4.0.2</jersey.version>
-        <grizzly.version>5.0.0</grizzly.version>
+        <grizzly.version>4.0.2</grizzly.version>
         <hamcrest.version>1.3</hamcrest.version>
         <classmate.version>1.7.3</classmate.version>
         <springcontext.version>6.2.17</springcontext.version>
