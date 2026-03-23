@@ -148,7 +148,6 @@
                              <excludes>
                                  <exclude>**/negative/*</exclude>
                              </excludes>
-                             <finalName>gendir</finalName>
                              <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
                          </configuration>
                      </execution>
