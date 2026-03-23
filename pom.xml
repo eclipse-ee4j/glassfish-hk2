@@ -28,7 +28,7 @@
     <parent>
         <groupId>org.eclipse.ee4j</groupId>
         <artifactId>project</artifactId>
-        <version>2.0.1</version>
+        <version>2.0.2</version>
         <relativePath />
     </parent>
 
@@ -897,6 +897,15 @@
     </build>
 
     <profiles>
+        <profile>
+            <id>oss-release</id>
+            <properties>
+                <release.projectName>Eclipse HK2</release.projectName>
+                <release.autoPublish>false</release.autoPublish>
+                <release.waitUntil>published</release.waitUntil>
+            </properties>
+        </profile>
+
         <profile>
             <id>securitymanager</id>
             <activation>
