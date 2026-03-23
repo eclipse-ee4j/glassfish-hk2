@@ -175,12 +175,12 @@
         <assertj.version>3.27.7</assertj.version>
         <pax-exam-version>4.14.0</pax-exam-version>
         <jakarta-inject.version>2.0.1</jakarta-inject.version>
-        <org.jboss.logging.version>3.6.2.Final</org.jboss.logging.version>
-        <jersey.version>3.1.11</jersey.version>
-        <grizzly.version>4.0.2</grizzly.version>
+        <org.jboss.logging.version>3.6.3.Final</org.jboss.logging.version>
+        <jersey.version>4.0.2</jersey.version>
+        <grizzly.version>5.0.0</grizzly.version>
         <hamcrest.version>1.3</hamcrest.version>
         <classmate.version>1.7.3</classmate.version>
-        <springcontext.version>6.1.21</springcontext.version>
+        <springcontext.version>6.2.17</springcontext.version>
         <guice.version>7.0.0</guice.version>
         <protobuf.version>3.25.8</protobuf.version>
 
@@ -239,13 +239,13 @@
             <dependency>
                 <groupId>org.apache.maven</groupId>
                 <artifactId>maven-plugin-api</artifactId>
-                <version>3.9.13</version>
+                <version>3.9.14</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.maven</groupId>
                 <artifactId>maven-core</artifactId>
-                <version>3.9.13</version>
+                <version>3.9.14</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -294,7 +294,7 @@
             <dependency>
                 <groupId>org.apache.maven</groupId>
                 <artifactId>maven-artifact</artifactId>
-                <version>3.9.13</version>
+                <version>3.9.14</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.maven</groupId>
