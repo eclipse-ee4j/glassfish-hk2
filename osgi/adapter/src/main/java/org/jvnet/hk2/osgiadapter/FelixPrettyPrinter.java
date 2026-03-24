@@ -48,10 +48,6 @@ public class FelixPrettyPrinter {
 
     private static final Pattern BUNDLE_PATTERN = Pattern.compile("\\[(\\d+)\\]", Pattern.MULTILINE);
 
-    public static void main(String[] args) {
-        System.out.println(prettyPrintExceptionMessage("org.osgi.framework.BundleException: Unable to resolve org.glassfish.main.web.weld-integration [41](R 41.0): missing requirement [org.glassfish.main.web.weld-integration [41](R 41.0)] osgi.wiring.package; (&(osgi.wiring.package=jakarta.faces.application)(version>=4.1.0)(!(version>=5.0.0))) [caused by: Unable to resolve org.glassfish.jakarta.faces [291](R 291.0): missing requirement [org.glassfish.jakarta.faces [291](R 291.0)] osgi.wiring.package; (&(osgi.wiring.package=jakarta.enterprise.inject)(version>=4.1.0)(!(version>=5.0.0)))] Unresolved requirements: [[org.glassfish.main.web.weld-integration [41](R 41.0)] osgi.wiring.package; (&(osgi.wiring.package=jakarta.faces.application)(version>=4.1.0)(!(version>=5.0.0)))]"));
-    }
-
     public static String prettyPrintFelixMessage(BundleContext context, final String bundleMessage) {
         final String prettyMessage = prettyPrintExceptionMessage(bundleMessage);
 
