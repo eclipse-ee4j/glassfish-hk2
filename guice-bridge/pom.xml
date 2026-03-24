@@ -27,7 +27,6 @@
         <version>4.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.glassfish.hk2</groupId>
     <artifactId>guice-bridge</artifactId>
 
     <name>HK2 Guice Bridge</name>
@@ -52,6 +51,14 @@
             <artifactId>hk2-junitrunner</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest</artifactId>
         </dependency>
     </dependencies>
 

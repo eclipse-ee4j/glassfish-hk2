@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2026 Contributors to the Eclipse Foundation.
  * Copyright (c) 2012, 2024 Oracle and/or its affiliates. All rights reserved.
  * Copyright (c) 2020 Payara Services Ltd.
  *
@@ -17,25 +18,48 @@
 
 package org.jvnet.hk2.osgiadapter;
 
-import com.sun.enterprise.module.*;
+import com.sun.enterprise.module.HK2Module;
+import com.sun.enterprise.module.ModuleChangeListener;
+import com.sun.enterprise.module.ModuleDefinition;
+import com.sun.enterprise.module.ModuleLifecycleListener;
+import com.sun.enterprise.module.ModulesRegistry;
+import com.sun.enterprise.module.Repository;
+import com.sun.enterprise.module.ResolveError;
 import com.sun.enterprise.module.bootstrap.BootException;
 import com.sun.enterprise.module.common_impl.AbstractModulesRegistryImpl;
 import com.sun.enterprise.module.common_impl.CompositeEnumeration;
-import org.glassfish.hk2.api.*;
-import org.glassfish.hk2.api.Filter;
-import org.glassfish.hk2.utilities.DescriptorImpl;
-import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
-import org.osgi.framework.*;
-import org.osgi.service.packageadmin.PackageAdmin;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
+
+import org.glassfish.hk2.api.ActiveDescriptor;
+import org.glassfish.hk2.api.Descriptor;
+import org.glassfish.hk2.api.DynamicConfiguration;
+import org.glassfish.hk2.api.Filter;
+import org.glassfish.hk2.api.PopulatorPostProcessor;
+import org.glassfish.hk2.api.ServiceLocator;
+import org.glassfish.hk2.api.ServiceLocatorState;
+import org.glassfish.hk2.utilities.DescriptorImpl;
+import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleEvent;
+import org.osgi.framework.BundleListener;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.packageadmin.PackageAdmin;
 
 import static org.glassfish.hk2.utilities.ServiceLocatorUtilities.createDynamicConfiguration;
 import static org.jvnet.hk2.osgiadapter.Logger.logger;
@@ -374,7 +398,9 @@ public abstract class AbstractOSGiModulesRegistryImpl extends AbstractModulesReg
         Set<ServiceLocator> locators = getAllServiceLocators();
 
         for (ServiceLocator locator : locators) {
-            if (!ServiceLocatorState.RUNNING.equals(locator.getState())) continue;
+            if (!ServiceLocatorState.RUNNING.equals(locator.getState())) {
+                continue;
+            }
 
             ServiceLocatorUtilities.removeFilter(locator, new RemoveFilter(bsn, version));
         }
@@ -403,10 +429,14 @@ public abstract class AbstractOSGiModulesRegistryImpl extends AbstractModulesReg
         @Override
         public boolean matches(Descriptor d) {
             String dBSN = getMetadataValue(d, OsgiPopulatorPostProcessor.BUNDLE_SYMBOLIC_NAME);
-            if (dBSN == null || !dBSN.equals(bsn)) return false;
+            if (dBSN == null || !dBSN.equals(bsn)) {
+                return false;
+            }
 
             String dVersion = getMetadataValue(d, OsgiPopulatorPostProcessor.BUNDLE_VERSION);
-            if (dVersion == null) return false;
+            if (dVersion == null) {
+                return false;
+            }
 
             return dVersion.equals(version);
         }

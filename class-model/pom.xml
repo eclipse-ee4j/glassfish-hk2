@@ -27,7 +27,6 @@
         <version>4.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.glassfish.hk2</groupId>
     <artifactId>class-model</artifactId>
 
     <name>Class Model for Hk2</name>
@@ -62,6 +61,14 @@
             <groupId>jakarta.enterprise</groupId>
             <artifactId>jakarta.enterprise.cdi-api</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest</artifactId>
         </dependency>
         <dependency><!-- Needed to have a bundle activator to set up a different serialization policy-->
             <groupId>org.osgi</groupId>

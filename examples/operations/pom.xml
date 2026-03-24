@@ -72,6 +72,15 @@
             <artifactId>hk2-extras</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

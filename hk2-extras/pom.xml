@@ -27,7 +27,6 @@
         <version>4.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.glassfish.hk2</groupId>
     <artifactId>hk2-extras</artifactId>
 
     <name>HK2 extras module</name>
@@ -72,6 +71,15 @@
             <groupId>org.glassfish.hk2.external</groupId>
             <artifactId>aopalliance-repackaged</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest</artifactId>
         </dependency>
     </dependencies>
 

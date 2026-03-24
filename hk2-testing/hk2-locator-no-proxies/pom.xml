@@ -64,6 +64,14 @@
             <groupId>jakarta.inject</groupId>
             <artifactId>jakarta.inject-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

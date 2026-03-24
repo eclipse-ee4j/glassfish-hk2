@@ -175,7 +175,7 @@
         <org.jboss.logging.version>3.6.3.Final</org.jboss.logging.version>
         <jersey.version>4.0.2</jersey.version>
         <grizzly.version>4.0.2</grizzly.version>
-        <hamcrest.version>1.3</hamcrest.version>
+        <hamcrest.version>3.0</hamcrest.version>
         <classmate.version>1.7.3</classmate.version>
         <springcontext.version>6.2.17</springcontext.version>
         <guice.version>7.0.0</guice.version>
@@ -479,16 +479,6 @@
                 <version>${aopalliance.version}</version>
             </dependency>
             <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>${junit.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.easymock</groupId>
-                <artifactId>easymock</artifactId>
-                <version>5.6.0</version>
-            </dependency>
-            <dependency>
                 <groupId>jakarta.validation</groupId>
                 <artifactId>jakarta.validation-api</artifactId>
                 <version>${jakarta.validation.version}</version>
@@ -539,11 +529,6 @@
                 <version>${grizzly.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.hamcrest</groupId>
-                <artifactId>hamcrest-all</artifactId>
-                <version>${hamcrest.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>jakarta.servlet</groupId>
                 <artifactId>jakarta.servlet-api</artifactId>
                 <version>${jakarta.servlet.version}</version>
@@ -558,20 +543,34 @@
                 <artifactId>protobuf-java</artifactId>
                 <version>${protobuf.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.hamcrest</groupId>
+                        <artifactId>*</artifactId>
+                    </exclusion>
+                </exclusions>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.hamcrest</groupId>
+                <artifactId>hamcrest</artifactId>
+                <version>${hamcrest.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.easymock</groupId>
+                <artifactId>easymock</artifactId>
+                <version>5.6.0</version>
+                <scope>test</scope>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
-    <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.easymock</groupId>
-            <artifactId>easymock</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
 
     <build>
         <defaultGoal>install</defaultGoal>
