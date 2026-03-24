@@ -31,7 +31,7 @@
 
     <groupId>org.glassfish.hk2</groupId>
     <artifactId>hk2-parent</artifactId>
-    <version>4.0.0</version>
+    <version>4.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>GlassFish HK2</name>
@@ -66,7 +66,7 @@
         <connection>scm:git:https://github.com/eclipse-ee4j/glassfish-hk2.git</connection>
         <developerConnection>scm:git:git@github.com:eclipse-ee4j/glassfish-hk2.git</developerConnection>
         <url>https://github.com/eclipse-ee4j/glassfish-hk2</url>
-        <tag>4.0.0</tag>
+        <tag>HEAD</tag>
     </scm>
     <issueManagement>
         <system>Github</system>
@@ -138,7 +138,7 @@
     <properties>
         <jdk.version>17</jdk.version>
         <mvn.version>3.9.0</mvn.version>
-        <project.build.outputTimestamp>2026-03-24T16:38:33Z</project.build.outputTimestamp>
+        <project.build.outputTimestamp>2026-03-24T16:44:27Z</project.build.outputTimestamp>
 
         <jakarta.activation.version>2.1.4</jakarta.activation.version>
         <jakarta.annotation.version>3.0.0</jakarta.annotation.version>
