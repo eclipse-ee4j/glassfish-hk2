@@ -32,7 +32,7 @@
     <name>Interceptor/Eventing Test Suite</name>
     <description>Tests AOP interceptions along with events</description>
 
-    <properties>        
+    <properties>
         <manifest.location></manifest.location> <!-- to make nullifiy the property -->
     </properties>
 
@@ -61,6 +61,14 @@
             <artifactId>hk2-junitrunner</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest</artifactId>
         </dependency>
     </dependencies>
 

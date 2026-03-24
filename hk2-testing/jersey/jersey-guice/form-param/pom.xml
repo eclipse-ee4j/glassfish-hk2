@@ -33,7 +33,7 @@
     <name>Jersey Guice FormParam Test</name>
     <description>Ensures FormParam comes from HK2</description>
 
-    <properties>        
+    <properties>
         <manifest.location></manifest.location> <!-- to make nullifiy the property -->
     </properties>
 
@@ -62,10 +62,6 @@
             <artifactId>jersey-container-servlet</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-all</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.glassfish.grizzly</groupId>
             <artifactId>grizzly-http-servlet</artifactId>
         </dependency>
@@ -92,7 +88,10 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest</artifactId>
         </dependency>
     </dependencies>
 </project>

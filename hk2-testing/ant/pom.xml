@@ -32,7 +32,7 @@
     <name>HK2 Ant Inhabitant Generator Test</name>
     <description>Tests Ant running HK2 Inhabitant Generator</description>
 
-    <properties>        
+    <properties>
         <manifest.location></manifest.location> <!-- to make nullifiy the property -->
     </properties>
 
@@ -41,6 +41,14 @@
             <groupId>org.glassfish.hk2</groupId>
             <artifactId>hk2-api</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest</artifactId>
         </dependency>
     </dependencies>
 
