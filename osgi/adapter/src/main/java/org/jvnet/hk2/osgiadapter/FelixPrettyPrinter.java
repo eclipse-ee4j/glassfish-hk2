@@ -220,7 +220,7 @@ public class FelixPrettyPrinter {
 
     public static String addBundleInfo(Bundle bundle, String prettyMessage) {
         final StringBuilder bundleBuilder = new StringBuilder(1024);
-        bundleBuilder.append("\n").append(prettyMessage);
+        bundleBuilder.append('\n').append(prettyMessage);
         if (bundle != null) {
             bundleBuilder.append('[').append(bundle.getBundleId()).append("] \n");
             bundleBuilder.append("jar = ").append(bundle.getLocation());
@@ -254,11 +254,11 @@ public class FelixPrettyPrinter {
                                  .append(" [")
                                  .append(bundle.getBundleId())
                                  .append("]")
-                                 .append("\n")
+                                 .append('\n')
                                  ;
                 }
             }
-            bundleBuilder.append("\n");
+            bundleBuilder.append('\n');
         }
 
         return bundleIDs;
@@ -329,6 +329,6 @@ public class FelixPrettyPrinter {
         for (int i = 0; i < (indent * 4); i++) {
             messageBuilder.append(" ");
         }
-        messageBuilder.append(message.trim()).append("\n");
+        messageBuilder.append(message.trim()).append('\n');
     }
 }
