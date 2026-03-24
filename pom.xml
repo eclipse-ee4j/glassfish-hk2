@@ -19,10 +19,7 @@
 
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
-    child.project.url.inherit.append.path="false">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" child.project.url.inherit.append.path="false">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -34,7 +31,7 @@
 
     <groupId>org.glassfish.hk2</groupId>
     <artifactId>hk2-parent</artifactId>
-    <version>4.0.0-SNAPSHOT</version>
+    <version>4.0.0</version>
     <packaging>pom</packaging>
 
     <name>GlassFish HK2</name>
@@ -65,13 +62,11 @@
         </mailingList>
     </mailingLists>
 
-    <scm child.scm.connection.inherit.append.path="false"
-     child.scm.developerConnection.inherit.append.path="false"
-     child.scm.url.inherit.append.path="false">
+    <scm child.scm.connection.inherit.append.path="false" child.scm.developerConnection.inherit.append.path="false" child.scm.url.inherit.append.path="false">
         <connection>scm:git:https://github.com/eclipse-ee4j/glassfish-hk2.git</connection>
         <developerConnection>scm:git:git@github.com:eclipse-ee4j/glassfish-hk2.git</developerConnection>
         <url>https://github.com/eclipse-ee4j/glassfish-hk2</url>
-        <tag>HEAD</tag>
+        <tag>4.0.0</tag>
     </scm>
     <issueManagement>
         <system>Github</system>
@@ -143,7 +138,7 @@
     <properties>
         <jdk.version>17</jdk.version>
         <mvn.version>3.9.0</mvn.version>
-        <project.build.outputTimestamp>2026-03-23T22:50:00Z</project.build.outputTimestamp>
+        <project.build.outputTimestamp>2026-03-24T16:38:33Z</project.build.outputTimestamp>
 
         <jakarta.activation.version>2.1.4</jakarta.activation.version>
         <jakarta.annotation.version>3.0.0</jakarta.annotation.version>
@@ -189,7 +184,7 @@
         <release.arguments />
 
         <manifest.location>target/classes/META-INF/MANIFEST.MF</manifest.location>
-        <activate.securitymanager></activate.securitymanager>
+        <activate.securitymanager />
     </properties>
 
     <dependencyManagement>
