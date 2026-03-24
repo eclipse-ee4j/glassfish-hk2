@@ -573,7 +573,6 @@
     </dependencyManagement>
 
     <build>
-        <defaultGoal>install</defaultGoal>
         <finalName>${project.artifactId}</finalName>
         <pluginManagement>
             <plugins>
@@ -712,12 +711,10 @@
                     <artifactId>maven-release-plugin</artifactId>
                     <version>3.3.1</version>
                     <configuration>
-                        <mavenExecutorId>forked-path</mavenExecutorId>
-                        <useReleaseProfile>false</useReleaseProfile>
                         <tagNameFormat>@{project.version}</tagNameFormat>
                         <arguments>${release.arguments}</arguments>
-                        <preparationGoals>install</preparationGoals>
-                        <goals>deploy</goals>
+                        <!-- PAX searches for dependencies in local maven repository -->
+                        <preparationGoals>clean install</preparationGoals>
                     </configuration>
                     <dependencies>
                         <dependency>

@@ -39,38 +39,6 @@
     </modules>
 
     <properties>
-        <manifest.location></manifest.location> <!-- to make nullifiy the property -->
+        <manifest.location></manifest.location>
     </properties>
-
-    <build>
-        <defaultGoal>install</defaultGoal>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-release-plugin</artifactId>
-                    <version>3.3.1</version>
-                    <configuration>
-                        <tagNameFormat>maven-plugins-@{project.version}</tagNameFormat>
-                    </configuration>
-                    <dependencies>
-                        <dependency>
-                            <groupId>org.apache.maven.scm</groupId>
-                            <artifactId>maven-scm-provider-gitexe</artifactId>
-                            <version>2.2.1</version>
-                        </dependency>
-                    </dependencies>
-                </plugin>
-                <plugin>
-                     <groupId>org.glassfish.copyright</groupId>
-                     <artifactId>glassfish-copyright-maven-plugin</artifactId>
-                     <version>2.4</version>
-                     <configuration>
-                        <scm>git</scm>
-                        <scmOnly>true</scmOnly>
-                    </configuration>
-                </plugin>
-            </plugins>
-       </pluginManagement>
-    </build>
 </project>
