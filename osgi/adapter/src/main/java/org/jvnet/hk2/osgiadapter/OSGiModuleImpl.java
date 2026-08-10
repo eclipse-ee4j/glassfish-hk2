@@ -182,7 +182,15 @@ public class OSGiModuleImpl implements HK2Module {
                 }
             } catch (BundleException e) {
                 throw new ResolveError(
-                        "Failed to start " + this + prettyPrintFelixMessage(registry.getBundleContext(), e.getMessage()),
+                        "Failed to start " + this +
+                        prettyPrintFelixMessage(registry.getBundleContext(), e.getMessage()) +
+                        "\n\n" +
+                        BundleResolutionAnalyzer.explainUnresolvedBundles(registry.getBundleContext()) +
+                        "\n\n" +
+                        BundleResolutionAnalyzer.explain(registry.getBundleContext(), bundle) +
+                        "\n\n" +
+                        BundleResolutionAnalyzer.findRootCauses(registry.getBundleContext(), bundle)
+                        ,
                         e);
             }
 
