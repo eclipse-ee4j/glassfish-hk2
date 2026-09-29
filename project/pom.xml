@@ -25,13 +25,13 @@
     <parent>
         <groupId>org.eclipse.ee4j</groupId>
         <artifactId>project</artifactId>
-        <version>2.0.2</version>
+        <version>2.0.5</version>
         <relativePath />
     </parent>
 
     <groupId>org.glassfish.hk2</groupId>
     <artifactId>hk2-project</artifactId>
-    <version>4.0.3-SNAPSHOT</version>
+    <version>4.0.4-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>GlassFish HK2 Project POM</name>
@@ -118,7 +118,7 @@
     </contributors>
 
     <properties>
-        <project.build.outputTimestamp>2026-04-28T21:36:23Z</project.build.outputTimestamp>
+        <project.build.outputTimestamp>2026-09-29T08:49:04Z</project.build.outputTimestamp>
     </properties>
 
     <profiles>
