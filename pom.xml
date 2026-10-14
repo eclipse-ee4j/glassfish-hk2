@@ -93,7 +93,7 @@
         <jersey.version>4.0.2</jersey.version>
         <grizzly.version>4.1.0</grizzly.version>
         <hamcrest.version>3.0</hamcrest.version>
-        <classmate.version>1.7.3</classmate.version>
+        <classmate.version>1.8.0</classmate.version>
         <springcontext.version>6.2.19</springcontext.version>
         <guice.version>7.0.0</guice.version>
         <protobuf.version>3.25.9</protobuf.version>
